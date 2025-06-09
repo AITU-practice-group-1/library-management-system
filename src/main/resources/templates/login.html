@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add User</title>
+</head>
+<body>
+<h1>Add User</h1>
+<form th:action="@{/users/login}" th:object="${user}" method="post">
+    <label>First Name: <input type="text" th:field="*{firstName}" required/></label><br>
+    <label>Last Name: <input type="text" th:field="*{lastName}" required/></label><br>
+    <label>Email: <input type="email" th:field="*{email}" required/></label><br>
+    <label>Password: <input type="password" th:field="*{password}" required/></label><br>
+    <label>Role: <input type="text" th:field="*{role}" required/></label><br>
+    <label>Active: <input type="checkbox" th:field="*{active}"/></label><br>
+    <button type="submit">Add User</button>
+</form>
+</body>
+</html>
