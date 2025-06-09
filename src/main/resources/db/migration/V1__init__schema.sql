@@ -1,0 +1,1 @@
+-- create table if NOT EXISTS users (id UUID primary key, name varchar(255), email varchar(255));
