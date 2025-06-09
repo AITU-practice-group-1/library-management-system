@@ -3,6 +3,7 @@ package com.example.librarymanagementsystem.Entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -25,8 +26,10 @@ public class User {
     private String role;
     @Column(nullable = false, name = "is_active")
     private boolean isActive;
-    @Column(name = "created_at")
-    private String createdAt;
-    @Column(name = "updated_at")
-    private String updatedAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
 }

@@ -25,7 +25,6 @@ public class UserController {
 
     @PostMapping("/login")
     private String login(@ModelAttribute("user") User user){
-        System.out.println(user.getEmail());
         try{
             userServices.login(user);
         }

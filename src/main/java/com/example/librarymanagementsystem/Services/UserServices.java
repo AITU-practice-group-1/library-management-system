@@ -16,8 +16,8 @@ public class UserServices {
     }
 
     public void login(User user) {
-        user.setCreatedAt(LocalDateTime.now().toString());
-        user.setUpdatedAt(LocalDateTime.now().toString());
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
         try{
             userRepository.save(user);
         }
