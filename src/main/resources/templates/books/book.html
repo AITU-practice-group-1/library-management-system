@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Using Thymeleaf expression to set a dynamic page title -->
+    <title th:text="${book.title} + ' - Book Details'">Book Details</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Google Fonts for a modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #f4f7f6, #ffffff);
+            color: #333;
+        }
+
+        .book-cover {
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .book-cover:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .star-rating .bi-star-fill {
+            color: #ffc107; /* Bootstrap's warning color for gold stars */
+        }
+
+        .star-rating .bi-star {
+            color: #e0e0e0;
+        }
+
+        .nav-tabs .nav-link {
+            color: #6c757d;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            border-color: #dee2e6 #dee2e6 #fff;
+        }
+
+        .review-card {
+            border: 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .review-card:last-child {
+            border-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container my-5">
+
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/books}" class="text-decoration-none">Book Catalog</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${book.title}">Book Title</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4 p-lg-5">
+            <div class="row">
+                <!-- Left Column: Book Cover -->
+                <div class="col-lg-4 text-center mb-4 mb-lg-0">
+                    <img th:src="${book.coverImageUrl ?: 'https://placehold.co/400x600/6c757d/white?text=' + book.title}"
+                         alt="Book Cover" class="img-fluid book-cover"/>
+                </div>
+
+                <!-- Right Column: Book Details & Actions -->
+                <div class="col-lg-8">
+                    <span class="badge bg-secondary mb-2" th:text="${book.genre}">Genre</span>
+                    <h1 class="display-5 fw-bold" th:text="${book.title}">The Lord of the Rings</h1>
+                    <p class="h5 text-muted mb-3">by <a href="#" class="text-decoration-none" th:text="${book.author}">J.R.R. Tolkien</a></p>
+
+                    <!-- Star Rating -->
+                    <div class="star-rating d-flex align-items-center mb-4">
+                        <!-- Example: 4.5 star rating -->
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-half"></i>
+                        <span class="ms-2 text-muted">(4.5 from 120 reviews)</span>
+                    </div>
+
+                    <!-- Availability Status -->
+                    <div class="card bg-light border-0 p-3 mb-4">
+                        <div class="row text-center">
+                            <div class="col">
+                                <h5 class="mb-0" th:text="${book.availableCopies}">5</h5>
+                                <small class="text-success"><i class="bi bi-check-circle"></i> Available</small>
+                            </div>
+                            <div class="col border-start border-end">
+                                <h5 class="mb-0" th:text="${book.totalCopies - book.availableCopies}">5</h5>
+                                <small class="text-warning"><i class="bi bi-person-up"></i> On Loan</small>
+                            </div>
+                            <div class="col">
+                                <h5 class="mb-0" th:text="${book.reservationsCount ?: '0'}">2</h5>
+                                <small class="text-primary"><i class="bi bi-clock-history"></i> Reserved</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons for Users -->
+                    <div class="d-grid gap-2 d-md-flex mb-4">
+                        <button class="btn btn-primary btn-lg flex-grow-1" th:disabled="${book.availableCopies == 0}">
+                            <i class="bi bi-calendar2-check"></i> Reserve this Book
+                        </button>
+                        <button class="btn btn-outline-danger btn-lg">
+                            <i class="bi bi-heart"></i> Add to Favorites
+                        </button>
+                    </div>
+
+                    <!-- Action Buttons for Admins/Librarians -->
+                    <div sec:authorize="hasRole('ADMIN') or hasRole('LIBRARIAN')" class="alert alert-info d-flex flex-wrap align-items-center gap-2">
+                        <strong class="me-3"><i class="bi bi-shield-lock"></i> Admin Actions:</strong>
+                        <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil-square"></i> Edit Details</a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-box-seam"></i> Manage Inventory</a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary"><i class="bi bi-people"></i> Manage Loans</a>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-5">
+
+            <!-- Tabs for Description, Reviews, etc. -->
+            <ul class="nav nav-tabs" id="bookDetailsTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description-pane" type="button" role="tab">Description</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-pane" type="button" role="tab">Feedback & Reviews</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details-pane" type="button" role="tab">Additional Details</button>
+                </li>
+            </ul>
+            <div class="tab-content bg-white p-4 border border-top-0" id="bookDetailsTabContent">
+                <!-- Description Pane -->
+                <div class="tab-pane fade show active" id="description-pane" role="tabpanel" th:text="${book.description}">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.
+                </div>
+
+                <!-- Reviews Pane -->
+                <div class="tab-pane fade" id="reviews-pane" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">Recent Feedback</h4>
+                        <a href="#" class="btn btn-sm btn-outline-primary"><i class="bi bi-chat-square-quote"></i> Write a Review</a>
+                    </div>
+                    <!-- Single Review Card -->
+                    <div class="card review-card p-3 mb-2" th:each="feedback : ${book.feedbackList}">
+                        <div class="d-flex justify-content-between">
+                            <strong th:text="${feedback.user.name}">John Doe</strong>
+                            <div class="star-rating">
+                                <!-- Example of displaying a 4-star review -->
+                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
+                            </div>
+                        </div>
+                        <small class="text-muted mb-2" th:text="'Reviewed on ' + ${#dates.format(feedback.date, 'MMMM dd, yyyy')}">Reviewed on June 10, 2025</small>
+                        <p class="mb-0" th:text="${feedback.comment}">A timeless classic that everyone should read. The world-building is second to none.</p>
+                    </div>
+                    <!-- Placeholder for no reviews -->
+                    <div th:if="${#lists.isEmpty(book.feedbackList)}" class="text-center text-muted p-4">
+                        <p class="mb-0">Be the first to leave a review for this book!</p>
+                    </div>
+                </div>
+
+                <!-- Additional Details Pane -->
+                <div class="tab-pane fade" id="details-pane" role="tabpanel">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between"><strong>ISBN:</strong> <span th:text="${book.isbn}">978-0618640157</span></li>
+                        <li class="list-group-item d-flex justify-content-between"><strong>Publisher:</strong> <span th:text="${book.publisher}">Houghton Mifflin</span></li>
+                        <li class="list-group-item d-flex justify-content-between"><strong>Published Year:</strong> <span th:text="${book.publishedYear}">1954</span></li>
+                        <li class="list-group-item d-flex justify-content-between"><strong>Total Pages:</strong> <span>1178</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
