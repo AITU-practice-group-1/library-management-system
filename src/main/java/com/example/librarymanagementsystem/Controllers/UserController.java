@@ -1,6 +1,6 @@
 package com.example.librarymanagementsystem.Controllers;
 
-import com.example.librarymanagementsystem.Entities.User;
+import com.example.librarymanagementsystem.DTOs.UserDTO;
 import com.example.librarymanagementsystem.Services.UserServices;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,20 +17,30 @@ public class UserController {
     {
         this.userServices = userServices;
     }
-    @GetMapping("/login")
+    @GetMapping("/home")
+    private String homePage(){
+        return "user-home";
+    }
+    @GetMapping("/register")
     private String loginPage(Model model){
-        model.addAttribute("user", new User());
-        return "login";
+        model.addAttribute("user", new UserDTO());
+        return "register";
     }
 
-    @PostMapping("/login")
-    private String login(@ModelAttribute("user") User user){
+    @PostMapping("/register")
+    private String login(@ModelAttribute("user") UserDTO dto, Model model){
         try{
-            userServices.login(user);
+            userServices.register(dto);
         }
         catch (Exception e){
-            return "redirect:/users/login?error=true";
+            model.addAttribute("errorMessage", e.getMessage());
+            return "register";
         }
         return "redirect:/books";
+    }
+
+    @GetMapping("/login")
+    private String login(){
+        return "login";
     }
 }
