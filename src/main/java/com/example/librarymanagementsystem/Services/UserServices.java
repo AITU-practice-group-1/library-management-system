@@ -5,7 +5,6 @@ import com.example.librarymanagementsystem.Repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 public class UserServices {
