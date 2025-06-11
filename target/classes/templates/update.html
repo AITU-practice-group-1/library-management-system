@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function() {
+            var userId = getUserIdFromLocalStorage();
+            if (userId) {
+                document.getElementById('userId').value = userId;
+            }
+        });
+        /*]]>*/
+    </script>
+</head>
+<body>
+<div th:replace="~{layout :: content}">
+    <h1>Update Feedback</h1>
+    <form th:action="@{'/api/feedback/' + ${feedback.id}}" th:object="${feedback}" method="post">
+        <input type="hidden" th:field="*{id}" id="id"/>
+        <input type="hidden" th:field="*{userId}" id="userId"/>
+        <input type="hidden" th:field="*{bookId}" id="bookId"/>
+        <div>
+            <label for="rating">Rating (1-5):</label>
+            <input type="number" th:field="*{rating}" id="rating" min="1" max="5" required/>
+        </div>
+        <div>
+            <label for="comment">Comment:</label>
+            <textarea th:field="*{comment}" id="comment"></textarea>
+        </div>
+        <button type="submit">Update</button>
+    </form>
+</div>
+</body>
+</html>

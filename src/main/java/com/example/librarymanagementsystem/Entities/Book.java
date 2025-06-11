@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "books")
+
 @Data
 public class Book {
 
@@ -70,3 +71,4 @@ public class Book {
         updatedAt = LocalDateTime.now();
     }
 }
+

@@ -38,6 +38,7 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
@@ -64,6 +65,19 @@
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+        <!-- Annotation processor for IntelliJ -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-processor</artifactId>
+            <version>1.6.3</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok-mapstruct-binding -->
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
@@ -82,6 +96,7 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
@@ -89,30 +104,6 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>1.6.3</version>
-        </dependency>
-        <!-- Annotation processor for IntelliJ -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-            <version>1.6.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok-mapstruct-binding -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok-mapstruct-binding</artifactId>
-            <version>0.2.0</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>6.1.6.Final</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/javax.validation/validation-api -->
         <dependency>
@@ -144,6 +135,7 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
+
         </dependency>
     </dependencies>
 
