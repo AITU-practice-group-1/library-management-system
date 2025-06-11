@@ -25,10 +25,10 @@ public class AdminController {
         }
         catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());
-            return "admin-home";
+            return "user/admin-home";
         }
         model.addAttribute("users", allUsers);
-        return "admin-home";
+        return "user/admin-home";
     }
 
     @GetMapping("/home/default")
@@ -39,10 +39,10 @@ public class AdminController {
         }
         catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());
-            return "admin-home";
+            return "user/admin-home";
         }
         model.addAttribute("users", allUsersDefault);
-        return "admin-home";
+        return "user/admin-home";
     }
     @GetMapping("/home/librarian")
     public String showLibrarianPage(Model model){
@@ -52,9 +52,9 @@ public class AdminController {
         }
         catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());
-            return "admin-home";
+            return "user/admin-home";
         }
         model.addAttribute("users", allUsersLibrarian);
-        return "admin-home";
+        return "user/admin-home";
     }
 }

@@ -11,13 +11,37 @@ import org.springframework.http.HttpMethod;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-        @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-          return http
-                  .csrf(AbstractHttpConfigurer::disable)
-                  .cors(AbstractHttpConfigurer::disable)
-                  .authorizeHttpRequests(auth ->auth
-                          .anyRequest().permitAll())
-                  .build();
-        }
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+      return http
+              .csrf(AbstractHttpConfigurer::disable)
+              .cors(AbstractHttpConfigurer::disable)
+              .authorizeHttpRequests(auth ->auth
+                      .requestMatchers("/users/login", "/users/register", "/books","/books/{id}", "/css/**", "/js/**").permitAll()
+                      .requestMatchers("/admin/*").hasRole("ADMIN")
+                      .anyRequest().authenticated())
+//                      .anyRequest().permitAll())
+              .formLogin(form -> form
+                      .loginPage("/users/login")
+                      .defaultSuccessUrl("/users/home", true)
+                      .permitAll()
+              )
+              .logout(logout -> logout
+                      .logoutUrl("/logout")
+                      .logoutSuccessUrl("/users/login?logout")
+                      .permitAll()
+              )
+              .build();
+    }
 }
