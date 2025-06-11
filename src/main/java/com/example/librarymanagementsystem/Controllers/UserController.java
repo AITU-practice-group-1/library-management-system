@@ -1,6 +1,6 @@
 package com.example.librarymanagementsystem.Controllers;
 
-import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
+import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Services.UserServices;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,37 +17,20 @@ public class UserController {
     {
         this.userServices = userServices;
     }
-    @GetMapping("/home")
-    private String homePage(Model model){
-        try{
-            UserDTO responceDTO = userServices.getAuhtenticatedUser();
-            model.addAttribute("user", responceDTO);
-        }catch (Exception e){
-            model.addAttribute("errorMessage", e.getMessage());
-            return "user-home";
-        }
-        return "user-home";
-    }
-    @GetMapping("/register")
+    @GetMapping("/login")
     private String loginPage(Model model){
-        model.addAttribute("user", new UserDTO());
-        return "register";
+        model.addAttribute("user", new User());
+        return "login";
     }
 
-    @PostMapping("/register")
-    private String login(@ModelAttribute("user") UserDTO dto, Model model){
+    @PostMapping("/login")
+    private String login(@ModelAttribute("user") User user){
         try{
-            userServices.register(dto);
+            userServices.login(user);
         }
         catch (Exception e){
-            model.addAttribute("errorMessage", e.getMessage());
-            return "register";
+            return "redirect:/users/login?error=true";
         }
-        return "redirect:/users/login";
-    }
-
-    @GetMapping("/login")
-    private String login(){
-        return "login";
+        return "redirect:/books";
     }
 }
