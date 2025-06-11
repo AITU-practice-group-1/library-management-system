@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Loan</title>
+</head>
+<body>
+<h1>Edit Loan</h1>
+
+<form th:action="@{'/loans/' + ${loanId} + '/edit'}"
+      th:object="${updateDto}" method="post">
+    <label>Status:
+        <select th:field="*{status}">
+            <option value="">-- Select --</option>
+            <option value="BORROWED">BORROWED</option>
+            <option value="RETURNED">RETURNED</option>
+        </select>
+    </label><br>
+    <label>Due Date:
+        <input type="datetime-local" th:field="*{dueDate}"/>
+    </label><br>
+    <button type="submit">Update</button>
+</form>
+
+<a th:href="@{/loans}">Back to list</a>
+</body>
+</html>
