@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Your Favorites</title>
+</head>
+<body>
+<h1>Your Favorite Books</h1>
+
+<form th:action="@{/favorites/add}" method="post">
+    <label>Book ID:
+        <input type="text" name="bookId" required />
+    </label>
+    <input type="hidden" name="userId" th:value="${userId}" />
+    <button type="submit">Add to Favorites</button>
+</form>
+
+<hr/>
+
+<div th:if="${#lists.isEmpty(favorites)}">
+    <p>You have no favorite books yet.</p>
+</div>
+
+<ul th:if="${not #lists.isEmpty(favorites)}">
+    <li th:each="fav : ${favorites}">
+        <span th:text="${fav.book.title}">Book Title</span>
+        <form th:action="@{/favorites/remove/{bookId}(bookId=${fav.book.id})}" method="post" style="display:inline;">
+            <input type="hidden" name="userId" th:value="${userId}" />
+            <button type="submit">Remove</button>
+        </form>
+    </li>
+</ul>
+
+</body>
+</html>
