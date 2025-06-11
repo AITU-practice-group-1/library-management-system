@@ -5,12 +5,12 @@ import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -45,7 +45,7 @@ public class UserServices {
 
     public UserDTO getAuhtenticatedUser() throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User userDetails = (User) auth.getPrincipal();
+        User userDetails = userRepository.findByEmail(auth.getName()).orElseThrow(() -> new Exception("User not found"));
         UserDTO userDTO = new UserDTO();
         userDTO.setEmail(userDetails.getUsername());
         userDTO.setRole(userDetails.getAuthorities().iterator().next().getAuthority());
@@ -76,7 +76,16 @@ public class UserServices {
         }
         return user;
     }
+    public Optional<User> getUserByEmail(String email) throws Exception {
+        try{
+            return userRepository.findByEmail(email);
+        }
+        catch (Exception e){
+            throw new Exception("CAn not get User by Email" + e.getMessage());
+        }
+    }
     public void deleteUserById(UUID id) throws Exception {
+        User user = getUserByEmail("hui").orElseThrow();
         try {
             userRepository.deleteById(id);
         }catch (Exception e){
@@ -84,8 +93,9 @@ public class UserServices {
             throw new Exception("CAn not delete User by Id" + e.getMessage());
         }
     }
-    public void updateUser(UUID id, UserDTO dto) throws Exception {
+    public void updateUser(UserDTO dto) throws Exception {
         try{
+            UUID id = getAuhtenticatedUser().getId()    ;
             User user = getUserById(id);
             if(dto.getEmail() != null)
             {
@@ -106,6 +116,7 @@ public class UserServices {
                 user.setLastName(dto.getLastName());
             }
             user.setUpdatedAt(LocalDateTime.now());
+            userRepository.save(user);
         } catch(Exception e){
             System.out.println(e.getMessage());
             throw new Exception("Can not update User" + e.getMessage());

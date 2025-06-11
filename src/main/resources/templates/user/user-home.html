@@ -8,6 +8,8 @@
 <p th:text="${user.getEmail()}"></p>
 <br>
 <p id = "id" style="display: none" th:text="${user.getId()}"></p>
+<a th:href = "@{/users/edit}"> ОЗГЕРТУ </a>
+<!--<a th:href="@{/users/delete}"> DELETE ACCOUNT</a>-->
 <a th:href="@{/logout}">Выйти</a>
 <a th:href="@{/admin/home}"><button>ADMIN</button></a>
 </body>

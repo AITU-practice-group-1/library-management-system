@@ -18,7 +18,7 @@
         <h3>Users:</h3>
         <ul>
             <li th:each="user : ${users}">
-                <span th:text="${user.getFirstName()    }">User Name</span> - <span th:text="${user.role}">Role</span>
+                <a th:href="@{/users/profile/{id}(id=${user.getId()})}"><span th:text="${user.getFirstName()}">User Name</span> - <span th:text="${user.role}">Role</span></a>
             </li>
         </ul>
     </div>

@@ -1,6 +1,7 @@
 package com.example.librarymanagementsystem.Repositories;
 
 import com.example.librarymanagementsystem.Entities.User;
+import com.example.librarymanagementsystem.ShortProjections.UserProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
@@ -11,4 +12,6 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
     List<User> findByRole(String role);
+    List<UserProjection> findAllBy();
+    List<UserProjection> findAllByRole(String role);
 }
