@@ -1,0 +1,182 @@
+package com.example.librarymanagementsystem.Controllers;
+
+import com.example.librarymanagementsystem.DTOs.book.BookDTO;
+import com.example.librarymanagementsystem.Entities.Genre;
+import com.example.librarymanagementsystem.Services.impl.BookServiceImpl;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@Controller
+@RequestMapping("/books")
+@RequiredArgsConstructor
+public class BookController {
+    private final BookServiceImpl bookService;
+
+    @GetMapping("/new")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    public String CreateBookPage(Model model) {
+        model.addAttribute("book", new BookDTO());
+        model.addAttribute("allGenres", Genre.values());
+        return "books/create";
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    public String createBook(@Valid @ModelAttribute("book") BookDTO bookDTO, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("allGenres", Genre.values());
+            return "books/create";
+        }
+        try {
+            bookService.createBook(bookDTO);
+        } catch (DataIntegrityViolationException e) {
+            FieldError error = new FieldError(
+                    "book",
+                    "isbn",
+                    "This ISBN already exists in the system."
+            );
+            bindingResult.addError(error);
+            model.addAttribute("allGenres", Genre.values());
+            return "books/create";
+        }
+
+        return "redirect:/books/manage";
+
+    }
+
+    @GetMapping("/{id}")
+    public String ShowBook(@PathVariable UUID id, Model model) {
+        model.addAttribute("book", bookService.getBookById(id));
+        // You can add other model attributes here like:
+        // model.addAttribute("reviews", reviewService.findByBook(id));
+        // model.addAttribute("isFavorite", favoriteService.isFavorite(id, currentUser));
+        return "books/book"; // Renders the public-facing page
+    }
+
+    // NEW --- Add this method for the ADMIN/LIBRARIAN detailed view
+    @GetMapping("/{id}/manage")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    public String ShowBookDetailsForAdmin(@PathVariable UUID id, Model model) {
+        model.addAttribute("book", bookService.getBookById(id));
+        return "books/admin_book";
+    }
+
+    @GetMapping
+    public String ShowAllBooks(@RequestParam(value = "keyword", required = false) String keyword,
+                               // Change the type from Genre to String
+                               @RequestParam(value = "genre", required = false) String genre,
+                               @PageableDefault(size = 10, sort = "title") Pageable pageable,
+                               Model model) {
+
+        // Manually convert the string to a Genre enum
+        Genre genreEnum = null;
+        if (StringUtils.hasText(genre)) { // Use StringUtils to check for non-empty text
+            try {
+                genreEnum = Genre.valueOf(genre);
+            } catch (IllegalArgumentException e) {
+                // Log the error or handle it as you see fit if an invalid genre string is passed
+                // For now, we can just ignore it and it will be treated as 'all genres'
+            }
+        }
+
+        // Pass the converted enum to the service
+        Page<BookDTO> books = bookService.findPaginatedAndFiltered(keyword, genreEnum, pageable);
+
+        model.addAttribute("bookPage", books);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("genre", genreEnum); // Pass the enum to the model for th:selected
+        model.addAttribute("allGenres", Genre.values());
+
+        // This logic is correct now, but ensure it's in place
+        Sort.Order sortOrder = pageable.getSort().stream().findFirst().orElse(null);
+        if (sortOrder != null) {
+            model.addAttribute("sortField", sortOrder.getProperty());
+            model.addAttribute("sortDir", sortOrder.getDirection().name());
+        } else {
+            model.addAttribute("sortField", "title"); // Default sort field
+            model.addAttribute("sortDir", "ASC");
+        }
+
+        return "books/books";
+    }
+
+
+    @GetMapping("/manage")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    public String showAllBooksForAdmins(@RequestParam(value = "keyword", required = false) String keyword,
+                                        @RequestParam(value = "genre", required = false) Genre genre,
+                                        @PageableDefault(size = 10, sort = "title") Pageable pageable,
+                                        Model model) {
+
+        Page<BookDTO> books = bookService.findPaginatedAndFiltered(keyword, genre, pageable);
+
+        model.addAttribute("bookPage", books);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("genre", genre);
+        model.addAttribute("allGenres", Genre.values());
+        model.addAttribute("sortField", pageable.getSort().get().findFirst().get().getProperty());
+        model.addAttribute("sortDir", pageable.getSort().get().findFirst().get().getDirection().name());
+
+        return "books/admin_books"; // This maps to the new admin/librarian view
+    }
+
+
+
+    @GetMapping("/{id}/edit")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    public String UpdateBookPage(@PathVariable UUID id, Model model) {
+        model.addAttribute("book", bookService.getBookById(id));
+        model.addAttribute("allGenres", Genre.values());
+        return "books/edit";
+    }
+
+    @PostMapping("/{id}/update") // Using POST for form submission simplicity
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    public String UpdateBook(@PathVariable UUID id,
+                             @Valid @ModelAttribute("book") BookDTO bookDTO,
+                             BindingResult bindingResult, Model model) {
+
+        if (bindingResult.hasErrors()) {
+            System.out.println(bindingResult.hasErrors());
+            model.addAttribute("allGenres", Genre.values());
+            return "books/edit";
+        }
+        try {
+            bookService.updateBook(id, bookDTO);
+        } catch (DataIntegrityViolationException e) {
+            FieldError error = new FieldError(
+                    "book",
+                    "isbn",
+                    "This ISBN already exists in the system."
+            );
+            bindingResult.addError(error);
+            model.addAttribute("book", bookDTO);
+            model.addAttribute("allGenres", Genre.values());
+            return "books/edit";
+        }
+        return "redirect:/books/manage";
+    }
+
+
+    @PostMapping("/{id}/delete")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    public String DeleteBook(@PathVariable UUID id) {
+        bookService.deleteBook(id);
+        return "redirect:/books/manage";
+    }
+}

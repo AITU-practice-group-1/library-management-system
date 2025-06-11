@@ -1,6 +1,6 @@
 package com.example.librarymanagementsystem.Controllers;
 
-import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
+import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Services.UserServices;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
@@ -49,7 +49,7 @@ public class UserController {
                 return "user/register";
         }
         try{
-            userServices.register(dto);
+            userServices.login(user);
         }
         catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());
@@ -97,5 +97,6 @@ public class UserController {
             model.addAttribute("errorMessage", e.getMessage());
         }
         return "user/profile";
+
     }
 }

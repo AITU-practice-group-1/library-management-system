@@ -1,6 +1,5 @@
 package com.example.librarymanagementsystem.Services;
 
-import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import org.springframework.security.core.Authentication;
@@ -11,27 +10,18 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
 import java.util.UUID;
 
 @Service
 public class UserServices {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    public UserServices(UserRepository userRepository, PasswordEncoder passwordEncoder)
+    public UserServices(UserRepository userRepository)
     {
-
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
-    public void register(UserDTO dto) throws Exception {
-        User user = new User();
-        user.setEmail(dto.getEmail());
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setRole(dto.getRole());
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        user.setActive(true);
+    public void login(User user) {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         try{
@@ -132,7 +122,7 @@ public class UserServices {
         {
             System.out.println(e.getMessage());
             throw new Exception("CAn not get users by role \n"  + e.getMessage());
+
         }
-        return allUsersByRole;
     }
 }

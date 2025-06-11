@@ -2,6 +2,8 @@ package com.example.librarymanagementsystem.Entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "books")
 @Data
 public class Book {
 
@@ -44,14 +46,12 @@ public class Book {
     @Column(nullable = false)
     private int available_copies;
 
-    @Column(name = "created_at",nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at",nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
- 
 
-    @OneToMany(mappedBy = "book")
-    private List<Feedback> feedbacks = new ArrayList<>();
+    //@OneToMany(mappedBy = "book")
+    //private List<Feedback> feedbacks = new ArrayList<>();
 }
-
