@@ -1,6 +1,6 @@
 package com.example.librarymanagementsystem.Controllers;
 
-import com.example.librarymanagementsystem.DTOs.UserDTO;
+import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.Services.UserServices;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +18,14 @@ public class UserController {
         this.userServices = userServices;
     }
     @GetMapping("/home")
-    private String homePage(){
+    private String homePage(Model model){
+        try{
+            UserDTO responceDTO = userServices.getAuhtenticatedUser();
+            model.addAttribute("user", responceDTO);
+        }catch (Exception e){
+            model.addAttribute("errorMessage", e.getMessage());
+            return "user-home";
+        }
         return "user-home";
     }
     @GetMapping("/register")
@@ -36,7 +43,7 @@ public class UserController {
             model.addAttribute("errorMessage", e.getMessage());
             return "register";
         }
-        return "redirect:/books";
+        return "redirect:/users/login";
     }
 
     @GetMapping("/login")

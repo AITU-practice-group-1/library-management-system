@@ -35,10 +35,11 @@ public class SecurityConfiguration {
               .cors(AbstractHttpConfigurer::disable)
               .authorizeHttpRequests(auth ->auth
                       .requestMatchers("/users/login", "/users/register", "/css/**", "/js/**").permitAll()
+                      .requestMatchers("/admin/*").hasRole("ADMIN")
                       .anyRequest().authenticated())
               .formLogin(form -> form
                       .loginPage("/users/login")
-                      .defaultSuccessUrl("/home", true)
+                      .defaultSuccessUrl("/users/home", true)
                       .permitAll()
               )
               .logout(logout -> logout
