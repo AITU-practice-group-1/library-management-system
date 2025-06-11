@@ -14,12 +14,21 @@ public enum Genre {
     NON_FICTION("Non-Fiction"),
     BIOGRAPHY("Biography"),
     POETRY("Poetry"),
-    COMEDY("Comedy");
+    COMEDY("Comedy"),
+    FICTION("Fiction"),
+    DYSTOPIAN_FICTION("Dystopian Fiction"),
+    ADVENTURE("Adventure"),
+    EPIC_POETRY("Epic Poetry"),
+    PHILOSOPHICAL_FICTION("Philosophical Fiction"),
+    SATIRE("Satire"),
+    GOTHIC_FICTION("Gothic Fiction"),
+    ABSURDIST_FICTION("Absurdist Fiction"),
+    MAGICAL_REALISM("Magical Realism"),
+    MODERNIST_FICTION("Modernist Fiction");
 
     private final String displayName;
 
     Genre(String displayName) {
         this.displayName = displayName;
     }
-
 }

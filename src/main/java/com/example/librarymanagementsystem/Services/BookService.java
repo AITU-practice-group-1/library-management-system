@@ -15,4 +15,8 @@ public interface BookService {
     List<BookDTO> getAllBooks();
     BookDTO updateBook(UUID id, BookDTO bookDTO);
     void deleteBook(UUID id);
+    List<BookDTO> findAllAvailableBooks();
+    void lendBook(UUID bookId);
+    void returnBook(UUID bookId);
+
 }

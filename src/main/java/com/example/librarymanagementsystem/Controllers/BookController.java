@@ -8,10 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
@@ -76,24 +78,44 @@ public class BookController {
 
     @GetMapping
     public String ShowAllBooks(@RequestParam(value = "keyword", required = false) String keyword,
-                               @RequestParam(value = "genre", required = false) Genre genre,
+                               // Change the type from Genre to String
+                               @RequestParam(value = "genre", required = false) String genre,
                                @PageableDefault(size = 10, sort = "title") Pageable pageable,
                                Model model) {
 
-        Page<BookDTO> books = bookService.findPaginatedAndFiltered(keyword, genre, pageable);
+        // Manually convert the string to a Genre enum
+        Genre genreEnum = null;
+        if (StringUtils.hasText(genre)) { // Use StringUtils to check for non-empty text
+            try {
+                genreEnum = Genre.valueOf(genre);
+            } catch (IllegalArgumentException e) {
+                // Log the error or handle it as you see fit if an invalid genre string is passed
+                // For now, we can just ignore it and it will be treated as 'all genres'
+            }
+        }
+
+        // Pass the converted enum to the service
+        Page<BookDTO> books = bookService.findPaginatedAndFiltered(keyword, genreEnum, pageable);
 
         model.addAttribute("bookPage", books);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("genre", genre);
+        model.addAttribute("genre", genreEnum); // Pass the enum to the model for th:selected
         model.addAttribute("allGenres", Genre.values());
-        // Simple way to pass sort info to Thymeleaf
-        model.addAttribute("sortField", pageable.getSort().get().findFirst().get().getProperty());
-        model.addAttribute("sortDir", pageable.getSort().get().findFirst().get().getDirection().name());
 
-        return "books/books"; // This maps to the public view
+        // This logic is correct now, but ensure it's in place
+        Sort.Order sortOrder = pageable.getSort().stream().findFirst().orElse(null);
+        if (sortOrder != null) {
+            model.addAttribute("sortField", sortOrder.getProperty());
+            model.addAttribute("sortDir", sortOrder.getDirection().name());
+        } else {
+            model.addAttribute("sortField", "title"); // Default sort field
+            model.addAttribute("sortDir", "ASC");
+        }
+
+        return "books/books";
     }
 
-    // NEW --- Recommended method for the management page
+
     @GetMapping("/manage")
     @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
     public String showAllBooksForAdmins(@RequestParam(value = "keyword", required = false) String keyword,
@@ -125,12 +147,12 @@ public class BookController {
 
     @PostMapping("/{id}/update") // Using POST for form submission simplicity
     @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
-    @Validated
     public String UpdateBook(@PathVariable UUID id,
                              @Valid @ModelAttribute("book") BookDTO bookDTO,
                              BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
+            System.out.println(bindingResult.hasErrors());
             model.addAttribute("allGenres", Genre.values());
             return "books/edit";
         }
