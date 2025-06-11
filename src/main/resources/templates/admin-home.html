@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Admin Home Page</title>
+</head>
+<body>
+<div id="content">
+    <h1>Admin Dashboard</h1>
+
+<!--    <button th:onclick="'window.location.href=\'/home/default\'" >Show All Default Users</button>-->
+<!--    <button th:onclick="'window.location.href=\'/home/librarian\'" >Show All Librarians</button>-->
+
+    <div id="userList">
+        <h3>Users:</h3>
+        <ul>
+            <li th:each="user : ${users}">
+                <span th:text="${user.name}">User Name</span> - <span th:text="${user.role}">Role</span>
+            </li>
+        </ul>
+    </div>
+    <p th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger"></p>
+</div>
+</body>
+</html>
