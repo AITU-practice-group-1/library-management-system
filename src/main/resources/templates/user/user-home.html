@@ -6,7 +6,14 @@
 <body>
 <h1>Добро пожаловать,  <span th:text="${user.getFirstName()}"></span>!</h1>
 <p th:text="${user.getEmail()}"></p>
+<br>
+<p id = "id" style="display: none" th:text="${user.getId()}"></p>
 <a th:href="@{/logout}">Выйти</a>
-<a th:href="@{/admin/home}"><button>ADMIN</button>></a>
+<a th:href="@{/admin/home}"><button>ADMIN</button></a>
 </body>
+
+<script>
+    let id = document.getElementById("id").textContent;
+    localStorage.setItem("id", id);
+</script>
 </html>
