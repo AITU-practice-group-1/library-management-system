@@ -13,7 +13,8 @@ public enum Genre {
     HISTORICAL_FICTION("Historical Fiction"),
     NON_FICTION("Non-Fiction"),
     BIOGRAPHY("Biography"),
-    POETRY("Poetry");
+    POETRY("Poetry"),
+    COMEDY("Comedy");
 
     private final String displayName;
 
