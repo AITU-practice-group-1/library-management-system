@@ -49,7 +49,9 @@ public class Book {
 
     @Column(name = "updated_at",nullable = false)
     private LocalDateTime updatedAt;
+ 
 
     @OneToMany(mappedBy = "book")
     private List<Feedback> feedbacks = new ArrayList<>();
 }
+

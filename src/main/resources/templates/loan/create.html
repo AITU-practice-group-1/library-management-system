@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Loan</title>
+</head>
+<body>
+<h1>Create Loan</h1>
+
+<form th:action="@{/loans/create}" th:object="${loan}" method="post">
+    <label>User ID: <input type="text" th:field="*{userId}" required/></label><br>
+    <label>Book ID: <input type="text" th:field="*{bookId}" required/></label><br>
+    <label>Issued By (Librarian ID): <input type="text" th:field="*{issuedBy}" required/></label><br>
+    <label>Issue Date: <input type="datetime-local" th:field="*{issueDate}" required/></label><br>
+    <label>Due Date: <input type="datetime-local" th:field="*{dueDate}" required/></label><br>
+    <label>Return Date: <input type="datetime-local" th:field="*{returnDate}"/></label><br>
+    <label>Status:
+        <select th:field="*{status}">
+            <option value="BORROWED">BORROWED</option>
+            <option value="RETURNED">RETURNED</option>
+        </select>
+    </label><br>
+    <button type="submit">Create</button>
+</form>
+
+<a th:href="@{/loans}">Back to list</a>
+</body>
+</html>
