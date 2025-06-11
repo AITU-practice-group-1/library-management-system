@@ -1,5 +1,6 @@
 package com.example.librarymanagementsystem.Services.impl;
 
+import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.Entities.Book;
 import com.example.librarymanagementsystem.Entities.FavoriteBook;
 import com.example.librarymanagementsystem.Entities.User;
@@ -7,6 +8,7 @@ import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.Repositories.FavoriteBookRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Services.FavoriteBookService;
+import com.example.librarymanagementsystem.Services.UserServices;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,12 +27,14 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
     private final FavoriteBookRepository favoriteBookRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final UserServices userServices;
 
     // Используем конструктор для внедрения зависимостей
-    public FavoriteBookServiceImpl(FavoriteBookRepository favoriteBookRepository, UserRepository userRepository, BookRepository bookRepository) {
+    public FavoriteBookServiceImpl(FavoriteBookRepository favoriteBookRepository, UserRepository userRepository, BookRepository bookRepository, UserServices userServices) {
         this.favoriteBookRepository = favoriteBookRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
+        this.userServices = userServices;
     }
 
     /**
@@ -39,6 +43,11 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
     @Override
     @Transactional // Переопределяем транзакцию, так как этот метод изменяет данные
     public void addBookToFavorites(UUID userId, UUID bookId) {
+        try {
+            UserDTO user = userServices.getAuhtenticatedUser();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + userId + " не найден"));
         Book book = bookRepository.findById(bookId)

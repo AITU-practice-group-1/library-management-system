@@ -30,7 +30,7 @@ public class BookDTO {
     private Integer publishedYear;
 
     @NotEmpty(message = "ISBN cannot be empty")
-    @Pattern(regexp = "^(?:ISBN(?:-13)?:?)(?=[0-9]{13}$|[0-9]{9}X$)([0-9-]{10,16})$", message = "Invalid ISBN format")
+    @Pattern(regexp = "^\\d{13}$", message = "Invalid ISBN format")
     private String isbn;
 
     @NotNull(message = "Genre must be selected")

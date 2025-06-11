@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{layout :: head}">
+<head>
     <script th:inline="javascript">
         /*<![CDATA[*/
         document.addEventListener('DOMContentLoaded', function() {
@@ -13,7 +13,7 @@
     </script>
 </head>
 <body>
-<div th:replace="~{layout :: content}">
+<div>
     <h1>Update Feedback</h1>
     <form th:action="@{'/api/feedback/' + ${feedback.id}}" th:object="${feedback}" method="post">
         <input type="hidden" th:field="*{id}" id="id"/>
