@@ -9,7 +9,7 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 
 @Component
-@Mapper(componentModel="spring")
+@Mapper(componentModel="spring", uses = {UserMapper.class})
 public interface LoanMapper{
     LoanDTO toDto (Loan loan);
     Loan toEntity(LoanDTO dto);
