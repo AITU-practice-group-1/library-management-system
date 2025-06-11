@@ -7,6 +7,7 @@ import com.example.librarymanagementsystem.Entities.Feedback;
 import com.example.librarymanagementsystem.Repositories.FeedbackRepository;
 import com.example.librarymanagementsystem.mapper.FeedbackMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 
@@ -30,11 +31,9 @@ public class FeedbackService {
         return feedbackMapper.toDTO(feedback);
     }
 
-    public List<FeedbackResponseDTO> getByBookId(UUID bookId, Pageable pageable) {
-        return feedbackRepo.findByBookId(bookId, pageable)
-                    .stream()
-                    .map(feedbackMapper::toDTO)
-                    .toList();
+    public Page<FeedbackResponseDTO> getByBookId(UUID bookId, Pageable pageable) {
+        Page<Feedback> feedbackPage = feedbackRepo.findByBookId(bookId, pageable);
+        return feedbackPage.map(feedbackMapper::toDTO);
     }
 
     public List<FeedbackResponseDTO> getByUserId(UUID userId, Pageable pageable) {

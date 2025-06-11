@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Feedbacks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+<div class="container mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Feedbacks for Book</h1>
+        <a th:href="@{/api/feedback/book/{bookId}/create(bookId=${bookId})}"
+           class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300">
+            Add New Feedback
+        </a>
+    </div>
+
+    <!-- Success Message -->
+    <div th:if="${successMessage}"
+         class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+        <strong class="font-bold">Success!</strong>
+        <span class="block sm:inline" th:text="${successMessage}"></span>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="p-6">
+            <div th:if="${#lists.isEmpty(feedbacks.content)}" class="text-center py-12">
+                <p class="text-gray-500 text-lg">No feedbacks yet for this book.</p>
+                <p class="text-gray-400 mt-2">Be the first one to leave a review!</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(feedbacks.content)}" class="space-y-6">
+                <!-- Feedback Card -->
+                <div th:each="feedback : ${feedbacks.content}" class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-500">
+                                <span class="text-xl font-bold text-white" th:text="${#strings.substring(feedback.userId.toString(), 0, 1)}">U</span>
+                            </span>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900" th:text="'User ID: ' + ${feedback.userId}">User ID</p>
+                                    <div class="flex items-center mt-1">
+                                        <span class="text-yellow-500" th:each="i : ${#numbers.sequence(1, feedback.rating)}">★</span>
+                                        <span class="text-gray-300" th:each="i : ${#numbers.sequence(1, 5 - feedback.rating)}">★</span>
+                                    </div>
+                                </div>
+                                <div class="text-right text-sm text-gray-500">
+                                    <p th:text="${#temporals.format(feedback.createdAt, 'dd MMM yyyy, HH:mm')}">Date</p>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-gray-700" th:text="${feedback.comment}">Comment text goes here.</p>
+                            <!-- Edit and Delete Buttons -->
+                            <div class="mt-4 flex items-center space-x-4" th:if="${currentUserId} == ${feedback.userId}">
+                                <a th:href="@{/api/feedback/{id}/edit(id=${feedback.id})}"
+                                   class="text-sm font-medium text-blue-600 hover:text-blue-800">Edit</a>
+                                <form th:action="@{/api/feedback/{id}(id=${feedback.id})}" th:method="delete" onsubmit="return confirm('Are you sure you want to delete this feedback?');" class="inline">
+                                    <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-800">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div th:if="${!#lists.isEmpty(feedbacks.content)}" class="mt-8 flex justify-center">
+                <nav aria-label="Page navigation">
+                    <ul class="inline-flex items-center -space-x-px">
+                        <!-- Previous Page Link -->
+                        <li th:if="${!feedbacks.first}">
+                            <a th:href="@{/api/feedback/book/{bookId}(bookId=${bookId}, page=${feedbacks.number - 1}, size=${feedbacks.size})}"
+                               class="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700">Previous</a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        <li th:each="i : ${#numbers.sequence(0, feedbacks.totalPages - 1)}">
+                            <a th:href="@{/api/feedback/book/{bookId}(bookId=${bookId}, page=${i}, size=${feedbacks.size})}"
+                               th:classappend="${i == feedbacks.number} ? 'bg-blue-50 text-blue-600' : 'bg-white'"
+                               class="py-2 px-3 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                               th:text="${i + 1}"></a>
+                        </li>
+
+                        <!-- Next Page Link -->
+                        <li th:if="${!feedbacks.last}">
+                            <a th:href="@{/api/feedback/book/{bookId}(bookId=${bookId}, page=${feedbacks.number + 1}, size=${feedbacks.size})}"
+                               class="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Feedback</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+<div class="w-full max-w-lg p-8 space-y-8 bg-white rounded-xl shadow-lg">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold text-gray-900">Update Your Feedback</h1>
+        <p class="mt-2 text-sm text-gray-600">Made a mistake? You can edit your feedback here.</p>
+    </div>
+
+    <form th:action="@{/api/feedback/{id}(id=${feedback.id})}" th:object="${feedback}" th:method="put" class="mt-8 space-y-6">
+
+        <input type="hidden" th:field="*{id}" />
+
+        <!-- Rating -->
+        <div>
+            <label for="rating" class="block text-sm font-medium text-gray-700">Rating</label>
+            <div class="mt-1 flex items-center">
+                <select id="rating" th:field="*{rating}"
+                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="1" th:selected="${feedback.rating == 1}">1 - Poor</option>
+                    <option value="2" th:selected="${feedback.rating == 2}">2 - Fair</option>
+                    <option value="3" th:selected="${feedback.rating == 3}">3 - Good</option>
+                    <option value="4" th:selected="${feedback.rating == 4}">4 - Very Good</option>
+                    <option value="5" th:selected="${feedback.rating == 5}">5 - Excellent</option>
+                </select>
+            </div>
+            <p th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}" class="mt-2 text-sm text-red-600"></p>
+        </div>
+
+        <!-- Comment -->
+        <div>
+            <label for="comment" class="block text-sm font-medium text-gray-700">Comment</label>
+            <div class="mt-1">
+                <textarea id="comment" th:field="*{comment}" rows="4"
+                          class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                          placeholder="What did you like or dislike?"></textarea>
+            </div>
+            <p th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}" class="mt-2 text-sm text-red-600"></p>
+        </div>
+
+        <div>
+            <button type="submit"
+                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Update Feedback
+            </button>
+        </div>
+
+        <div class="text-center">
+            <a th:href="@{/api/feedback/book/{bookId}(bookId=${feedback.bookId})}" class="font-medium text-sm text-blue-600 hover:text-blue-500">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
