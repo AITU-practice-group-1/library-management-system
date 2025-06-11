@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,5 +84,38 @@ public class BookServiceImpl implements BookService {
     @Override
     public void deleteBook(UUID id) {
         bookRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookDTO> findAllAvailableBooks() {
+        return bookRepository.findAllAvailableBooks().stream().map(mapper::toDTO).collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    public void lendBook(UUID bookId) {
+        // First, ensure the book exists.
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + bookId));
+
+        // Business logic: Check if the book is available.
+        if (book.getAvailableCopies() <= 0) {
+            throw new IllegalStateException("No available copies of '" + book.getTitle() + "' to lend.");
+        }
+
+        // If checks pass, call the repository to update the database.
+        bookRepository.decrementAvailableCopiesById(bookId);
+    }
+
+    @Transactional
+    public void returnBook(UUID bookId) {
+        // Ensure the book exists before trying to increment.
+        if (!bookRepository.existsById(bookId)) {
+            throw new EntityNotFoundException("Cannot return a book that does not exist with ID: " + bookId);
+        }
+
+        // Call the repository to update the database.
+        bookRepository.incrementAvailableCopiesById(bookId);
     }
 }
