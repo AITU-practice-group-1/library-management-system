@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head}"></head>
+<body>
+<div th:replace="~{layout :: content}">
+    <h1>Error</h1>
+    <p th:text="${errorMessage}"></p>
+    <a th:href="@{/api/feedback/book/{id}(id=${param.bookId})}">Back to Feedbacks</a>
+</div>
+</body>
+</html>
