@@ -1,14 +1,95 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><title>Login</title></head>
+<head>
+    <title>Login</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #ecf0f1;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 320px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 24px;
+            color: #2c3e50;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .message {
+            margin-top: 16px;
+            color: red;
+            font-size: 14px;
+        }
+
+        .logout-msg {
+            color: green;
+        }
+    </style>
+</head>
 <body>
-<h1>Login</h1>
-<form th:action="@{/users/login}" method="post">
-    <label>Username: <input type="text" name="username" /></label><br>
-    <label>Password: <input type="password" name="password" /></label><br>
-    <button type="submit">Login</button>
-</form>
-<p th:if="${param.error}">Invalid username or password.</p>
-<p th:if="${param.logout}">You have been logged out.</p>
+<div class="login-container">
+    <h1>Войти</h1>
+    <form th:action="@{/users/login}" method="post">
+        <label>Логин:
+            <input type="text" name="username" required/>
+        </label>
+        <label>Пароль:
+            <input type="password" name="password" required/>
+        </label>
+        <button type="submit">Войти</button>
+    </form>
+    <p> Нет Аккаунта ?</p>
+    <label> Создать</label>
+    <a th:href = "@{/users/register}"> <button >Регистрация </button>  </a>
+    <p th:if="${param.error}" class="message">Неверный логин или пароль.</p>
+    <p th:if="${param.logout}" class="message logout-msg">Вы вышли из системы.</p>
+</div>
 </body>
 </html>
