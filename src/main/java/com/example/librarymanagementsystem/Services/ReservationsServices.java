@@ -77,7 +77,7 @@ public class ReservationsServices {
 
     public List<ReservationsResponseDTO> findApprovedByEmail(String email) {
         return reservationsRepository
-                .findByEmail(email, Reservations.ReservationStatus.FULFILLED)
+                .findByUserEmailAndStatus(email, Reservations.ReservationStatus.FULFILLED)
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());

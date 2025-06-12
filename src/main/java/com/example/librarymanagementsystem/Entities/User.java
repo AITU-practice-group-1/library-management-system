@@ -2,18 +2,19 @@ package com.example.librarymanagementsystem.Entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 @Data
-@Getter
-@Setter
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue
     private UUID id;
@@ -23,19 +24,27 @@ public class User {
     @Column(nullable = false, name="last_name")
     private String lastName;
     @Column(nullable = false, unique = true)
-    public String email;
+    private String email;
     @Column(nullable = false)
     private String password;
     @Column(nullable = false)
     private String role;
     @Column(nullable = false, name = "is_active")
     private boolean isActive;
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at",  updatable = false)
     private LocalDateTime createdAt;
 
-    public String UserEmail = email;
-
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + getRole().toUpperCase()));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
 
 }

@@ -43,6 +43,7 @@ public class Reservations {
         FULFILLED,
         CANCELLED
     }
-
-    public String Email = user.email;
+//    public String Email;
+//
+////    public String Email = user.getEmail();
 }
