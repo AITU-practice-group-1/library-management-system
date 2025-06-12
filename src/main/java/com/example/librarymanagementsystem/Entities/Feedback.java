@@ -46,4 +46,10 @@ public class Feedback {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    @PrePersist
+    protected void onPrePersist() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
 }

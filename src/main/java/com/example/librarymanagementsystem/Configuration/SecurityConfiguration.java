@@ -34,10 +34,11 @@ public class SecurityConfiguration {
               .csrf(AbstractHttpConfigurer::disable)
               .cors(AbstractHttpConfigurer::disable)
               .authorizeHttpRequests(auth ->auth
+                      .requestMatchers("/users/login", "/users/register", "/css/**", "/js/**").permitAll()
+                      .requestMatchers(HttpMethod.GET, "/api/feedback/book/{bookId}").permitAll()
                       .requestMatchers("/users/login", "/users/register", "/books","/books/{id}", "/css/**", "/js/**").permitAll()
                       .requestMatchers("/admin/*").hasRole("ADMIN")
                       .anyRequest().authenticated())
-//                      .anyRequest().permitAll())
               .formLogin(form -> form
                       .loginPage("/users/login")
                       .defaultSuccessUrl("/users/home", true)
