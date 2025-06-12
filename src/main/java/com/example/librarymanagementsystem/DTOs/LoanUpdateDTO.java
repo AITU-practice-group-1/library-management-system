@@ -10,7 +10,7 @@ import java.util.UUID;
 @Data
 public class LoanUpdateDTO{
 
-    private LocalDateTime dueDate;
+    private LocalDate dueDate;
     private Loan.LoanStatus status;
 
 }

@@ -1,6 +1,7 @@
 package com.example.librarymanagementsystem.DTOs;
 
 import com.example.librarymanagementsystem.Entities.Loan;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -16,7 +17,14 @@ public class LoanDTO {
     private UUID issuedBy;
     private LocalDateTime issueDate;
     private LocalDateTime returnDate;
-    private LocalDateTime dueDate;
+    @NotNull(message = "Due date is required")
+    private LocalDate dueDate;
     private String status;
+    private LocalDateTime updatedAt;
+
+
+    private String userEmail;
+    private String bookTitle;
+    private String issuedByEmail;
 }
 

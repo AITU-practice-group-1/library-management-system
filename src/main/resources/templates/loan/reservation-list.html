@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Approved Reservations</title></head>
+<body>
+<h2>Approved Reservations for <span th:text="${email}"></span></h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Book</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="res : ${reservations}">
+        <td th:text="${res.book.title}">Book Title</td>
+        <td>
+            <a th:href="@{'/loans/create-from-reservation/' + ${res.id}}">Create Loan</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<a href="/loans/search">Back</a>
+</body>
+</html>

@@ -14,15 +14,15 @@
   </tr>
   <tr>
     <th>User ID</th>
-    <td th:text="${loan.userId}">User</td>
+    <td th:text="${loan.userEmail}">User</td>
   </tr>
   <tr>
     <th>Book ID</th>
-    <td th:text="${loan.bookId}">Book</td>
+    <td th:text="${loan.bookTitle}">Book</td>
   </tr>
   <tr>
     <th>Issued By</th>
-    <td th:text="${loan.issuedBy}">Librarian</td>
+    <td th:text="${loan.issuedByEmail}">Librarian</td>
   </tr>
   <tr>
     <th>Status</th>
@@ -40,6 +40,11 @@
     <th>Return Date</th>
     <td th:text="${loan.returnDate}">Return Date</td>
   </tr>
+  <tr>
+    <th>Updated At</th>
+    <td th:text="${loan.updatedAt}"></td>
+  </tr>
+
 </table>
 
 <br>

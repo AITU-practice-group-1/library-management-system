@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Edit Profile</title>
+</head>
+<body>
+<h1>Edit Profile</h1>
+<form th:action="@{/users/edit}" th:object="${user}" method="post">
+  <label>First Name: <input type="text" th:field="*{firstName} " required /></label><br>
+  <label>Last Name: <input type="text" th:field="*{lastName}" required/></label><br>
+  <label>Email: <input type="email" th:field="*{email}" required/></label><br>
+  <p th:text="${user.getRole()}"></p>
+  <button type="submit">Edit</button>
+</form>
+<p th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger"></p>
+</body>
+</html>

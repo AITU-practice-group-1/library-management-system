@@ -1,0 +1,68 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #eef2f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .profile-container {
+      background-color: #fff;
+      padding: 32px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .profile-header h2 {
+      margin: 0;
+      color: #333;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .profile-info div {
+      font-size: 18px;
+      color: #555;
+    }
+
+    .profile-info span::after {
+      content: "!";
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+<div class="profile-container">
+  <div class="profile-header">
+    <h2>User Profile</h2>
+  </div>
+  <div class="profile-info">
+    <div><strong>First Name:</strong> <span th:text="${user.getFirstName()}"></span></div>
+    <div><strong>Last Name:</strong> <span th:text="${user.getLastName()}"></span></div>
+    <div><strong>Email:</strong> <span th:text="${user.getEmail()}"></span></div>
+  </div>
+</div>
+</body>
+</html>

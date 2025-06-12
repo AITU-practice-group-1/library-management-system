@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LoanServices {
 
-    private LoanRepository loanRepository;
+    private final LoanRepository loanRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
     private final LoanMapper loanMapper;
@@ -37,8 +37,10 @@ public class LoanServices {
         loan.setUser(user);
         loan.setBook(book);
         loan.setIssuedBy(issuedBy);
-        loan.setCreatedAt(LocalDateTime.now());
         loan.setUpdatedAt(LocalDateTime.now());
+        loan.setDueDate(dto.getDueDate().atStartOfDay());
+        loan.setStatus(Loan.LoanStatus.valueOf("BORROWED"));
+
 
         return loanMapper.toDto(loanRepository.save(loan));
     }
@@ -59,11 +61,18 @@ public class LoanServices {
             loan.setStatus(dto.getStatus());
         }
         if (dto.getDueDate() != null){
-            loan.setDueDate(dto.getDueDate());
+            loan.setDueDate(dto.getDueDate().atStartOfDay());
+
         }
 
         loan.setUpdatedAt(LocalDateTime.now());
+        System.out.println("Updating loan with ID: " + id);
         return loanMapper.toDto(loanRepository.save(loan));
+    }
+    public List<LoanDTO> getLoansByUserId(UUID userId) {
+        return loanRepository.findByUserId(userId).stream()
+                .map(loanMapper::toDto)
+                .toList();
     }
 
 }

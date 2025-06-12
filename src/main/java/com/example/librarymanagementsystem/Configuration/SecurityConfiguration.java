@@ -30,23 +30,24 @@ public class SecurityConfiguration {
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-      return http
-              .csrf(AbstractHttpConfigurer::disable)
-              .cors(AbstractHttpConfigurer::disable)
-              .authorizeHttpRequests(auth ->auth
-                      .requestMatchers("/users/login", "/users/register", "/css/**", "/js/**").permitAll()
-                      .requestMatchers("/admin/*").hasRole("ADMIN")
-                      .anyRequest().authenticated())
-              .formLogin(form -> form
-                      .loginPage("/users/login")
-                      .defaultSuccessUrl("/users/home", true)
-                      .permitAll()
-              )
-              .logout(logout -> logout
-                      .logoutUrl("/logout")
-                      .logoutSuccessUrl("/users/login?logout")
-                      .permitAll()
-              )
-              .build();
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth ->auth
+                        .requestMatchers("/users/login", "/users/register", "/books","/books/{id}", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/admin/*").hasRole("ADMIN")
+                        .anyRequest().authenticated())
+//                      .anyRequest().permitAll())
+                .formLogin(form -> form
+                        .loginPage("/users/login")
+                        .defaultSuccessUrl("/users/home", true)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/users/login?logout")
+                        .permitAll()
+                )
+                .build();
     }
 }
