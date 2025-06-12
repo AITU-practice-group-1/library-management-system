@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-12T12:32:25+0500",
+    date = "2025-06-12T15:31:39+0500",
     comments = "version: 1.6.3, compiler: javac, environment: Java 24.0.1 (Oracle Corporation)"
 )
 @Component
@@ -43,6 +43,7 @@ public class FeedbackMapperImpl implements FeedbackMapper {
 
         feedbackResponseDTO.setUserId( entityUserId( entity ) );
         feedbackResponseDTO.setBookId( entityBookId( entity ) );
+        feedbackResponseDTO.setFirstName( entityUserFirstName( entity ) );
         feedbackResponseDTO.setId( entity.getId() );
         feedbackResponseDTO.setRating( entity.getRating() );
         feedbackResponseDTO.setComment( entity.getComment() );
@@ -90,5 +91,13 @@ public class FeedbackMapperImpl implements FeedbackMapper {
             return null;
         }
         return book.getId();
+    }
+
+    private String entityUserFirstName(Feedback feedback) {
+        User user = feedback.getUser();
+        if ( user == null ) {
+            return null;
+        }
+        return user.getFirstName();
     }
 }
