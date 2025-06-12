@@ -3,6 +3,8 @@ package com.example.librarymanagementsystem.Services;
 import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -124,6 +126,17 @@ public class UserServices {
         }
 
     }
+
+    public Page<User> getAllUsersPaginated(Pageable pageable) throws Exception {
+        Page<User> allUsers;
+        try{
+            allUsers = userRepository.findAll(pageable);
+        }
+        catch (Exception e)
+        {throw new Exception("CAn not get users paginated \n"  + e.getMessage());}
+        return allUsers;
+    }
+
     public List<User> getAllUsersByRole(String role) throws Exception {
         List<User> allUsersByRole;
         try{

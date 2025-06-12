@@ -2,31 +2,107 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Add User</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #ecf0f1;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 360px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 24px;
+            color: #2c3e50;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-<h1>Add User</h1>
-<form th:action="@{/users/register}" th:object="${user}" method="post">
-    <label>First Name: <input type="text" th:field="*{firstName}" required/></label><br>
-    <label>Last Name: <input type="text" th:field="*{lastName}" required/></label><br>
-    <label>Email: <input type="email" th:field="*{email}" required/></label><br>
-    <label>Password: <input type="password" th:field="*{password}" required/></label><br>
-    <label for="role">Role:
-        <select id = "role" th:field="*{role}" required>
-            <option value="DEFAULT" >Default</option>
-            <option value="ADMIN">Admin</option>
-            <option value="LIBRARIAN">Librarian</option>
-        </select>
-    </label><br>
-    <button type="submit">Add User</button>
-</form>
+<div class="form-container">
+    <h1>Add User</h1>
+    <form th:action="@{/users/register}" th:object="${user}" method="post">
+        <label>First Name:
+            <input type="text" th:field="*{firstName}" required/>
+        </label>
+        <label>Last Name:
+            <input type="text" th:field="*{lastName}" required/>
+        </label>
+        <label>Email:
+            <input type="email" th:field="*{email}" required/>
+        </label>
+        <label>Password:
+            <input type="password" th:field="*{password}" required/>
+        </label>
+        <label for="role">Role:
+            <select id="role" th:field="*{role}" required>
+                <option value="DEFAULT">Default</option>
+                <option value="ADMIN">Admin</option>
+                <option value="LIBRARIAN">Librarian</option>
+            </select>
+        </label>
+        <button type="submit">Add User</button>
+    </form>
 
-<ul>
-    <th:block th:each="err : ${errors}">
-        <li th:text="${err}"></li>
-    </th:block>
-</ul>
+    <ul class="error">
+        <th:block th:each="err : ${errors}">
+            <li th:text="${err}"></li>
+        </th:block>
+    </ul>
 
-
-<p th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger"></p>
+    <p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
+</div>
 </body>
 </html>

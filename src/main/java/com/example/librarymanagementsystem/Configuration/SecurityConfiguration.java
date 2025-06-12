@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -34,21 +36,20 @@ public class SecurityConfiguration {
               .csrf(AbstractHttpConfigurer::disable)
               .cors(AbstractHttpConfigurer::disable)
               .authorizeHttpRequests(auth ->auth
-                      .requestMatchers("/users/login", "/users/register", "/css/**", "/js/**").permitAll()
-                      .requestMatchers(HttpMethod.GET, "/api/feedback/book/{bookId}").permitAll()
-                      .requestMatchers("/users/login", "/users/register", "/books","/books/{id}", "/css/**", "/js/**").permitAll()
+                      .requestMatchers("/","/users/login", "/users/register", "/books","/books/{id}", "/css/**", "/js/**").permitAll()
                       .requestMatchers("/admin/*").hasRole("ADMIN")
                       .anyRequest().authenticated())
+//                      .anyRequest().permitAll())
               .formLogin(form -> form
                       .loginPage("/users/login")
-                      .defaultSuccessUrl("/users/home", true)
                       .permitAll()
               )
               .logout(logout -> logout
                       .logoutUrl("/logout")
-                      .logoutSuccessUrl("/users/login?logout")
+                      .logoutSuccessUrl("/")
                       .permitAll()
               )
+              .exceptionHandling(ex ->ex.accessDeniedPage("/error/403"))
               .build();
     }
 }

@@ -2,20 +2,85 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>User Home</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .email {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .button-group {
+            margin-top: 30px;
+        }
+
+        a.button-link {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        a.button-link:hover {
+            background-color: #2980b9;
+        }
+
+        a.button-link.red {
+            background-color: #e74c3c;
+        }
+
+        a.button-link.red:hover {
+            background-color: #c0392b;
+        }
+
+        a.button-link.green {
+            background-color: #2ecc71;
+        }
+
+        a.button-link.green:hover {
+            background-color: #27ae60;
+        }
+    </style>
 </head>
 <body>
-<h1>Добро пожаловать,  <span th:text="${user.getFirstName()}"></span>!</h1>
-<p th:text="${user.getEmail()}"></p>
-<br>
-<p id = "id" style="display: none" th:text="${user.getId()}"></p>
-<a th:href = "@{/users/edit}"> ОЗГЕРТУ </a>
-<!--<a th:href="@{/users/delete}"> DELETE ACCOUNT</a>-->
-<a th:href="@{/logout}">Выйти</a>
-<a th:href="@{/admin/home}"><button>ADMIN</button></a>
-</body>
+
+<h1>Добро пожаловать, <span th:text="${user.getFirstName()}"></span>!</h1>
+<p class="email" th:text="${user.getEmail()}"></p>
+<p id="id" style="display: none" th:text="${user.getId()}"></p>
+
+<div class="button-group">
+    <br>
+    <a th:href="@{/users/edit}" class="button-link green">Изменить профиль</a>
+    <!-- <a th:href="@{/users/delete}" class="button-link red">Удалить аккаунт</a> -->
+    <a th:href="@{/logout}" class="button-link red">Выйти</a>
+    <br><br><br><br><br>
+    <a th:href="@{/admin/home}" class="button-link">Панель администратора</a>
+    <a th:href="@{/reservations(userId=${user.getId()})}" class="button-link">Мои бронирования</a>
+    <br><br><br><br><br>
+    <a th:href="@{/favorites(userId=${user.getId()})}" class="button-link">Избранное</a>
+    <a th:href="@{/}" class="button-link">MAIN PAGE</a>
+</div>
 
 <script>
     let id = document.getElementById("id").textContent;
     localStorage.setItem("id", id);
 </script>
+
+</body>
 </html>

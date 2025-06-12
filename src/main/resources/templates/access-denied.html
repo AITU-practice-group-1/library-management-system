@@ -1,0 +1,38 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Access Denied</title>
+    <style>
+        body {
+            background-color: #fff3cd;
+            font-family: 'Segoe UI', sans-serif;
+            color: #856404;
+            text-align: center;
+            padding-top: 100px;
+        }
+
+        h1 {
+            font-size: 48px;
+        }
+
+        p {
+            font-size: 20px;
+        }
+
+        a {
+            color: #856404;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🛑 Access Denied</h1>
+<p>You tried to go where you're not allowed. Naughty.</p>
+<p><a th:href="@{/}">← Go back to safety</a></p>
+
+</body>
+</html>

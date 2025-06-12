@@ -2,6 +2,9 @@ package com.example.librarymanagementsystem.Controllers;
 
 import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Services.UserServices;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +21,10 @@ public class AdminController {
     }
 
     @GetMapping("/home")
-    public String homePage(Model model){
-        List<User> allUsers;
+    public String homePage(Model model, @PageableDefault(size = 10) Pageable pageable){
+        Page<User> allUsers;
         try{
-            allUsers = userServices.getAllUsers();
+            allUsers = userServices.getAllUsersPaginated(pageable);
         }
         catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());
