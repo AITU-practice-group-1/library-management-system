@@ -20,7 +20,7 @@
         <p class="mt-2 text-sm text-gray-600">Made a mistake? You can edit your feedback here.</p>
     </div>
 
-    <form th:action="@{/api/feedback/{id}(id=${feedback.id})}" th:object="${feedback}" th:method="put" class="mt-8 space-y-6">
+    <form th:action="@{/api/feedback/{id}/edit(id=${feedback.id})}" th:object="${feedback}" th:method="post" class="mt-8 space-y-6">
 
         <input type="hidden" th:field="*{id}" />
 

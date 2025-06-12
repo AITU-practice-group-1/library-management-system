@@ -36,11 +36,9 @@ public class FeedbackService {
         return feedbackPage.map(feedbackMapper::toDTO);
     }
 
-    public List<FeedbackResponseDTO> getByUserId(UUID userId, Pageable pageable) {
-        return feedbackRepo.findByUserId(userId, pageable)
-                .stream()
-                .map(feedbackMapper::toDTO)
-                .toList();
+    public Page<FeedbackResponseDTO> getByUserId(UUID userId, Pageable pageable) {
+        Page<Feedback> feedbackPage = feedbackRepo.findByUserId(userId, pageable);
+        return feedbackPage.map(feedbackMapper::toDTO);
     }
 
     public FeedbackResponseDTO createFeedback(FeedbackRequestDTO feedbackRequestDTO) {

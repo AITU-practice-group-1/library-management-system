@@ -29,6 +29,14 @@
         <span class="block sm:inline" th:text="${successMessage}"></span>
     </div>
 
+    <!-- Error Message -->
+    <div th:if="${errorMessage}"
+         class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+        <strong class="font-bold">Error!</strong>
+        <span class="block sm:inline" th:text="${errorMessage}"></span>
+    </div>
+
+
     <div class="bg-white shadow-lg rounded-lg overflow-hidden">
         <div class="p-6">
             <div th:if="${#lists.isEmpty(feedbacks.content)}" class="text-center py-12">
@@ -60,10 +68,10 @@
                             </div>
                             <p class="mt-2 text-gray-700" th:text="${feedback.comment}">Comment text goes here.</p>
                             <!-- Edit and Delete Buttons -->
-                            <div class="mt-4 flex items-center space-x-4" th:if="${currentUserId} == ${feedback.userId}">
+                            <div class="mt-4 flex items-center space-x-4" th:if="${isAdmin or (currentUserId == feedback.userId)}">
                                 <a th:href="@{/api/feedback/{id}/edit(id=${feedback.id})}"
                                    class="text-sm font-medium text-blue-600 hover:text-blue-800">Edit</a>
-                                <form th:action="@{/api/feedback/{id}(id=${feedback.id})}" th:method="delete" onsubmit="return confirm('Are you sure you want to delete this feedback?');" class="inline">
+                                <form th:action="@{/api/feedback/{id}/delete(id=${feedback.id})}" th:method="post" onsubmit="return confirm('Are you sure you want to delete this feedback?');" class="inline">
                                     <button type="submit" class="text-sm font-medium text-red-600 hover:text-red-800">Delete</button>
                                 </form>
                             </div>

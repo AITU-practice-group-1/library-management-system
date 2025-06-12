@@ -1,5 +1,6 @@
 package com.example.librarymanagementsystem.Controllers;
 
+import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackRequestDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackResponseDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackUpdateDTO;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Controller
@@ -26,6 +28,7 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
     private final UserServices userService;
+
 
     @Autowired
     public FeedbackController(FeedbackService feedbackService, UserServices userService) {
@@ -42,15 +45,18 @@ public class FeedbackController {
 
         Page<FeedbackResponseDTO> feedbacksPage = feedbackService.getByBookId(bookId, pageable);
         UUID currentUserId = null;
+        boolean isAdmin = false;
         try {
-            currentUserId = userService.getAuhtenticatedUser().getId();
-        } catch (Exception e) {
-//            throw new RuntimeException(e);
-            currentUserId = null;
+            UserDTO currentUser = userService.getAuhtenticatedUser();
+            currentUserId = currentUser.getId();
+            isAdmin = currentUser.getRole().equals("ROLE_ADMIN");
+        } catch (Exception ignored) {
+
         }
         model.addAttribute("feedbacks", feedbacksPage); // Pass the Page object
         model.addAttribute("bookId", bookId);
         model.addAttribute("currentUserId", currentUserId);
+        model.addAttribute("isAdmin", isAdmin);
         return "feedback/list";
     }
 
@@ -88,12 +94,25 @@ public class FeedbackController {
     }
 
     // update specific feedback (only user's personal feedbacks)
-    @PutMapping("/{id}")
+    @PostMapping("/{id}/edit")
     public String updateFeedback(@PathVariable UUID id, @Valid @ModelAttribute FeedbackUpdateDTO feedbackUpdateDTO,
                                  BindingResult result, Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("feedbackId", id);
             return "feedback/update";
+        }
+
+        UserDTO currentUser = null;
+        FeedbackResponseDTO feedback = feedbackService.getById(id);
+        try {
+            currentUser = userService.getAuhtenticatedUser();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        if (!currentUser.getId().equals(feedback.getUserId())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "You are not authorized to delete this feedback!");
+            return "redirect:/api/feedback/book/" + feedback.getBookId();
         }
 
         FeedbackResponseDTO updatedFeedback = feedbackService.updateFeedback(id, feedbackUpdateDTO);
@@ -110,9 +129,21 @@ public class FeedbackController {
     }
 
     // delete button (only user's personal feedbacks)
-    @DeleteMapping("/{id}")
+    @PostMapping("/{id}/delete")
     public String deleteFeedback(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
+
+        UserDTO currentUser = null;
         FeedbackResponseDTO feedback = feedbackService.getById(id);
+        try {
+            currentUser = userService.getAuhtenticatedUser();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(currentUser.getRole());
+        if (!currentUser.getId().equals(feedback.getUserId()) && (!Objects.equals(currentUser.getRole(), "ROLE_ADMIN"))) {
+            redirectAttributes.addFlashAttribute("errorMessage", "You are not authorized to delete this feedback!");
+            return "redirect:/api/feedback/book/" + feedback.getBookId();
+        }
         feedbackService.deleteFeedback(id);
         redirectAttributes.addFlashAttribute("successMessage", "Feedback deleted successfully!");
         return "redirect:/api/feedback/book/" + feedback.getBookId();
