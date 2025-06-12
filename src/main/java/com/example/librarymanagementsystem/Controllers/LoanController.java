@@ -2,14 +2,24 @@ package com.example.librarymanagementsystem.Controllers;
 
 import com.example.librarymanagementsystem.DTOs.LoanDTO;
 import com.example.librarymanagementsystem.DTOs.LoanUpdateDTO;
+import com.example.librarymanagementsystem.Entities.Loan;
+import com.example.librarymanagementsystem.Entities.Reservations;
+import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.Repositories.LoanRepository;
+import com.example.librarymanagementsystem.Repositories.ReservationsRepository;
+import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Services.LoanServices;
+import com.example.librarymanagementsystem.Services.ReservationsServices;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,24 +29,82 @@ import java.util.UUID;
 public class LoanController {
 
     private final LoanServices loanServices;
+    private final UserRepository userRepository;
+    private final ReservationsRepository reservationsRepository;
+    private final ReservationsServices  reservationsServices;
+    private final BookRepository bookRepository;
+    private final LoanRepository loanRepository;
 
-    public String getAllLoans(Model model) {
-        List<LoanDTO> loans = loanServices.findAll();
+    @GetMapping
+    public String listLoans(Model model, Principal principal) {
+        var user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<LoanDTO> loans;
+        if (user.getRole().equals("ADMIN") || user.getRole().equals("LIBRARIAN")) {
+            loans = loanServices.findAll();
+        } else {
+            loans = loanServices.getLoansByUserId(user.getId());
+        }
+
         model.addAttribute("loans", loans);
         return "loan/list";
     }
 
+
+    @GetMapping("/search")
+    public String searchApprovedForm() {
+        return "loan/search"; // форма ввода email
+    }
+
+    @PostMapping("/search")
+    public String searchApprovedReservations(@RequestParam String email, Model model) {
+        List<Reservations> reservations = reservationsRepository
+                .findByUserEmailAndStatus(email, Reservations.ReservationStatus.FULFILLED);
+
+        model.addAttribute("reservations", reservations);
+        model.addAttribute("email", email);
+        return "loan/reservation-list";
+    }
+
     @GetMapping("/create")
-    public String createLoan(Model model) {
+    public String createLoanForm(Model model) {
         model.addAttribute("loan", new LoanDTO());
+        model.addAttribute("books", bookRepository.findAll());
+        model.addAttribute("users", userRepository.findAll());
         return "loan/create";
     }
 
-    @PostMapping
-    public String saveLoan(@ModelAttribute("loan") LoanDTO loanDTO) {
+    @GetMapping("/create-from-reservation/{reservationId}")
+    public String createLoanFromReservation(@PathVariable UUID reservationId, Model model) {
+        Reservations res = reservationsRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+
+        LoanDTO loanDTO = new LoanDTO();
+        loanDTO.setUserId(res.getUser().getId());
+        loanDTO.setBookId(res.getBook().getId());
+        loanDTO.setIssueDate(LocalDateTime.now());
+
+        model.addAttribute("loan", loanDTO);
+        model.addAttribute("userEmail", res.getUser().getEmail());
+        model.addAttribute("bookTitle", res.getBook().getTitle());
+        model.addAttribute("predefined", true); // флаг, чтобы в шаблоне понять откуда вызов
+        return "loan/create";
+    }
+
+    @PostMapping("/create")
+    public String createLoan(@Valid @ModelAttribute("loan") LoanDTO loanDTO, Principal principal) {
+        var librarian = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Librarian not found"));
+
+        loanDTO.setIssuedBy(librarian.getId());
         loanServices.createLoan(loanDTO);
+
         return "redirect:/loans";
     }
+
+
+
 
     @GetMapping("/{id}")
     public String findLoanById(@PathVariable UUID id, Model model) {
@@ -45,11 +113,17 @@ public class LoanController {
     }
 
     @GetMapping("/{id}/edit")
-    public String updateLoan(@PathVariable UUID id, Model model) {
-        model.addAttribute("loan", loanServices.findById(id));
-        model.addAttribute("updateDTO", new LoanDTO());
+    public String editLoanForm(@PathVariable UUID id, Model model) {
+        var loanDTO = loanServices.findById(id); // LoanDTO
+        LoanUpdateDTO updateDTO = new LoanUpdateDTO();
+        updateDTO.setDueDate(loanDTO.getDueDate());
+        updateDTO.setStatus(Loan.LoanStatus.valueOf(loanDTO.getStatus()));
+
+        model.addAttribute("loan", loanDTO); // для отображения инфо
+        model.addAttribute("updateDTO", updateDTO); // для формы редактирования
         return "loan/edit";
     }
+
 
     @PostMapping("/{id}/edit")
     public String updateLoan(@PathVariable UUID id, @ModelAttribute("updateDTO") LoanUpdateDTO updateDTO) {

@@ -1,27 +1,49 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Create Loan</title>
-</head>
-<body>
-<h1>Create Loan</h1>
+<h1>Create New Loan</h1>
 
-<form th:action="@{/loans/create}" th:object="${loan}" method="post">
-    <label>User ID: <input type="text" th:field="*{userId}" required/></label><br>
-    <label>Book ID: <input type="text" th:field="*{bookId}" required/></label><br>
-    <label>Issued By (Librarian ID): <input type="text" th:field="*{issuedBy}" required/></label><br>
-    <label>Issue Date: <input type="datetime-local" th:field="*{issueDate}" required/></label><br>
-    <label>Due Date: <input type="datetime-local" th:field="*{dueDate}" required/></label><br>
-    <label>Return Date: <input type="datetime-local" th:field="*{returnDate}"/></label><br>
-    <label>Status:
-        <select th:field="*{status}">
-            <option value="BORROWED">BORROWED</option>
-            <option value="RETURNED">RETURNED</option>
-        </select>
-    </label><br>
-    <button type="submit">Create</button>
+<form action="#" th:action="@{/loans/create}" th:object="${loan}" method="post">
+    <!-- USER -->
+    <input type="hidden" th:field="*{issuedBy}" />
+
+    <div>
+        <label>User Email:</label>
+        <div th:if="${predefined}">
+            <input type="text" th:value="${userEmail}" readonly />
+            <input type="hidden" th:field="*{userId}" />
+        </div>
+        <div th:unless="${predefined}">
+            <select th:field="*{userId}">
+                <option value="">-- Select User --</option>
+                <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.email}"></option>
+            </select>
+        </div>
+    </div>
+
+    <!-- BOOK -->
+    <div>
+        <label>Book:</label>
+        <div th:if="${predefined}">
+            <input type="text" th:value="${bookTitle}" readonly />
+            <input type="hidden" th:field="*{bookId}" />
+        </div>
+        <div th:unless="${predefined}">
+            <select th:field="*{bookId}">
+                <option value="">-- Select Book --</option>
+                <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title}"></option>
+            </select>
+        </div>
+    </div>
+
+    <!-- DUE DATE -->
+    <div>
+        <label>Due Date:</label>
+        <input type="date" th:field="*{dueDate}" />
+    </div>
+
+    <!-- ISSUE DATE (если установлена заранее) -->
+    <input type="hidden" th:field="*{issueDate}" />
+
+    <!-- ISSUED BY -->
+    <input type="hidden" th:field="*{issuedBy}" />
+
+    <button type="submit">Create Loan</button>
 </form>
-
-<a th:href="@{/loans}">Back to list</a>
-</body>
-</html>

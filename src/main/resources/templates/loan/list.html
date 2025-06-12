@@ -12,26 +12,28 @@
   <thead>
   <tr>
     <th>ID</th>
-    <th>User ID</th>
-    <th>Book ID</th>
-    <th>Issued By</th>
+    <th>User Email</th>
+    <th>Book Title</th>
+    <th>Librarian Email</th>
     <th>Issue Date</th>
     <th>Due Date</th>
     <th>Return Date</th>
     <th>Status</th>
+    <th>Updated At</th>
     <th>Actions</th>
   </tr>
   </thead>
   <tbody>
   <tr th:each="loan : ${loans}">
     <td th:text="${loan.id}"></td>
-    <td th:text="${loan.userId}"></td>
-    <td th:text="${loan.bookId}"></td>
-    <td th:text="${loan.issuedBy}"></td>
+    <td th:text="${loan.userEmail}"></td>
+    <td th:text="${loan.bookTitle}"></td>
+    <td th:text="${loan.issuedByEmail}"></td>
     <td th:text="${loan.issueDate}"></td>
     <td th:text="${loan.dueDate}"></td>
     <td th:text="${loan.returnDate}"></td>
     <td th:text="${loan.status}"></td>
+    <td th:text="${loan.updatedAt}"></td>
     <td>
       <a th:href="@{'/loans/' + ${loan.id}}">View</a> |
       <a th:href="@{'/loans/' + ${loan.id} + '/edit'}">Edit</a>

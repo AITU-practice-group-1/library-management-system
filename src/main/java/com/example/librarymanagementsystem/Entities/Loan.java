@@ -28,22 +28,19 @@ public class Loan {
     @JoinColumn(name = "issued_by", nullable = false)
     private User issuedBy; //librarian
 
-    @Column(name = "issue_date")
+    @CreationTimestamp
+    @Column(name = "issue_date", updatable = false, nullable = false)
     private LocalDateTime issueDate;
 
     @Column(name = "return_date")
     private LocalDateTime returnDate;
 
-    @Column(name = "due_date")
+    @Column(name = "due_date",nullable = false)
     private LocalDateTime dueDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private LoanStatus status;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
