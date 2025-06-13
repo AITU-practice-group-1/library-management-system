@@ -3,13 +3,17 @@ package com.example.librarymanagementsystem.Entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.ToString;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "books")
-
 @Data
+@ToString
 public class Book {
 
     @Id
@@ -60,15 +64,39 @@ public class Book {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "rating_sum", nullable = false)
+    private long ratingSum = 0L;
+
+    @Column(name = "rating_count", nullable = false)
+    private long ratingCount = 0L;
+
+    @Column(name = "rating_average", nullable = false, precision = 3, scale = 2)
+    private BigDecimal ratingAverage = BigDecimal.ZERO;
+
+    public void addRating(int rating) {
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5.");
+        }
+        this.ratingSum += rating;
+        this.ratingCount++;
+        if (this.ratingCount > 0) {
+            this.ratingAverage = BigDecimal.valueOf(this.ratingSum)
+                    .divide(BigDecimal.valueOf(this.ratingCount), 2, RoundingMode.HALF_UP);
+        }
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+
 }
 

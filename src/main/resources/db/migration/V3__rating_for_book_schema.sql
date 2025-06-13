@@ -1,0 +1,4 @@
+ALTER TABLE books
+    ADD COLUMN rating_sum INT NOT NULL DEFAULT 0,
+    ADD COLUMN rating_count INT NOT NULL DEFAULT 0,
+    ADD COLUMN rating_average DECIMAL(3, 2) NOT NULL DEFAULT 0.00;

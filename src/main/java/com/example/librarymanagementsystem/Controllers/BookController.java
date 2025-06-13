@@ -81,7 +81,9 @@ public class BookController {
             return "books/book";
         }
         model.addAttribute("book", book);
-
+        System.out.println("book.getRatingCount() = " + book.getRatingCount());
+        System.out.println("book.getRatingSum() = " + book.getRatingSum());
+        System.out.println("book.getRatingAverage() = " + book.getRatingAverage());
 
         // Favorite Status
         boolean isFavorite = false;
@@ -94,7 +96,6 @@ public class BookController {
         Sort.Direction direction = "asc".equalsIgnoreCase(dir) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
 
-        System.out.println("Page<FeedbackResponseDTO> reviews");
 
         Page<FeedbackResponseDTO> reviews = null;
 
@@ -146,7 +147,10 @@ public class BookController {
         }
 
         Page<BookDTO> books = bookService.findPaginatedAndFiltered(keyword, genreEnum, pageable);
-
+        Optional<BookDTO> bookDTO = books.get().findFirst();
+        if (bookDTO.isPresent()) {
+            System.out.println(bookDTO);
+        }
         model.addAttribute("bookPage", books);
         model.addAttribute("keyword", keyword);
         model.addAttribute("genre", genreEnum);
