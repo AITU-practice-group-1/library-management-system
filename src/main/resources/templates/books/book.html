@@ -21,7 +21,7 @@
             font-size: 1.5rem;
         }
         .book-cover .bi { font-size: 4rem; }
-        .star-rating .bi-star-fill { color: #ffc107; }
+        .star-rating .bi-star-fill, .star-rating .bi-star-half { color: #ffc107; }
         .star-rating .bi-star { color: #e4e5e9; }
     </style>
 </head>
@@ -37,13 +37,12 @@
         <div class="row g-5">
             <!-- Left Column: Book Cover and Actions -->
             <div class="col-md-4 text-center d-flex flex-column">
+                <!-- ... (this section remains the same) ... -->
                 <div class="book-cover ratio ratio-3x4 mx-auto">
                     <i class="bi bi-book"></i>
                 </div>
-                <!-- **FIXED**: Increased top margin to prevent overlap -->
                 <div class="mt-5">
                     <div class="d-grid gap-2">
-                        <!-- Authenticated User Actions -->
                         <div sec:authorize="isAuthenticated()">
                             <form th:action="@{/reservations/create}" method="post" class="d-grid">
                                 <input type="hidden" name="bookId" th:value="${book.id}">
@@ -61,14 +60,11 @@
                                 <button type="submit" class="btn btn-danger"><i class="bi bi-heart-fill"></i> Remove from Favorites</button>
                             </form>
                         </div>
-                        <!-- Unauthenticated User Actions -->
                         <div sec:authorize="!isAuthenticated()">
                             <a th:href="@{/login}" class="btn btn-primary btn-lg">Login to Reserve or Favorite</a>
                         </div>
                     </div>
                 </div>
-
-                <!-- Availability Status -->
                 <div class="mt-4">
                     <span th:if="${book.availableCopies > 0}" class="badge fs-6 bg-success"><i class="bi bi-check-circle"></i> Available</span>
                     <span th:if="${book.availableCopies == 0}" class="badge fs-6 bg-warning text-dark"><i class="bi bi-x-circle"></i> All copies are loaned</span>
@@ -80,6 +76,26 @@
             <div class="col-md-8">
                 <h1 class="display-5" th:text="${book.title}">Book Title</h1>
                 <h3 class="text-muted fw-light mb-3">by <span th:text="${book.author}">Author</span></h3>
+
+                <!-- ======= NEW RATING DISPLAY SECTION ======= -->
+                <div th:if="${book.ratingCount > 0}" class="d-flex align-items-center mb-3">
+                    <div class="star-rating fs-4 me-2">
+                        <!-- Display stars based on the rating average -->
+                        <th:block th:with="rating=${book.ratingAverage}">
+                            <i th:each="i : ${#numbers.sequence(1, 5)}" class="bi"
+                               th:classappend="${i <= rating} ? 'bi-star-fill' : (${i - rating < 1} ? 'bi-star-half' : 'bi-star')"></i>
+                        </th:block>
+                    </div>
+                    <div class="fw-bold fs-5 me-2" th:text="${#numbers.formatDecimal(book.ratingAverage, 1, 1)}">4.7</div>
+                    <div class="text-muted">
+                        from <span th:text="${book.ratingCount}">125</span> ratings
+                    </div>
+                </div>
+                <div th:if="${book.ratingCount == 0}" class="text-muted mb-3">
+                    <i class="bi bi-star"></i> No ratings yet.
+                </div>
+                <!-- ======= END OF RATING DISPLAY SECTION ======= -->
+
                 <p class="lead" th:text="${book.description}"></p>
                 <hr class="my-4">
                 <h5>Book Details</h5>
@@ -96,7 +112,6 @@
 
                 <div class="mt-5">
                     <hr>
-                    <!-- **FIXED**: Wrapped fragment expression in ~{...} -->
                     <div th:replace="~{books/_reviews :: reviews-section}"></div>
                 </div>
             </div>

@@ -16,6 +16,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -95,27 +97,77 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     public void lendBook(UUID bookId) {
-        // First, ensure the book exists.
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + bookId));
 
-        // Business logic: Check if the book is available.
         if (book.getAvailableCopies() <= 0) {
             throw new IllegalStateException("No available copies of '" + book.getTitle() + "' to lend.");
         }
 
-        // If checks pass, call the repository to update the database.
         bookRepository.decrementAvailableCopiesById(bookId);
     }
 
     @Transactional
     public void returnBook(UUID bookId) {
-        // Ensure the book exists before trying to increment.
         if (!bookRepository.existsById(bookId)) {
             throw new EntityNotFoundException("Cannot return a book that does not exist with ID: " + bookId);
         }
 
-        // Call the repository to update the database.
         bookRepository.incrementAvailableCopiesById(bookId);
+    }
+
+    @Override
+    @Transactional
+    public void updateBookRating(UUID bookId, Integer rating) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + bookId));
+
+        System.out.println(book.toString());
+        book.addRating(rating);
+        System.out.println(book.toString());
+        bookRepository.save(book);
+
+    }
+
+    @Override
+    @Transactional
+    public void recalculateBookRatingOnUpdate(UUID bookId, int oldRating, int newRating) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + bookId));
+
+
+        long newRatingSum = book.getRatingSum() - oldRating + newRating;
+        book.setRatingSum(newRatingSum);
+
+        if (book.getRatingCount() > 0) {
+            BigDecimal average = BigDecimal.valueOf(newRatingSum)
+                    .divide(BigDecimal.valueOf(book.getRatingCount()), 2, RoundingMode.HALF_UP);
+            book.setRatingAverage(average);
+        }
+
+        bookRepository.save(book);
+    }
+
+    @Override
+    @Transactional
+    public void recalculateBookRatingOnDelete(UUID bookId, int ratingToRemove) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + bookId));
+
+        long newRatingSum = book.getRatingSum() - ratingToRemove;
+        long newRatingCount = book.getRatingCount() - 1;
+
+        book.setRatingSum(newRatingSum);
+        book.setRatingCount(newRatingCount);
+
+        if (newRatingCount > 0) {
+            BigDecimal average = BigDecimal.valueOf(newRatingSum)
+                    .divide(BigDecimal.valueOf(newRatingCount), 2, RoundingMode.HALF_UP);
+            book.setRatingAverage(average);
+        } else {
+            book.setRatingAverage(BigDecimal.ZERO);
+        }
+
+        bookRepository.save(book);
     }
 }

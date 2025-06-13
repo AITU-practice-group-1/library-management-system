@@ -24,7 +24,8 @@ public enum Genre {
     GOTHIC_FICTION("Gothic Fiction"),
     ABSURDIST_FICTION("Absurdist Fiction"),
     MAGICAL_REALISM("Magical Realism"),
-    MODERNIST_FICTION("Modernist Fiction");
+    MODERNIST_FICTION("Modernist Fiction"),
+    SELF_HELP("Self Help");
 
     private final String displayName;
 

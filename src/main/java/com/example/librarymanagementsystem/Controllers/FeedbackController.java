@@ -5,6 +5,7 @@ import com.example.librarymanagementsystem.DTOs.feedback.FeedbackRequestDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackResponseDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackUpdateDTO;
 import com.example.librarymanagementsystem.Entities.User;
+import com.example.librarymanagementsystem.Services.BookService;
 import com.example.librarymanagementsystem.Services.FeedbackService;
 import com.example.librarymanagementsystem.Services.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +31,14 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
     private final UserServices userService;
+    private final BookService bookService;
 
 
     @Autowired
-    public FeedbackController(FeedbackService feedbackService, UserServices userService) {
+    public FeedbackController(FeedbackService feedbackService, UserServices userService, BookService bookService) {
         this.feedbackService = feedbackService;
         this.userService = userService;
+        this.bookService = bookService;
     }
 
     // all feedbacks of book
@@ -88,6 +91,7 @@ public class FeedbackController {
         try {
             feedbackRequestDTO.setUserId(user.getId());
             feedbackService.createFeedback(feedbackRequestDTO);
+            bookService.updateBookRating(feedbackRequestDTO.getBookId(), feedbackRequestDTO.getRating());
             redirectAttributes.addFlashAttribute("successMessage", "Your review has been submitted successfully!");
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -115,6 +119,7 @@ public class FeedbackController {
                                  BindingResult result,
                                  @AuthenticationPrincipal User user,
                                  RedirectAttributes redirectAttributes) {
+
         FeedbackResponseDTO existingReview = feedbackService.getById(feedbackUpdateDTO.getId());
 
         if (result.hasErrors()) {
@@ -128,8 +133,13 @@ public class FeedbackController {
             return "redirect:/books/" + existingReview.getBookId();
         }
 
+        int oldRating = existingReview.getRating();
+        int newRating = feedbackUpdateDTO.getRating();
+
         feedbackService.updateFeedback(feedbackUpdateDTO.getId(), feedbackUpdateDTO);
-        redirectAttributes.addFlashAttribute("successMessage", "Your review has been updated.");
+        bookService.recalculateBookRatingOnUpdate(existingReview.getBookId(), oldRating, newRating);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Your review has been updated successfully.");
         return "redirect:/books/" + existingReview.getBookId();
     }
 
@@ -151,8 +161,11 @@ public class FeedbackController {
             return "redirect:/books/" + feedback.getBookId();
         }
 
+        bookService.recalculateBookRatingOnDelete(feedback.getBookId(), feedback.getRating());
+
         feedbackService.deleteFeedback(id);
-        redirectAttributes.addFlashAttribute("successMessage", "The review has been deleted.");
+
+        redirectAttributes.addFlashAttribute("successMessage", "The review has been deleted successfully.");
         return "redirect:/books/" + feedback.getBookId();
     }
 }

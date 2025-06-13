@@ -1,11 +1,14 @@
 package com.example.librarymanagementsystem.DTOs.book;
 
 import com.example.librarymanagementsystem.Entities.Genre;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -47,4 +50,10 @@ public class BookDTO {
     @NotNull(message = "Available copies must be provided")
     @Min(value = 0, message = "Available copies cannot be negative")
     private int availableCopies;
+
+    private long ratingSum = 0L;
+
+    private long ratingCount = 0L;
+
+    private BigDecimal ratingAverage = BigDecimal.ZERO;
 }
