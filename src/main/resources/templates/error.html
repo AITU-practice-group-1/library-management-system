@@ -33,5 +33,6 @@
 <h1>💣 Something went wrong</h1>
 <p>You're lost, or the system blew up. Either way, not your lucky day.</p>
 <p><a onclick="window.history.back()">← Go back to previous page</a></p>
+<p th:if="${errorMessage}" th:text="${errorMessage}" class="error"></p>
 </body>
 </html>

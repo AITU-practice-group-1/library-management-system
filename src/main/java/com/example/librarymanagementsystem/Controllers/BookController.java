@@ -1,24 +1,31 @@
 package com.example.librarymanagementsystem.Controllers;
 
 import com.example.librarymanagementsystem.DTOs.book.BookDTO;
+import com.example.librarymanagementsystem.DTOs.feedback.FeedbackRequestDTO;
+import com.example.librarymanagementsystem.DTOs.feedback.FeedbackResponseDTO;
 import com.example.librarymanagementsystem.Entities.Genre;
+import com.example.librarymanagementsystem.Entities.User;
+import com.example.librarymanagementsystem.Services.FavoriteBookService;
+import com.example.librarymanagementsystem.Services.FeedbackService;
 import com.example.librarymanagementsystem.Services.impl.BookServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Controller
@@ -26,6 +33,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BookController {
     private final BookServiceImpl bookService;
+    private final FeedbackService feedbackService;
+    // 1. Inject the FavoriteBookService
+    private final FavoriteBookService favoriteBookService;
 
     @GetMapping("/new")
     @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
@@ -60,15 +70,59 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public String ShowBook(@PathVariable UUID id, Model model) {
-        model.addAttribute("book", bookService.getBookById(id));
-        // You can add other model attributes here like:
-        // model.addAttribute("reviews", reviewService.findByBook(id));
-        // model.addAttribute("isFavorite", favoriteService.isFavorite(id, currentUser));
-        return "books/book"; // Renders the public-facing page
+    public String showBook(@PathVariable UUID id, Model model, @AuthenticationPrincipal User user,
+                           @RequestParam(defaultValue = "createdAt") String sort,
+                           @RequestParam(defaultValue = "desc") String dir,
+                           @RequestParam(defaultValue = "0") int page,
+                           @RequestParam(defaultValue = "5") int size) throws Exception {
+        System.out.println("BookDTO book = bookService.getBookById(id);");
+        BookDTO book = bookService.getBookById(id);
+        if (book == null) {
+            return "books/book";
+        }
+        model.addAttribute("book", book);
+
+
+        // Favorite Status
+        boolean isFavorite = false;
+        if (user != null) {
+            isFavorite = favoriteBookService.isBookInFavorites(user.getId(), id);
+        }
+        model.addAttribute("isFavorite", isFavorite);
+
+        // Reviews & Feedback Logic
+        Sort.Direction direction = "asc".equalsIgnoreCase(dir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
+
+        System.out.println("Page<FeedbackResponseDTO> reviews");
+
+        Page<FeedbackResponseDTO> reviews = null;
+
+        reviews = feedbackService.getByBookId(id, pageable);
+
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("sortField", sort);
+        model.addAttribute("sortDir", dir);
+
+        if (!model.containsAttribute("feedbackRequest")) {
+            model.addAttribute("feedbackRequest", new FeedbackRequestDTO());
+        }
+
+        if (user != null) {
+            Optional<FeedbackResponseDTO> userReview = feedbackService.getByBookIdAndUserId(id, user.getId());
+            userReview.ifPresent(review -> {
+                // Also add the 'userReview' object for the edit form
+                if (!model.containsAttribute("userReview")) {
+                    model.addAttribute("userReview", review);
+                }
+            });
+            model.addAttribute("hasUserReviewed", userReview.isPresent());
+        } else {
+            model.addAttribute("hasUserReviewed", false);
+        }
+        return "books/book";
     }
 
-    // NEW --- Add this method for the ADMIN/LIBRARIAN detailed view
     @GetMapping("/{id}/manage")
     @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
     public String ShowBookDetailsForAdmin(@PathVariable UUID id, Model model) {
@@ -78,37 +132,32 @@ public class BookController {
 
     @GetMapping
     public String ShowAllBooks(@RequestParam(value = "keyword", required = false) String keyword,
-                               // Change the type from Genre to String
                                @RequestParam(value = "genre", required = false) String genre,
                                @PageableDefault(size = 10, sort = "title") Pageable pageable,
                                Model model) {
 
-        // Manually convert the string to a Genre enum
         Genre genreEnum = null;
-        if (StringUtils.hasText(genre)) { // Use StringUtils to check for non-empty text
+        if (StringUtils.hasText(genre)) {
             try {
                 genreEnum = Genre.valueOf(genre);
             } catch (IllegalArgumentException e) {
-                // Log the error or handle it as you see fit if an invalid genre string is passed
-                // For now, we can just ignore it and it will be treated as 'all genres'
+                // Ignore invalid genre string
             }
         }
 
-        // Pass the converted enum to the service
         Page<BookDTO> books = bookService.findPaginatedAndFiltered(keyword, genreEnum, pageable);
 
         model.addAttribute("bookPage", books);
         model.addAttribute("keyword", keyword);
-        model.addAttribute("genre", genreEnum); // Pass the enum to the model for th:selected
+        model.addAttribute("genre", genreEnum);
         model.addAttribute("allGenres", Genre.values());
 
-        // This logic is correct now, but ensure it's in place
         Sort.Order sortOrder = pageable.getSort().stream().findFirst().orElse(null);
         if (sortOrder != null) {
             model.addAttribute("sortField", sortOrder.getProperty());
             model.addAttribute("sortDir", sortOrder.getDirection().name());
         } else {
-            model.addAttribute("sortField", "title"); // Default sort field
+            model.addAttribute("sortField", "title");
             model.addAttribute("sortDir", "ASC");
         }
 
@@ -132,7 +181,7 @@ public class BookController {
         model.addAttribute("sortField", pageable.getSort().get().findFirst().get().getProperty());
         model.addAttribute("sortDir", pageable.getSort().get().findFirst().get().getDirection().name());
 
-        return "books/admin_books"; // This maps to the new admin/librarian view
+        return "books/admin_books";
     }
 
 
@@ -145,7 +194,7 @@ public class BookController {
         return "books/edit";
     }
 
-    @PostMapping("/{id}/update") // Using POST for form submission simplicity
+    @PostMapping("/{id}/update")
     @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
     public String UpdateBook(@PathVariable UUID id,
                              @Valid @ModelAttribute("book") BookDTO bookDTO,

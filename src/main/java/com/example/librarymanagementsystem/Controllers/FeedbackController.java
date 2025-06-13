@@ -4,6 +4,7 @@ import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackRequestDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackResponseDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackUpdateDTO;
+import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Services.FeedbackService;
 import com.example.librarymanagementsystem.Services.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,7 +25,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("/api/feedback")
+@RequestMapping("/reviews")
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
@@ -58,7 +60,7 @@ public class FeedbackController {
         } catch (Exception e) {
             System.out.println("NOT AUTHORIZED: " + e.getMessage());
         }
-        model.addAttribute("feedbacks", feedbacksPage); // Pass the Page object
+        model.addAttribute("feedbacks", feedbacksPage);
         model.addAttribute("bookId", bookId);
         model.addAttribute("currentUserId", currentUserId);
         model.addAttribute("isAdmin", isAdmin);
@@ -66,26 +68,35 @@ public class FeedbackController {
     }
 
     // create feedback to specific book
-    @PostMapping("/book/{bookId}")
-    public String createFeedback(@PathVariable UUID bookId, @Valid @ModelAttribute FeedbackRequestDTO feedbackRequestDTO,
-                                 BindingResult result, Model model, RedirectAttributes redirectAttributes) {
-        if (result.hasErrors()) {
-            model.addAttribute("bookId", bookId);
-            return "feedback/create";
-        }
-
-        UUID userId = null; // Retrieve userId from UserService
+    @PostMapping("/add")
+    public String createFeedback(@Valid @ModelAttribute("feedbackRequest") FeedbackRequestDTO feedbackRequestDTO,
+                                 BindingResult result,
+                                 @AuthenticationPrincipal UserDTO user,
+                                 RedirectAttributes redirectAttributes) {
+        System.out.println(user);
         try {
-            userId = userService.getAuhtenticatedUser().getId();
+            user = userService.getAuhtenticatedUser();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        feedbackRequestDTO.setUserId(userId);
-        feedbackRequestDTO.setBookId(bookId);
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.feedbackRequest", result);
+            redirectAttributes.addFlashAttribute("feedbackRequest", feedbackRequestDTO);
+            return "redirect:/books/" + feedbackRequestDTO.getBookId() + "?error=true";
+        }
 
-        FeedbackResponseDTO feedback = feedbackService.createFeedback(feedbackRequestDTO);
-        redirectAttributes.addFlashAttribute("successMessage", "Feedback created successfully!");
-        return "redirect:/api/feedback/book/" + bookId;
+        try {
+            feedbackRequestDTO.setUserId(user.getId());
+            feedbackService.createFeedback(feedbackRequestDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Your review has been submitted successfully!");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred.");
+        }
+
+        return "redirect:/books/" + feedbackRequestDTO.getBookId();
     }
 
     // create feedback page with form
@@ -99,30 +110,27 @@ public class FeedbackController {
     }
 
     // update specific feedback (only user's personal feedbacks)
-    @PostMapping("/{id}/edit")
-    public String updateFeedback(@PathVariable UUID id, @Valid @ModelAttribute FeedbackUpdateDTO feedbackUpdateDTO,
-                                 BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+    @PostMapping("/update")
+    public String updateFeedback(@Valid @ModelAttribute("userReview") FeedbackUpdateDTO feedbackUpdateDTO,
+                                 BindingResult result,
+                                 @AuthenticationPrincipal User user,
+                                 RedirectAttributes redirectAttributes) {
+        FeedbackResponseDTO existingReview = feedbackService.getById(feedbackUpdateDTO.getId());
+
         if (result.hasErrors()) {
-            model.addAttribute("feedbackId", id);
-            return "feedback/update";
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userReview", result);
+            redirectAttributes.addFlashAttribute("userReview", feedbackUpdateDTO);
+            return "redirect:/books/" + existingReview.getBookId() + "?error=true&edit=true";
         }
 
-        UserDTO currentUser = null;
-        FeedbackResponseDTO feedback = feedbackService.getById(id);
-        try {
-            currentUser = userService.getAuhtenticatedUser();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (!existingReview.getUserId().equals(user.getId())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "You are not authorized to edit this review.");
+            return "redirect:/books/" + existingReview.getBookId();
         }
 
-        if (!currentUser.getId().equals(feedback.getUserId())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "You are not authorized to delete this feedback!");
-            return "redirect:/api/feedback/book/" + feedback.getBookId();
-        }
-
-        FeedbackResponseDTO updatedFeedback = feedbackService.updateFeedback(id, feedbackUpdateDTO);
-        redirectAttributes.addFlashAttribute("successMessage", "Feedback updated successfully!");
-        return "redirect:/api/feedback/book/" + updatedFeedback.getBookId();
+        feedbackService.updateFeedback(feedbackUpdateDTO.getId(), feedbackUpdateDTO);
+        redirectAttributes.addFlashAttribute("successMessage", "Your review has been updated.");
+        return "redirect:/books/" + existingReview.getBookId();
     }
 
     // update page with form
@@ -135,22 +143,16 @@ public class FeedbackController {
 
     // delete button (only user's personal feedbacks)
     @PostMapping("/{id}/delete")
-    public String deleteFeedback(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
-
-        UserDTO currentUser = null;
+    public String deleteFeedback(@PathVariable UUID id, @AuthenticationPrincipal UserDTO user, RedirectAttributes redirectAttributes) {
         FeedbackResponseDTO feedback = feedbackService.getById(id);
-        try {
-            currentUser = userService.getAuhtenticatedUser();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+
+        if (!feedback.getUserId().equals(user.getId()) && !user.getRole().equals("ROLE_ADMIN")) {
+            redirectAttributes.addFlashAttribute("errorMessage", "You are not authorized to delete this review.");
+            return "redirect:/books/" + feedback.getBookId();
         }
-        System.out.println(currentUser.getRole());
-        if (!currentUser.getId().equals(feedback.getUserId()) && (!Objects.equals(currentUser.getRole(), "ROLE_ADMIN"))) {
-            redirectAttributes.addFlashAttribute("errorMessage", "You are not authorized to delete this feedback!");
-            return "redirect:/api/feedback/book/" + feedback.getBookId();
-        }
+
         feedbackService.deleteFeedback(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Feedback deleted successfully!");
-        return "redirect:/api/feedback/book/" + feedback.getBookId();
+        redirectAttributes.addFlashAttribute("successMessage", "The review has been deleted.");
+        return "redirect:/books/" + feedback.getBookId();
     }
 }

@@ -17,9 +17,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Реализация сервиса для управления избранными книгами.
- */
 @Service
 @Transactional(readOnly = true) // Большинство методов только для чтения, поэтому ставим readOnly=true по умолчанию
 public class FavoriteBookServiceImpl implements FavoriteBookService {
@@ -37,9 +34,6 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
         this.userServices = userServices;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional // Переопределяем транзакцию, так как этот метод изменяет данные
     public void addBookToFavorites(UUID userId, UUID bookId) {
@@ -67,9 +61,6 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
         favoriteBookRepository.save(favoriteBook);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @Transactional // Этот метод также изменяет данные
     public void removeBookFromFavorites(UUID userId, UUID bookId) {
@@ -82,9 +73,6 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
         favoriteBookRepository.deleteByUserAndBook(user, book);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public List<Book> getFavoriteBooksForUser(UUID userId) {
         User user = userRepository.findById(userId)
@@ -96,9 +84,6 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isBookInFavorites(UUID userId, UUID bookId) {
         User user = userRepository.findById(userId)

@@ -6,12 +6,14 @@ import com.example.librarymanagementsystem.DTOs.feedback.FeedbackUpdateDTO;
 import com.example.librarymanagementsystem.Entities.Feedback;
 import com.example.librarymanagementsystem.Repositories.FeedbackRepository;
 import com.example.librarymanagementsystem.mapper.FeedbackMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,9 +33,9 @@ public class FeedbackService {
         return feedbackMapper.toDTO(feedback);
     }
 
-    public Page<FeedbackResponseDTO> getByBookId(UUID bookId, Pageable pageable) {
-        Page<Feedback> feedbackPage = feedbackRepo.findByBookId(bookId, pageable);
-        return feedbackPage.map(feedbackMapper::toDTO);
+    public Page<FeedbackResponseDTO> getByBookId(UUID bookId, Pageable pageable) throws Exception{
+            Page<Feedback> feedbackPage = feedbackRepo.findByBookId(bookId, pageable);
+            return feedbackPage.map(feedbackMapper::toDTO);
     }
 
     public Page<FeedbackResponseDTO> getByUserId(UUID userId, Pageable pageable) {
@@ -41,7 +43,15 @@ public class FeedbackService {
         return feedbackPage.map(feedbackMapper::toDTO);
     }
 
+    public Optional<FeedbackResponseDTO> getByBookIdAndUserId(UUID bookId, UUID userId) {
+        return feedbackRepo.findByBookIdAndUserId(bookId, userId)
+                .map(feedbackMapper::toDTO);
+    }
+
     public FeedbackResponseDTO createFeedback(FeedbackRequestDTO feedbackRequestDTO) {
+        if (feedbackRepo.existsByBookIdAndUserId(feedbackRequestDTO.getBookId(), feedbackRequestDTO.getUserId())) {
+            throw new IllegalStateException("You already have a feedback");
+        }
         Feedback feedback = feedbackMapper.toEntity(feedbackRequestDTO);
 
         feedbackRepo.save(feedback);
