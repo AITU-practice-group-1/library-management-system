@@ -17,7 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -121,6 +123,15 @@ public class BookController {
         } else {
             model.addAttribute("hasUserReviewed", false);
         }
+
+        // Add current role to model for debugging
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities() != null && !auth.getAuthorities().isEmpty()) {
+            model.addAttribute("currentRole", auth.getAuthorities().iterator().next().getAuthority());
+        } else {
+            model.addAttribute("currentRole", "No Role");
+        }
+
         return "books/book";
     }
 

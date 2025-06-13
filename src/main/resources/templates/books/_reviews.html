@@ -6,12 +6,17 @@
   <!-- User's Own Review Section -->
   <div sec:authorize="isAuthenticated()">
     <div th:if="${userReview != null}">
-      <!-- **FIXED**: Wrapped the fragment expression -->
       <div th:replace="~{books/_user-review :: user-review-display}"></div>
+      <!-- Edit and Delete Buttons for User's Own Review -->
+      <div class="mt-2">
+        <form th:action="@{/reviews/{id}/delete(id=${userReview.id})}" method="post" style="display:inline;">
+          <input type="hidden" name="_method" value="delete"/>
+          <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this review?');">Delete</button>
+        </form>
+      </div>
     </div>
     <div th:if="${userReview == null}">
       <h4>Write a Review</h4>
-      <!-- **FIXED**: Wrapped the fragment expression -->
       <div th:replace="~{books/_review-form :: review-form(formAction=@{/reviews/add}, formObjectId='feedbackRequest', submitButtonText='Submit Review')}"></div>
     </div>
   </div>
@@ -56,12 +61,21 @@
           <h6 class="card-title" th:text="${review.firstName}">User Name</h6>
           <div class="star-rating">
             <span th:each="i : ${#numbers.sequence(1, 5)}">
-                <i class="bi" th:classappend="${i <= review.rating} ? 'bi-star-fill' : 'bi-star'"></i>
+              <i class="bi" th:classappend="${i <= review.rating} ? 'bi-star-fill' : 'bi-star'"></i>
             </span>
           </div>
         </div>
         <p class="card-text" th:text="${review.comment}">Review comment.</p>
         <small class="text-muted" th:text="'Reviewed on ' + ${#temporals.format(review.createdAt, 'MMMM dd, yyyy')}">Date</small>
+        <!-- Edit and Delete Buttons for Review Owner or Admin -->
+        <div class="mt-2" sec:authorize="isAuthenticated()">
+          <div sec:authorize="hasRole('ROLE_ADMIN')">
+            <form th:action="@{/reviews/{id}/delete(id=${review.id})}" method="post" style="display:inline;">
+              <input type="hidden" name="_method" value="delete"/>
+              <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this review?');">Delete</button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 

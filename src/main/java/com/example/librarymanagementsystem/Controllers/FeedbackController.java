@@ -153,10 +153,13 @@ public class FeedbackController {
 
     // delete button (only user's personal feedbacks)
     @PostMapping("/{id}/delete")
-    public String deleteFeedback(@PathVariable UUID id, @AuthenticationPrincipal UserDTO user, RedirectAttributes redirectAttributes) {
+
+    public String deleteFeedback(@PathVariable UUID id, @AuthenticationPrincipal User user, RedirectAttributes redirectAttributes) {
         FeedbackResponseDTO feedback = feedbackService.getById(id);
 
-        if (!feedback.getUserId().equals(user.getId()) && !user.getRole().equals("ROLE_ADMIN")) {
+
+        if (!feedback.getUserId().equals(user.getId()) && !user.getRole().equals("ADMIN")) {
+            System.out.println(user.getRole());
             redirectAttributes.addFlashAttribute("errorMessage", "You are not authorized to delete this review.");
             return "redirect:/books/" + feedback.getBookId();
         }
