@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- This fragment defines the review form and accepts parameters -->
+<div th:fragment="review-form(formAction, formObjectId, submitButtonText)">
+    <!-- The th:object now uses the variable passed from the parent fragment -->
+    <form th:action="${formAction}" th:object="${__${formObjectId}__}" method="post">
+
+        <!-- Only include the hidden 'id' field if this is the EDIT form (for updating existing review) -->
+        <input type="hidden" th:if="${formObjectId == 'userReview'}" th:field="*{id}" />
+
+        <!-- Only include the hidden 'bookId' field if this is the ADD form (for creating a new review) -->
+        <input type="hidden" name="bookId" th:value="${book.id}" th:if="${formObjectId == 'feedbackRequest'}" />
+
+        <!-- Rating Selection -->
+        <div class="mb-3">
+            <label for="rating" class="form-label">Your Rating</label>
+            <select class="form-select" id="rating" th:field="*{rating}" required>
+                <option value="">-- Select a Rating --</option>
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Very Good</option>
+                <option value="3">3 - Good</option>
+                <option value="2">2 - Fair</option>
+                <option value="1">1 - Poor</option>
+            </select>
+            <div class="text-danger small" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></div>
+        </div>
+
+        <!-- Comment Text Area -->
+        <div class="mb-3">
+            <label for="comment" class="form-label">Your Comments</label>
+            <textarea class="form-control" id="comment" rows="3" th:field="*{comment}"></textarea>
+            <div class="text-danger small" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}"></div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary" th:text="${submitButtonText}">Submit</button>
+    </form>
+</div>
+
+</body>
+</html>
