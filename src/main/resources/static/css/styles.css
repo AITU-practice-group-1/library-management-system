@@ -1,0 +1,228 @@
+:root {
+    /* Цвета */
+    --bg-color: #fdf6e3;
+    --card-bg: #fffaf0;
+    --text-color: #5d4037;
+    --accent-color: #8d6e63;
+    --accent-hover: #6d4c41;
+    --input-border: #ccc;
+    --table-header: #efebe9;
+
+    /* Размеры и отступы */
+    --max-width: 1200px;
+    --radius: 12px;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+    /* Шрифты */
+    --font-family: 'Segoe UI', sans-serif;
+}
+
+/* Общий фон и шрифт */
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 0;
+}
+
+/* Заголовок */
+h1 {
+    text-align: center;
+    color: var(--text-color);
+    margin-top: 24px;
+}
+
+/* Контейнер формы */
+.form-container {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 24px;
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+/* Метки */
+label {
+    font-weight: bold;
+    color: var(--text-color);
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* Поля ввода */
+input[type="date"],
+select,
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 18px;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    background-color: #fff;
+}
+
+/* Кнопка */
+button {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: var(--accent-hover);
+}
+
+/* Ссылка "Назад" */
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Таблица */
+.table-container {
+    max-width: var(--max-width);
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: var(--table-header);
+    color: var(--text-color);
+}
+
+/* Общие ссылки */
+a {
+    color: var(--accent-hover);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+nav {
+    background-color: var(--accent-color);
+    padding: 16px 0;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.nav-container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo a {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+    text-decoration: none;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-links li a:hover {
+    color: #ffe0b2;
+}
+
+.create-button {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    margin: 16px 0;
+    transition: background-color 0.3s ease;
+}
+
+.create-button:hover {
+    background-color: #5d4037; /* немного темнее accent-color */
+}
+
+
+/* ======================== */
+/*       TABLE STYLE        */
+/* ======================== */
+.loan-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: white;
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.loan-table th, .loan-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.loan-table th {
+    background-color: var(--accent-color);
+    color: white;
+    font-weight: 600;
+}
+
+.loan-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Optional: align action buttons */
+.loan-table td:last-child {
+    white-space: nowrap;
+}

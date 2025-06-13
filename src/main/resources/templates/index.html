@@ -5,7 +5,9 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <title>Library Management System</title>
+
     <style>
         body {
             background-color: #f2f2f2;
@@ -88,7 +90,7 @@
 <header>
     <h1>📚 Library Management System</h1>
 </header>
-
+<div th:include="fragments/navbar::navbar"></div>
 <div class="container">
     <a th:href="@{/books}" class="btn">📖 View Books</a>
     <a th:href="@{/users/home}" class="btn">👤 My Profile</a>

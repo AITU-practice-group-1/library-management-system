@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="navbar">
+    <nav>
+        <div class="nav-container" th:data-user-id="${#authentication.principal.id}">
+            <div class="logo">
+                <a th:href="@{/}">📚 MyLibrary</a>
+            </div>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">🏠 Home</a></li>
+                <li><a th:href="@{/books}">Books</a></li>
+                <li><a href="#" id="favorites-link">Favorites</a></li>
+                <li><a th:href="@{/loans}">Loans</a></li>
+                <li><a href="#" id="reservations-link">Reservations</a></li>
+                <li><a th:href="@{/logout}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector(".nav-container");
+            const userId = container?.dataset.userId;
+
+            if (userId) {
+                document.getElementById("favorites-link").href = `/favorites?userId=${userId}`;
+                document.getElementById("reservations-link").href = `/reservations?userId=${userId}`;
+            }
+        });
+    </script>
+</div>
+
+</body>
+</html>

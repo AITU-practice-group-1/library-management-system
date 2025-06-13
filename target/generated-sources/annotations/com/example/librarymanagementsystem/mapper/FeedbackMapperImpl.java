@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-12T20:49:51+0500",
-    comments = "version: 1.6.3, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
+    date = "2025-06-13T12:02:46+0500",
+    comments = "version: 1.6.3, compiler: javac, environment: Java 17.0.15 (Microsoft)"
 )
 @Component
 public class FeedbackMapperImpl implements FeedbackMapper {

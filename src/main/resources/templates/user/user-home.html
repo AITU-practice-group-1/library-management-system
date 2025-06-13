@@ -3,6 +3,7 @@
 <head>
     <title>User Home</title>
     <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -59,7 +60,7 @@
     </style>
 </head>
 <body>
-
+<div th:replace="fragments/navbar::navbar"></div>
 <h1>Добро пожаловать, <span th:text="${user.getFirstName()}"></span>!</h1>
 <p class="email" th:text="${user.getEmail()}"></p>
 <p id="id" style="display: none" th:text="${user.getId()}"></p>

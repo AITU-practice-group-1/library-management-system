@@ -14,11 +14,12 @@
         .sort-link .bi { opacity: 0.5; }
         .sort-link.active .bi { opacity: 1; color: var(--bs-primary); }
     </style>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
 
 
-
+<div th:replace="fragments/navbar::navbar"></div>
 <div class="container mt-4">
 
     <div class="p-4 mb-4 bg-light rounded-3">

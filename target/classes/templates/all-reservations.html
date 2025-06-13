@@ -2,8 +2,10 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Your Reservations</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
+<div th:replace="fragments/navbar::navbar"></div>
 <h1>Your Reservations</h1>
 
 <form th:action="@{/reservations}" method="post">

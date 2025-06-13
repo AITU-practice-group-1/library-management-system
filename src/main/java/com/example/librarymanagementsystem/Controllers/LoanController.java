@@ -12,6 +12,7 @@ import com.example.librarymanagementsystem.Services.LoanServices;
 import com.example.librarymanagementsystem.Services.ReservationsServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -41,23 +42,28 @@ public class LoanController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<LoanDTO> loans;
-        if (user.getRole().equals("ADMIN") || user.getRole().equals("LIBRARIAN")) {
+        boolean canEdit = user.getRole().equals("ADMIN") || user.getRole().equals("LIBRARIAN");
+
+        if (canEdit) {
             loans = loanServices.findAll();
         } else {
             loans = loanServices.getLoansByUserId(user.getId());
         }
 
         model.addAttribute("loans", loans);
+        model.addAttribute("canEdit", canEdit);
         return "loan/list";
     }
 
 
     @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
     public String searchApprovedForm() {
         return "loan/search"; // форма ввода email
     }
 
     @PostMapping("/search")
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
     public String searchApprovedReservations(@RequestParam String email, Model model) {
         List<Reservations> reservations = reservationsRepository
                 .findByUserEmailAndStatus(email, Reservations.ReservationStatus.FULFILLED);
@@ -68,6 +74,7 @@ public class LoanController {
     }
 
     @GetMapping("/create")
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
     public String createLoanForm(Model model) {
         model.addAttribute("loan", new LoanDTO());
         model.addAttribute("books", bookRepository.findAll());
@@ -76,6 +83,7 @@ public class LoanController {
     }
 
     @GetMapping("/create-from-reservation/{reservationId}")
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
     public String createLoanFromReservation(@PathVariable UUID reservationId, Model model) {
         Reservations res = reservationsRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
@@ -93,6 +101,7 @@ public class LoanController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
     public String createLoan(@Valid @ModelAttribute("loan") LoanDTO loanDTO, Principal principal) {
         var librarian = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new RuntimeException("Librarian not found"));
@@ -107,12 +116,14 @@ public class LoanController {
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
     public String findLoanById(@PathVariable UUID id, Model model) {
         model.addAttribute("loan", loanServices.findById(id));
         return "loan/detail";
     }
 
     @GetMapping("/{id}/edit")
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
     public String editLoanForm(@PathVariable UUID id, Model model) {
         var loanDTO = loanServices.findById(id); // LoanDTO
         LoanUpdateDTO updateDTO = new LoanUpdateDTO();
@@ -126,6 +137,7 @@ public class LoanController {
 
 
     @PostMapping("/{id}/edit")
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
     public String updateLoan(@PathVariable UUID id, @ModelAttribute("updateDTO") LoanUpdateDTO updateDTO) {
         loanServices.updateLoan(id, updateDTO);
         return "redirect:/loans";
