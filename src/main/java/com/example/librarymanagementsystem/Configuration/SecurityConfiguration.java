@@ -1,6 +1,9 @@
 package com.example.librarymanagementsystem.Configuration;
 
 import com.example.librarymanagementsystem.Services.CustomUserDetailsService;
+import com.example.librarymanagementsystem.Services.InMemorySessionStore;
+import com.example.librarymanagementsystem.security.SingleDeviceAuthenticationFilter;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,10 +13,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -21,6 +26,12 @@ import org.springframework.http.HttpMethod;
 public class SecurityConfiguration {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private SingleDeviceAuthenticationFilter singleDeviceAuthenticationFilter;
+
+    @Autowired
+    private InMemorySessionStore sessionStore;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -43,12 +54,26 @@ public class SecurityConfiguration {
               .formLogin(form -> form
                       .loginPage("/users/login")
                       .permitAll()
+                      .successHandler((request, response, authentication) -> {
+                          HttpSession session = request.getSession();
+                          UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                          String deviceInfo = request.getRemoteAddr() + " | " + request.getHeader("User-Agent");
+                          sessionStore.registerNewSession(userDetails.getUsername(), session.getId(), deviceInfo);
+                          response.sendRedirect("/books");
+                      })
               )
               .logout(logout -> logout
                       .logoutUrl("/logout")
                       .logoutSuccessUrl("/")
                       .permitAll()
+                      .addLogoutHandler((request, response, authentication) -> {
+                          HttpSession session = request.getSession(false);
+                          if (session != null) {
+                              sessionStore.invalidateSession(session.getId());
+                          }
+                      })
               )
+              .addFilterBefore(singleDeviceAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
               .exceptionHandling(ex ->ex.accessDeniedPage("/error/403"))
               .build();
     }

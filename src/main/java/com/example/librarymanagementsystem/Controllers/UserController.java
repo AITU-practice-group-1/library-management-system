@@ -24,7 +24,7 @@ public class UserController {
     @GetMapping("/home")
     private String homePage(Model model){
         try{
-            UserDTO responceDTO = userServices.getAuhtenticatedUser();
+            UserDTO responceDTO = userServices.getAuthenticatedUser();
             model.addAttribute("user", responceDTO);
         }catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());
@@ -66,7 +66,7 @@ public class UserController {
     @GetMapping("/edit")
     private String editPage(Model model){
         try{
-            UserDTO dto = userServices.getAuhtenticatedUser();
+            UserDTO dto = userServices.getAuthenticatedUser();
             model.addAttribute("user", dto);
         }catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());

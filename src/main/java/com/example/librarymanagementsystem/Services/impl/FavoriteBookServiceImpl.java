@@ -38,7 +38,7 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
     @Transactional // Переопределяем транзакцию, так как этот метод изменяет данные
     public void addBookToFavorites(UUID userId, UUID bookId) {
         try {
-            UserDTO user = userServices.getAuhtenticatedUser();
+            UserDTO user = userServices.getAuthenticatedUser();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

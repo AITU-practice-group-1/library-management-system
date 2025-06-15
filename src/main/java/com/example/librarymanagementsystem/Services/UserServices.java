@@ -46,7 +46,7 @@ public class UserServices {
         }
     }
 
-    public UserDTO getAuhtenticatedUser() throws Exception {
+    public UserDTO getAuthenticatedUser() throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User userDetails = userRepository.findByEmail(auth.getName()).orElseThrow(() -> new Exception("User not found"));
         UserDTO userDTO = new UserDTO();
@@ -98,7 +98,7 @@ public class UserServices {
     }
     public void updateUser(UserDTO dto) throws Exception {
         try{
-            UUID id = getAuhtenticatedUser().getId()    ;
+            UUID id = getAuthenticatedUser().getId()    ;
             User user = getUserById(id);
             if(dto.getEmail() != null)
             {
