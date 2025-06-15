@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,8 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.Objects;
+
 import java.util.UUID;
 
 @Controller
@@ -57,7 +55,7 @@ public class FeedbackController {
         UUID currentUserId = null;
         boolean isAdmin = false;
         try {
-            UserDTO currentUser = userService.getAuhtenticatedUser();
+            UserDTO currentUser = userService.getAuthenticatedUser();
             currentUserId = currentUser.getId();
             isAdmin = currentUser.getRole().equals("ROLE_ADMIN");
         } catch (Exception e) {
@@ -78,7 +76,7 @@ public class FeedbackController {
                                  RedirectAttributes redirectAttributes) {
         System.out.println(user);
         try {
-            user = userService.getAuhtenticatedUser();
+            user = userService.getAuthenticatedUser();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
