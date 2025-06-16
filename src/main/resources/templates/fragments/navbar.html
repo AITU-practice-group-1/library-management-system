@@ -3,24 +3,45 @@
 <body>
 <div th:fragment="navbar">
     <nav>
-        <div class="nav-container" th:data-user-id="${#authentication.principal.id}">
+        <div class="nav-container"
+             th:if="${#authentication.authenticated and #authentication.name != 'anonymousUser'}"
+             th:data-user-id="${#authentication.principal.id}">
+            <div class="nav-left">
+                <div class="logo">
+                    <a th:href="@{/}">📚 MyLibrary</a>
+                </div>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" class="nav-link">🏠 Home</a></li>
+                    <li><a th:href="@{/books}" class="nav-link">Books</a></li>
+                    <li><a href="#" id="favorites-link" class="nav-link">Favorites</a></li>
+                    <li><a href="#" id="reservations-link" class="nav-link">Reservations</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="nav-container"
+             th:if="${not (#authentication.authenticated and #authentication.name != 'anonymousUser')}">
             <div class="logo">
                 <a th:href="@{/}">📚 MyLibrary</a>
             </div>
             <ul class="nav-links">
-                <li><a th:href="@{/}">🏠 Home</a></li>
-                <li><a th:href="@{/books}">Books</a></li>
-                <li><a href="#" id="favorites-link">Favorites</a></li>
-                <li><a th:href="@{/loans}">Loans</a></li>
-                <li><a href="#" id="reservations-link">Reservations</a></li>
-                <li><a th:href="@{/logout}">Logout</a></li>
+                <li><a th:href="@{/}" class="nav-link">🏠 Home</a></li>
+                <li><a th:href="@{/books}" class="nav-link">Books</a></li>
+                <li><a th:href="@{/users/login}" class="nav-link">Login</a></li>
+                <li><a th:href="@{/users/register}" class="nav-link">Register</a></li>
             </ul>
         </div>
     </nav>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const container = document.querySelector(".nav-container");
+            const container = document.querySelector(".nav-container[data-user-id]");
             const userId = container?.dataset.userId;
 
             if (userId) {
@@ -30,6 +51,5 @@
         });
     </script>
 </div>
-
 </body>
 </html>

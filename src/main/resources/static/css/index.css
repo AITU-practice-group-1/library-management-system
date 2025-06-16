@@ -1,0 +1,15 @@
+.container.centered-flex {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+
+.container .btn {
+    min-width: 180px;
+    font-size: 16px;
+    font-weight: 600;
+}

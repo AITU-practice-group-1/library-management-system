@@ -1,126 +1,43 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Home Page</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 220px;
-            background-color: #2c3e50;
-            padding: 20px;
-            color: white;
-        }
-
-        .sidebar h2 {
-            margin-top: 0;
-            font-size: 22px;
-        }
-
-        .sidebar a {
-            display: block;
-            color: white;
-            padding: 10px;
-            margin: 10px 0;
-            text-decoration: none;
-            background-color: #34495e;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .sidebar a:hover {
-            background-color: #1abc9c;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 40px;
-        }
-
-        h1 {
-            font-size: 32px;
-            margin-bottom: 20px;
-        }
-
-        #userList {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        #userList h3 {
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        li:last-child {
-            border-bottom: none;
-        }
-
-        a.user-link {
-            text-decoration: none;
-            color: #2c3e50;
-            font-weight: bold;
-        }
-
-        a.user-link:hover {
-            text-decoration: underline;
-        }
-
-        .text-danger {
-            color: red;
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/user/admin-home.css">
 </head>
 <body>
 
-<div class="sidebar">
-    <h2>Admin Menu</h2>
-    <a href="/home/default">Show All Default Users</a>
-    <a href="/home/librarian">Show All Librarians</a>
-    <a href="/books">Books List</a>
-    <a href="/users">All Users</a>
-    <a href="/logout">Logout</a>
-</div>
+<div th:replace="fragments/navbar::navbar"></div>
 
-<div class="main-content">
-    <h1>Admin Dashboard</h1>
+<div class="admin-container">
+    <div class="main-content">
+        <h1>Панель администратора</h1>
 
-    <div id="userList">
-        <h3>Users:</h3>
-        <ul>
-            <li th:each="user : ${users}">
-                <a th:href="@{/users/profile/{id}(id=${user.getId()})}"
-                   class="user-link">
-                    <span th:text="${user.getFirstName()}">User Name</span> — <span th:text="${user.role}">Role</span>
-                </a>
-            </li>
-        </ul>
+        <div id="userList">
+            <h3>Пользователи:</h3>
+            <ul>
+                <li th:each="user : ${users}">
+                    <a th:href="@{/users/profile/{id}(id=${user.getId()})}" class="user-link">
+                        <span th:text="${user.getFirstName()}">User Name</span> —
+                        <span th:text="${user.role}">Role</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <p th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger"></p>
     </div>
 
-    <p th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger"></p>
+    <aside class="sidebar">
+        <h2>Меню</h2>
+        <a href="/home/default">Все пользователи</a>
+        <a href="/home/librarian">Библиотекари</a>
+        <a href="/books">Список книг</a>
+        <a href="/users">Пользователи</a>
+        <a href="/logout" class="logout-link">Выйти</a>
+    </aside>
 </div>
 
 </body>
