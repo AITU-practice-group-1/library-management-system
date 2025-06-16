@@ -15,9 +15,19 @@
         .sort-link.active .bi { opacity: 1; color: var(--bs-primary); }
     </style>
 </head>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const userId = localStorage.getItem("id");
+        if (userId) {
+            document.querySelectorAll(".user-id-field").forEach(field => {
+                field.value = userId;
+            });
+        }
+    });
+</script>
+
 <body>
-
-
 
 <div class="container mt-4">
 
@@ -74,48 +84,29 @@
 
     <!-- Book Listing -->
     <div th:if="${bookPage.hasContent()}" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-        <!-- Loop through each book -->
         <div th:each="book : ${bookPage.content}" class="col">
-            <div class="card h-100 shadow-sm">
+            <div class="card h-100">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title" th:text="${book.title}">Book Title</h5>
                     <h6 class="card-subtitle mb-2 text-muted" th:text="${book.author}">Author Name</h6>
-
-                    <!-- RATING DISPLAY - NEW -->
-                    <!-- This block will only appear if the book has one or more ratings. -->
-                    <div th:if="${book.ratingCount > 0}" class="d-flex align-items-center mb-2" title="Average rating">
-                        <!-- Star Icon -->
-                        <i class="bi bi-star-fill" style="color: #FFD700;"></i>
-                        <!-- Formatted Average Rating -->
-                        <span class="ms-1 fw-bold" th:text="${#numbers.formatDecimal(book.ratingAverage, 1, 1)}">4.5</span>
-                        <!-- Number of Ratings -->
-                        <span class="ms-1 text-muted small" th:text="'(' + ${book.ratingCount} + ' ratings)'">(120)</span>
-                    </div>
                     <p class="card-text small">
                         <span class="badge bg-secondary" th:text="${book.genre.displayName}">Genre</span>
-                        <span class="badge bg-light text-dark border" th:text="${book.publishedYear}">Year</span>
+                        <span class="badge bg-light text-dark" th:text="${book.publishedYear}">Year</span>
                     </p>
-
-                    <!-- This 'mt-auto' div pushes all content below it to the bottom of the card -->
                     <div class="mt-auto pt-3">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span th:if="${book.availableCopies > 0}" class="badge bg-success">Available</span>
-                                <span th:if="${book.availableCopies == 0}" class="badge bg-danger">All Loaned</span>
-                            </div>
-                            <small th:text="${book.availableCopies} + ' / ' + ${book.totalCopies} + ' copies'"></small>
-                        </div>
-                        <div class="d-grid gap-2 mt-2">
-                            <a th:href="@{/books/{id}(id=${book.id})}" class="btn btn-sm btn-outline-primary w-100">View Details</a>
-                            <!-- Actions for logged-in users -->
-                            <div sec:authorize="isAuthenticated()">
-                                <form th:action="@{/reservations/create}" method="post" class="d-grid">
-                                    <input type="hidden" name="bookId" th:value="${book.id}">
-                                    <button type="submit" class="btn btn-sm btn-primary" th:disabled="${book.availableCopies == 0}">
-                                        <i class="bi bi-bookmark-plus"></i> Reserve
-                                    </button>
-                                </form>
-                            </div>
+                        <span th:if="${book.availableCopies > 0}" class="badge bg-success">Available</span>
+                        <span th:if="${book.availableCopies == 0}" class="badge bg-warning text-dark">All Loaned</span>
+                        <p class="card-text mt-2"><small th:text="${book.availableCopies} + ' / ' + ${book.totalCopies} + ' copies available'"></small></p>
+                        <a th:href="@{/books/{id}(id=${book.id})}" class="btn btn-sm btn-outline-primary w-100 mb-1">View Details</a>
+                        <!-- Actions for logged-in users -->
+                        <div sec:authorize="isAuthenticated()">
+                            <form th:action="@{/reservations/create}" method="post" class="d-grid">
+                                <input type="hidden" name="bookId" th:value="${book.id}">
+                                <input type="hidden" name="userId" class="user-id-field">
+                                <button type="submit" class="btn btn-sm btn-primary" th:disabled="${book.availableCopies == 0}">
+                                    <i class="bi bi-bookmark-plus"></i> Reserve
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
