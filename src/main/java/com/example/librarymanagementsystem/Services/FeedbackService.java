@@ -75,18 +75,22 @@ public class FeedbackService {
         return feedbackMapper.toDTO(feedback);
     }
 
-    @Transactional()
+    @Transactional
     @PreAuthorize("@feedbackSecurityService.isOwner(#id, principal)")
     public FeedbackResponseDTO updateFeedback(UUID id, FeedbackUpdateDTO feedbackUpdateDTO) {
         Feedback feedback = feedbackRepo.findById(id)
-                .orElseThrow(() -> new FeedbackNotFoundException("Cannot update. Feedback not found with ID:" + id));
+                .orElseThrow(() -> new FeedbackNotFoundException("Cannot update. Feedback not found with ID: " + id));
+        int oldRating = feedback.getRating();
 
-        int oldRating = feedbackUpdateDTO.getRating();
         feedback.setRating(feedbackUpdateDTO.getRating());
         feedback.setComment(feedbackUpdateDTO.getComment());
         Feedback updatedFeedback = feedbackRepo.save(feedback);
 
-        bookService.recalculateBookRatingOnUpdate(feedback.getBook().getId(), oldRating, feedbackUpdateDTO.getRating());
+        bookService.recalculateBookRatingOnUpdate(
+                feedback.getBook().getId(),
+                oldRating,
+                feedbackUpdateDTO.getRating()
+        );
 
         return feedbackMapper.toDTO(updatedFeedback);
     }

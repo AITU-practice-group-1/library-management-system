@@ -5,6 +5,7 @@ import com.example.librarymanagementsystem.Entities.ReviewReport;
 import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.FeedbackRepository;
 import com.example.librarymanagementsystem.Repositories.ReviewReportRepository;
+import com.example.librarymanagementsystem.Services.BookService;
 import com.example.librarymanagementsystem.Services.FeedbackService;
 import com.example.librarymanagementsystem.Services.ReviewReportService;
 import com.example.librarymanagementsystem.util.ReviewReportStatus;
@@ -24,7 +25,7 @@ import java.util.UUID;
 public class ReviewReportServiceImpl implements ReviewReportService {
     private final ReviewReportRepository reviewReportRepository;
     private final FeedbackRepository feedbackRepository;
-
+    private final BookService bookService;
 
     @Override
     @Transactional(readOnly = true)
@@ -63,15 +64,19 @@ public class ReviewReportServiceImpl implements ReviewReportService {
 
         Feedback feedbackToDelete = approvedReport.getFeedback();
 
+
         if (feedbackToDelete == null) {
             reviewReportRepository.delete(approvedReport);
             return;
         }
+        int ratingToRemove = feedbackToDelete.getRating();
+        UUID bookId = feedbackToDelete.getBook().getId();
 
-        // Before deleting the report, delete all the reports to a feedback
         reviewReportRepository.deleteAllByFeedback(feedbackToDelete);
 
         feedbackRepository.delete(feedbackToDelete);
+        bookService.recalculateBookRatingOnDelete(bookId, ratingToRemove);
+
     }
 
 
