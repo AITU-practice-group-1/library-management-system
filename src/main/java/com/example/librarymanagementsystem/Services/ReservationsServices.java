@@ -6,6 +6,8 @@ import com.example.librarymanagementsystem.Entities.*;
 import com.example.librarymanagementsystem.Repositories.ReservationsRepository;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 @Service
 public class ReservationsServices {
 
+    private static final Logger logger = LoggerFactory.getLogger(ReservationsServices.class);
+
     private final ReservationsRepository reservationsRepository;
     private final BookRepository bookRepository;
 
@@ -25,8 +29,12 @@ public class ReservationsServices {
     }
 
     public void create(ReservationsRequestDTO dto, User user) {
+        logger.info("Creating reservation for user: {} and bookId: {}", user.getEmail(), dto.getBookId());
         Book book = bookRepository.findById(dto.getBookId())
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> {
+                    logger.error("Book with id {} not found", dto.getBookId());
+                    return new RuntimeException("Book not found");
+                });
 
         Reservations reservation = new Reservations();
         reservation.setBook(book);
@@ -35,9 +43,11 @@ public class ReservationsServices {
         reservation.setExpiresAt(LocalDateTime.now().plusDays(3));
 
         reservationsRepository.save(reservation);
+        logger.info("Reservation created with id: {}", reservation.getId());
     }
 
     public List<ReservationsResponseDTO> listByUser(User user) {
+        logger.info("Fetching reservations for user: {}", user.getEmail());
         return reservationsRepository.findByUser(user)
                 .stream()
                 .map(this::toDto)
@@ -45,6 +55,7 @@ public class ReservationsServices {
     }
 
     public List<ReservationsResponseDTO> listAll() {
+        logger.info("Fetching all reservations");
         return reservationsRepository.findAll()
                 .stream()
                 .map(this::toDto)
@@ -53,17 +64,29 @@ public class ReservationsServices {
 
     @Transactional
     public void cancel(UUID id) {
+        logger.info("Cancelling reservation with id: {}", id);
         Reservations reservation = reservationsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+                .orElseThrow(() -> {
+                    logger.error("Reservation with id {} not found", id);
+                    return new RuntimeException("Reservation not found");
+                });
+
         reservation.setStatus(Reservations.ReservationStatus.CANCELLED);
         reservation.setCancelledAt(LocalDateTime.now());
+        logger.info("Reservation with id {} has been cancelled", id);
     }
 
     @Transactional
     public void fulfill(UUID id, User byUser) {
+        logger.info("Fulfilling reservation with id: {} by user: {}", id, byUser.getEmail());
         Reservations reservation = reservationsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+                .orElseThrow(() -> {
+                    logger.error("Reservation with id {} not found", id);
+                    return new RuntimeException("Reservation not found");
+                });
+
         reservation.setStatus(Reservations.ReservationStatus.FULFILLED);
+        logger.info("Reservation with id {} marked as fulfilled", id);
     }
 
     private ReservationsResponseDTO toDto(Reservations reservation) {
@@ -76,6 +99,7 @@ public class ReservationsServices {
     }
 
     public List<ReservationsResponseDTO> findApprovedByEmail(String email) {
+        logger.info("Fetching fulfilled reservations for email: {}", email);
         return reservationsRepository
                 .findByUserEmailAndStatus(email, Reservations.ReservationStatus.FULFILLED)
                 .stream()
