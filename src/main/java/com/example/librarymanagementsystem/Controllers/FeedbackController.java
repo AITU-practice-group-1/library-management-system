@@ -46,9 +46,9 @@ public class FeedbackController {
                                      @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<FeedbackResponseDTO> feedbacksPage = null;
-        try{
+        try {
              feedbacksPage = feedbackService.getByBookId(bookId, pageable);
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("CANNOT GET FEEDBACKS page " + e.getMessage());
         }
 
