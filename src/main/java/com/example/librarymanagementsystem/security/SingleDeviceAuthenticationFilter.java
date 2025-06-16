@@ -44,6 +44,7 @@ public class SingleDeviceAuthenticationFilter extends OncePerRequestFilter {
             if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserDetails) {
                 UserDetails userDetails = (UserDetails) auth.getPrincipal();
                 logger.debug("Authenticated user: {}", userDetails.getUsername());
+                System.out.print(sessionId + " " + userDetails.getUsername() + "\n");
                 if (!sessionStore.isValidSession(sessionId)) {
                     logger.warn("Invalid session for user: {}. Logging out.", userDetails.getUsername());
                     SecurityContextHolder.clearContext();
