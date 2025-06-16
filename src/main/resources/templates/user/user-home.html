@@ -70,7 +70,14 @@
     <!-- <a th:href="@{/users/delete}" class="button-link red">Удалить аккаунт</a> -->
     <a th:href="@{/logout}" class="button-link red">Выйти</a>
     <br><br><br><br><br>
+    <div th:if="${user.getRole() == 'ROLE_ADMIN'}">
     <a th:href="@{/admin/home}" class="button-link">Панель администратора</a>
+    </div>
+
+    <div th:if="${user.getRole() == 'ROLE_LIBRARIAN'}">
+    <a th:href="@{/users/librarian}" class="button-link">All Reservations</a>
+    </div>
+
     <a th:href="@{/reservations(userId=${user.getId()})}" class="button-link">Мои бронирования</a>
     <br><br><br><br><br>
     <a th:href="@{/favoriteBooks}" class="button-link">Избранное</a>
