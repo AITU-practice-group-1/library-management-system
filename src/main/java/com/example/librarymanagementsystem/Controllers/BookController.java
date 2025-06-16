@@ -36,7 +36,6 @@ import java.util.UUID;
 public class BookController {
     private final BookServiceImpl bookService;
     private final FeedbackService feedbackService;
-    // 1. Inject the FavoriteBookService
     private final FavoriteBookService favoriteBookService;
 
     @GetMapping("/new")

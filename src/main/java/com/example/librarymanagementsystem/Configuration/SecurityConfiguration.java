@@ -4,6 +4,7 @@ import com.example.librarymanagementsystem.Services.CustomUserDetailsService;
 import com.example.librarymanagementsystem.Services.InMemorySessionStore;
 import com.example.librarymanagementsystem.security.SingleDeviceAuthenticationFilter;
 import jakarta.servlet.http.HttpSession;
+import org.apache.coyote.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -44,8 +53,8 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
       return http
-              .csrf(AbstractHttpConfigurer::disable)
-              .cors(AbstractHttpConfigurer::disable)
+              //.csrf(AbstractHttpConfigurer::disable)
+              //.cors(AbstractHttpConfigurer::disable)
               .authorizeHttpRequests(auth ->auth
                       .requestMatchers("/","/users/login", "/users/register", "/books","/books/{id}", "/css/**", "/js/**").permitAll()
                       .requestMatchers("/admin/*").hasRole("ADMIN")
@@ -58,21 +67,22 @@ public class SecurityConfiguration {
                           HttpSession session = request.getSession();
                           UserDetails userDetails = (UserDetails) authentication.getPrincipal();
                           String deviceInfo = request.getRemoteAddr() + " | " + request.getHeader("User-Agent");
+                          //System.out.println(deviceInfo);
                           sessionStore.registerNewSession(userDetails.getUsername(), session.getId(), deviceInfo);
                           response.sendRedirect("/books");
                       })
               )
               .logout(logout -> logout
-                      .logoutUrl("/logout")
+                      .logoutUrl("/logout") // Change to a unique URL to avoid static resource conflict
                       .logoutSuccessUrl("/")
                       .permitAll()
                       .addLogoutHandler((request, response, authentication) -> {
                           HttpSession session = request.getSession(false);
                           if (session != null) {
+                              System.out.println(session.getId() + " is logged out");
                               sessionStore.invalidateSession(session.getId());
                           }
-                      })
-              )
+                      }))
               .addFilterBefore(singleDeviceAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
               .exceptionHandling(ex ->ex.accessDeniedPage("/error/403"))
               .build();
