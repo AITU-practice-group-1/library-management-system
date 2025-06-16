@@ -23,7 +23,7 @@ public class ReservationsController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public String create(@RequestParam UUID userId, @RequestParam UUID bookId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         ReservationsRequestDTO dto = new ReservationsRequestDTO();
