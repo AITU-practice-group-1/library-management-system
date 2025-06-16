@@ -1,8 +1,14 @@
 package com.example.librarymanagementsystem.Controllers;
 
+import com.example.librarymanagementsystem.exceptions.FeedbackAlreadyExistsException;
+import com.example.librarymanagementsystem.exceptions.FeedbackNotFoundException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
+
+import java.nio.file.AccessDeniedException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -18,5 +24,24 @@ public class GlobalExceptionHandler {
         model.addAttribute("errorMessage", "An unexpected error occurred: " + ex.getMessage());
         return "error";
     }
+
+    @ExceptionHandler(FeedbackNotFoundException.class)
+    public String handleFeedbackNotFound(FeedbackNotFoundException ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error";
+    }
+
+    @ExceptionHandler(FeedbackAlreadyExistsException.class)
+    public String handleFeedbackAlreadyExists(FeedbackNotFoundException ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error";
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public String handleAccessDenied(FeedbackNotFoundException ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error";
+    }
+
 
 }
