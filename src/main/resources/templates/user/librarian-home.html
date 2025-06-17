@@ -83,15 +83,17 @@
             <th>Пользователь</th>
             <th>Дата бронирования</th>
             <th>Статус</th>
+            <th>Loan</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="res : ${reservations}">
-            <a th:href=""><td th:text="${res.id}"></td>
+            <td th:text="${res.id}"></td>
             <td th:text="${res.bookTitle}">Название книги</td>
             <td th:text="${res.email}">Имя пользователя</td>
             <td th:text="${res.reservedAt}">Дата начала</td>
             <td th:text="${res.status}">Статус</td>
+            <td><a th:href="@{/loans/create-from-reservation/{id}(id = ${res.id})}"><button>Loan</button></a></td>
         </tr>
         </tbody>
     </table>
