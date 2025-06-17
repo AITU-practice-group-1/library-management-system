@@ -55,24 +55,25 @@
         </form>
     </div>
 
-    <!-- Sorting Header for the grid -->
-    <div class="d-flex justify-content-end align-items-center mb-3">
-        <span class="me-2 text-muted">Sort by:</span>
-        <div class="btn-group">
-            <!-- Helper function for reversing sort direction -->
-            <th:block th:with="reverseDir=${sortDir == 'ASC' ? 'DESC' : 'ASC'}">
-                <a th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='title,' + ${sortField == 'title' ? reverseDir : 'ASC'})}" class="btn btn-outline-secondary" th:classappend="${sortField == 'title'} ? 'active'">Title</a>
-                <a th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='author,' + ${sortField == 'author' ? reverseDir : 'ASC'})}" class="btn btn-outline-secondary" th:classappend="${sortField == 'author'} ? 'active'">Author</a>
-                <a th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='publishedYear,' + ${sortField == 'publishedYear' ? reverseDir : 'ASC'})}" class="btn btn-outline-secondary" th:classappend="${sortField == 'publishedYear'} ? 'active'">Year</a>
-            </th:block>
-        </div>
-        <a th:href="@{/books(keyword=${keyword}, genre=${genre}, sort=${sortField} + ',' + (sortDir == 'ASC' ? 'DESC' : 'ASC'))}" class="ms-2 btn btn-sm btn-outline-secondary">
-            <i th:if="${sortDir == 'ASC'}" class="bi bi-sort-alpha-down"></i>
-            <i th:if="${sortDir == 'DESC'}" class="bi bi-sort-alpha-up-alt"></i>
-        </a>
+    <div class="btn-group">
+        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" th:text="${sortField.substring(0, 1).toUpperCase() + sortField.substring(1)}">
+            Sort Field
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='title,' + ${sortDir})}" th:classappend="${sortField == 'title'} ? 'active'">Title</a></li>
+            <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='author,' + ${sortDir})}" th:classappend="${sortField == 'author'} ? 'active'">Author</a></li>
+            <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='publishedYear,' + ${sortDir})}" th:classappend="${sortField == 'publishedYear'} ? 'active'">Year</a></li>
+            <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='ratingAverage,' + ${sortDir})}" th:classappend="${sortField == 'ratingAverage'} ? 'active'">Rating</a></li>
+            <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='availableCopies,' + ${sortDir})}" th:classappend="${sortField == 'availableCopies'} ? 'active'">Availability</a></li>
+        </ul>
     </div>
+    <a th:href="@{/books(keyword=${keyword}, genre=${genre}, sort=${sortField} + ',' + (sortDir == 'ASC' ? 'DESC' : 'ASC'))}" class="ms-2 btn btn-outline-secondary" title="Change Sort Direction">
+        <i th:if="${sortDir == 'ASC'}" class="bi bi-sort-down"></i>
+        <i th:if="${sortDir == 'DESC'}" class="bi bi-sort-up"></i>
+    </a>
+</div>
 
-    <!-- Book Listing -->
+<!-- Book Listing -->
     <div th:if="${bookPage.hasContent()}" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
         <!-- Loop through each book -->
         <div th:each="book : ${bookPage.content}" class="col">
@@ -81,14 +82,9 @@
                     <h5 class="card-title" th:text="${book.title}">Book Title</h5>
                     <h6 class="card-subtitle mb-2 text-muted" th:text="${book.author}">Author Name</h6>
 
-                    <!-- RATING DISPLAY - NEW -->
-                    <!-- This block will only appear if the book has one or more ratings. -->
                     <div th:if="${book.ratingCount > 0}" class="d-flex align-items-center mb-2" title="Average rating">
-                        <!-- Star Icon -->
                         <i class="bi bi-star-fill" style="color: #FFD700;"></i>
-                        <!-- Formatted Average Rating -->
                         <span class="ms-1 fw-bold" th:text="${#numbers.formatDecimal(book.ratingAverage, 1, 1)}">4.5</span>
-                        <!-- Number of Ratings -->
                         <span class="ms-1 text-muted small" th:text="'(' + ${book.ratingCount} + ' ratings)'">(120)</span>
                     </div>
                     <p class="card-text small">
@@ -96,7 +92,6 @@
                         <span class="badge bg-light text-dark border" th:text="${book.publishedYear}">Year</span>
                     </p>
 
-                    <!-- This 'mt-auto' div pushes all content below it to the bottom of the card -->
                     <div class="mt-auto pt-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -107,15 +102,23 @@
                         </div>
                         <div class="d-grid gap-2 mt-2">
                             <a th:href="@{/books/{id}(id=${book.id})}" class="btn btn-sm btn-outline-primary w-100">View Details</a>
-                            <!-- Actions for logged-in users -->
+
                             <div sec:authorize="isAuthenticated()">
-                                <form th:action="@{/reservations/create}" method="post" class="d-grid">
-                                    <input type="hidden" name="bookId" th:value="${book.id}">
-                                    <input type="hidden" name="userId" class="user-id-field" th:value="${#authentication.principal.id}">
-                                    <button type="submit" class="btn btn-sm btn-primary" th:disabled="${book.availableCopies == 0}">
-                                        <i class="bi bi-bookmark-plus"></i> Reserve
-                                    </button>
-                                </form>
+
+                                <div th:if="${!reservedBookIds.contains(book.id)}">
+                                    <form th:action="@{/reservations/create}" method="post" class="d-grid">
+                                        <input type="hidden" name="bookId" th:value="${book.id}">
+                                        <input type="hidden" name="userId" th:value="${#authentication.principal.id}">
+                                        <button type="submit" class="btn btn-sm btn-primary" th:disabled="${book.availableCopies == 0}">
+                                            <i class="bi bi-bookmark-plus"></i> Reserve
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div th:if="${reservedBookIds.contains(book.id)}">
+                                    <span class="btn btn-sm btn-secondary disabled w-100"><i class="bi bi-bookmark-check-fill"></i> Reserved</span>
+                                </div>
+
                             </div>
                         </div>
                     </div>

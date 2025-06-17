@@ -44,13 +44,21 @@
                 <div class="mt-5">
                     <div class="d-grid gap-2">
                         <div sec:authorize="isAuthenticated()">
-                            <form th:action="@{/reservations/create}" method="post" class="d-grid">
-                                <input type="hidden" name="bookId" th:value="${book.id}">
-                                <input type="hidden" name="userId" class="user-id-field">
-                                <button type="submit" class="btn btn-primary btn-lg" th:disabled="${book.availableCopies == 0}">
-                                    <i class="bi bi-bookmark-plus-fill"></i> Reserve
-                                </button>
-                            </form>
+
+                            <div th:if="${!reservedBookIds.contains(book.id)}">
+                                <form th:action="@{/reservations/create}" method="post" class="d-grid">
+                                    <input type="hidden" name="bookId" th:value="${book.id}">
+                                    <input type="hidden" name="userId" th:value="${#authentication.principal.id}">
+                                    <button type="submit" class="btn btn-primary btn-lg" th:disabled="${book.availableCopies == 0}">
+                                        <i class="bi bi-bookmark-plus-fill"></i> Reserve
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div th:if="${reservedBookIds.contains(book.id)}" class="alert alert-info text-center" role="alert">
+                                <i class="bi bi-bookmark-check-fill"></i> You have an active reservation for this book.
+                            </div>
+
                             <form th:if="${!isFavorite}" th:action="@{/favoriteBooks/add}" method="post" class="d-grid mt-2">
                                 <input type="hidden" name="bookId" th:value="${book.id}">
                                 <button type="submit" class="btn btn-outline-danger"><i class="bi bi-heart"></i> Add to Favorites</button>
@@ -61,6 +69,7 @@
                                 <button type="submit" class="btn btn-danger"><i class="bi bi-heart-fill"></i> Remove from Favorites</button>
                             </form>
                         </div>
+
                         <div sec:authorize="!isAuthenticated()">
                             <a th:href="@{/login}" class="btn btn-primary btn-lg">Login to Reserve or Favorite</a>
                         </div>
