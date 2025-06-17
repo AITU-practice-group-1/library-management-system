@@ -8,11 +8,13 @@ import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Services.BookService;
 import com.example.librarymanagementsystem.Services.FeedbackService;
 import com.example.librarymanagementsystem.Services.UserServices;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,46 +27,39 @@ import java.util.UUID;
 
 @Controller
 @RequestMapping("/reviews")
+@RequiredArgsConstructor
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
     private final UserServices userService;
-    private final BookService bookService;
-
-
-    @Autowired
-    public FeedbackController(FeedbackService feedbackService, UserServices userService, BookService bookService) {
-        this.feedbackService = feedbackService;
-        this.userService = userService;
-        this.bookService = bookService;
-    }
 
     // all feedbacks of book
     @GetMapping("/book/{bookId}")
-    public String getFeedbacksByBook(@PathVariable UUID bookId, Model model,
-                                     @RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<FeedbackResponseDTO> feedbacksPage = null;
-        try {
-             feedbacksPage = feedbackService.getByBookId(bookId, pageable);
-        } catch (Exception e) {
-            System.out.println("CANNOT GET FEEDBACKS page " + e.getMessage());
-        }
-
-        UUID currentUserId = null;
-        boolean isAdmin = false;
-        try {
-            UserDTO currentUser = userService.getAuthenticatedUser();
-            currentUserId = currentUser.getId();
-            isAdmin = currentUser.getRole().equals("ROLE_ADMIN");
-        } catch (Exception e) {
-            System.out.println("NOT AUTHORIZED: " + e.getMessage());
-        }
+    public String getFeedbacksByBook(@PathVariable UUID bookId,
+                                     Model model,
+                                     Pageable pageable,
+                                     @AuthenticationPrincipal User user) {
+        Page<FeedbackResponseDTO> feedbacksPage = feedbackService.getByBookId(bookId, pageable);
         model.addAttribute("feedbacks", feedbacksPage);
         model.addAttribute("bookId", bookId);
-        model.addAttribute("currentUserId", currentUserId);
-        model.addAttribute("isAdmin", isAdmin);
+//
+//        UUID currentUserId = null;
+//        boolean isAdmin = false;
+//        try {
+//            UserDTO currentUser = userService.getAuthenticatedUser();
+//            currentUserId = currentUser.getId();
+//            isAdmin = currentUser.getRole().equals("ROLE_ADMIN");
+//        } catch (Exception e) {
+//            System.out.println("NOT AUTHORIZED: " + e.getMessage());
+//        }
+//        model.addAttribute("feedbacks", feedbacksPage);
+//        model.addAttribute("bookId", bookId);
+//        model.addAttribute("currentUserId", currentUserId);
+//        model.addAttribute("isAdmin", isAdmin);
+        if (user != null) {
+            model.addAttribute("user", user);
+        }
+
         return "feedback/list";
     }
 
@@ -72,32 +67,39 @@ public class FeedbackController {
     @PostMapping("/add")
     public String createFeedback(@Valid @ModelAttribute("feedbackRequest") FeedbackRequestDTO feedbackRequestDTO,
                                  BindingResult result,
-                                 @AuthenticationPrincipal UserDTO user,
+                                 @AuthenticationPrincipal User user,
                                  RedirectAttributes redirectAttributes) {
-        System.out.println(user);
-        try {
-            user = userService.getAuthenticatedUser();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+//        System.out.println(user);
+//        try {
+//            user = userService.getAuthenticatedUser();
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//        if (result.hasErrors()) {
+//            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.feedbackRequest", result);
+//            redirectAttributes.addFlashAttribute("feedbackRequest", feedbackRequestDTO);
+//            return "redirect:/books/" + feedbackRequestDTO.getBookId() + "?error=true";
+//        }
+//
+//        try {
+//            feedbackRequestDTO.setUserId(user.getId());
+//            feedbackService.createFeedback(feedbackRequestDTO);
+//            bookService.updateBookRating(feedbackRequestDTO.getBookId(), feedbackRequestDTO.getRating());
+//            redirectAttributes.addFlashAttribute("successMessage", "Your review has been submitted successfully!");
+//        } catch (IllegalStateException e) {
+//            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred.");
+//        }
         if (result.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.feedbackRequest", result);
-            redirectAttributes.addFlashAttribute("feedbackRequest", feedbackRequestDTO);
+            redirectAttributes.addFlashAttribute("feedbackRequestDTO", feedbackRequestDTO);
             return "redirect:/books/" + feedbackRequestDTO.getBookId() + "?error=true";
         }
 
-        try {
-            feedbackRequestDTO.setUserId(user.getId());
-            feedbackService.createFeedback(feedbackRequestDTO);
-            bookService.updateBookRating(feedbackRequestDTO.getBookId(), feedbackRequestDTO.getRating());
-            redirectAttributes.addFlashAttribute("successMessage", "Your review has been submitted successfully!");
-        } catch (IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred.");
-        }
-
+        feedbackService.createFeedback(feedbackRequestDTO, user);
+        redirectAttributes.addFlashAttribute("successMessage", "Feedback created successfully");
         return "redirect:/books/" + feedbackRequestDTO.getBookId();
     }
 
@@ -131,11 +133,7 @@ public class FeedbackController {
             return "redirect:/books/" + existingReview.getBookId();
         }
 
-        int oldRating = existingReview.getRating();
-        int newRating = feedbackUpdateDTO.getRating();
-
         feedbackService.updateFeedback(feedbackUpdateDTO.getId(), feedbackUpdateDTO);
-        bookService.recalculateBookRatingOnUpdate(existingReview.getBookId(), oldRating, newRating);
 
         redirectAttributes.addFlashAttribute("successMessage", "Your review has been updated successfully.");
         return "redirect:/books/" + existingReview.getBookId();
@@ -152,21 +150,12 @@ public class FeedbackController {
     // delete button (only user's personal feedbacks)
     @PostMapping("/{id}/delete")
 
-    public String deleteFeedback(@PathVariable UUID id, @AuthenticationPrincipal User user, RedirectAttributes redirectAttributes) {
-        FeedbackResponseDTO feedback = feedbackService.getById(id);
-
-
-        if (!feedback.getUserId().equals(user.getId()) && !user.getRole().equals("ADMIN")) {
-            System.out.println(user.getRole());
-            redirectAttributes.addFlashAttribute("errorMessage", "You are not authorized to delete this review.");
-            return "redirect:/books/" + feedback.getBookId();
-        }
-
-        bookService.recalculateBookRatingOnDelete(feedback.getBookId(), feedback.getRating());
+    public String deleteFeedback(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
+        UUID bookId = feedbackService.getById(id).getBookId();
 
         feedbackService.deleteFeedback(id);
 
-        redirectAttributes.addFlashAttribute("successMessage", "The review has been deleted successfully.");
-        return "redirect:/books/" + feedback.getBookId();
+        redirectAttributes.addFlashAttribute("successMessage", "Your review has been deleted successfully.");
+        return "redirect:/books/" + bookId;
     }
 }

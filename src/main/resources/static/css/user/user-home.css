@@ -1,0 +1,64 @@
+/* user-home.css */
+
+.user-home-container {
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 32px;
+    background-color: var(--card-bg, #fffaf0);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    font-family: var(--font-family);
+    text-align: center;
+}
+
+.user-home-container h1 {
+    font-size: 28px;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+}
+
+.user-home-container .email {
+    font-size: 16px;
+    margin-bottom: 24px;
+    color: var(--text-color);
+}
+
+.button-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.button-link {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.button-link:hover {
+    background-color: var(--accent-hover);
+}
+
+.button-link.red {
+    background-color: #e74c3c;
+}
+
+.button-link.red:hover {
+    background-color: #c0392b;
+}
+
+.button-link.green {
+    background-color: #2ecc71;
+}
+
+.button-link.green:hover {
+    background-color: #27ae60;
+}
+

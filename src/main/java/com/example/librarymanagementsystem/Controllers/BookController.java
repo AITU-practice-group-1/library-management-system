@@ -75,7 +75,7 @@ public class BookController {
                            @RequestParam(defaultValue = "createdAt") String sort,
                            @RequestParam(defaultValue = "desc") String dir,
                            @RequestParam(defaultValue = "0") int page,
-                           @RequestParam(defaultValue = "5") int size) throws Exception {
+                           @RequestParam(defaultValue = "5") int size) {
         System.out.println("BookDTO book = bookService.getBookById(id);");
         BookDTO book = bookService.getBookById(id);
         if (book == null) {

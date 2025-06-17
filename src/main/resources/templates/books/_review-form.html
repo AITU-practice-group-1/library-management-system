@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
-
+<div th:replace="fragments/navbar::navbar"></div>
 <!-- This fragment defines the review form and accepts parameters -->
 <div th:fragment="review-form(formAction, formObjectId, submitButtonText)">
     <!-- The th:object now uses the variable passed from the parent fragment -->

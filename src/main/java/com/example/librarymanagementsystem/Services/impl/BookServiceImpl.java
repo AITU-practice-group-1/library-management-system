@@ -5,9 +5,8 @@ import com.example.librarymanagementsystem.Entities.Book;
 import com.example.librarymanagementsystem.Entities.Genre;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.Services.BookService;
-import com.example.librarymanagementsystem.mapper.BookMapper;
+import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
 import com.example.librarymanagementsystem.mapper.BookMapperImpl;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -78,8 +77,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDTO updateBook(UUID id, BookDTO bookDTO) {
-        Book book = bookRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Book not found"));
-        book = mapper.toEntity(bookDTO);
+        Book book = mapper.toEntity(bookDTO);
         return mapper.toDTO(bookRepository.save(book));
     }
 
@@ -98,7 +96,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public void lendBook(UUID bookId) {
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + bookId));
+                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + bookId));
 
         if (book.getAvailableCopies() <= 0) {
             throw new IllegalStateException("No available copies of '" + book.getTitle() + "' to lend.");
@@ -110,7 +108,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public void returnBook(UUID bookId) {
         if (!bookRepository.existsById(bookId)) {
-            throw new EntityNotFoundException("Cannot return a book that does not exist with ID: " + bookId);
+            throw new BookNotFoundException("Cannot return a book that does not exist with ID: " + bookId);
         }
 
         bookRepository.incrementAvailableCopiesById(bookId);
@@ -120,7 +118,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public void updateBookRating(UUID bookId, Integer rating) {
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + bookId));
+                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + bookId));
 
         System.out.println(book.toString());
         book.addRating(rating);
@@ -133,7 +131,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public void recalculateBookRatingOnUpdate(UUID bookId, int oldRating, int newRating) {
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + bookId));
+                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + bookId));
 
 
         long newRatingSum = book.getRatingSum() - oldRating + newRating;
@@ -152,7 +150,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public void recalculateBookRatingOnDelete(UUID bookId, int ratingToRemove) {
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + bookId));
+                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + bookId));
 
         long newRatingSum = book.getRatingSum() - ratingToRemove;
         long newRatingCount = book.getRatingCount() - 1;

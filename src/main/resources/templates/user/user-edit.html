@@ -3,72 +3,11 @@
 <head>
     <title>Edit Profile</title>
     <meta charset="UTF-8">
-    <style>
-        body {
-            background: #ecf0f1;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .form-container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            width: 360px;
-            text-align: center;
-        }
-
-        h1 {
-            margin-bottom: 24px;
-            color: #2c3e50;
-        }
-
-        label {
-            display: block;
-            text-align: left;
-            margin-bottom: 12px;
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        input[type="email"] {
-            width: 100%;
-            padding: 10px;
-            margin-top: 4px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #27ae60;
-        }
-
-        .error {
-            color: red;
-            margin-top: 10px;
-            text-align: left;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/user/user-edit.css">
 </head>
 <body>
+<div th:include="fragments/navbar::navbar"></div>
 <div class="form-container">
     <h1>Edit Profile</h1>
     <form th:action="@{/users/edit}" th:object="${user}" method="post">

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="navbar">
+    <nav>
+        <div class="nav-container"
+             th:if="${#authentication.authenticated and #authentication.name != 'anonymousUser'}"
+             th:data-user-id="${#authentication.principal.id}">
+            <div class="nav-left">
+                <div class="logo">
+                    <a th:href="@{/}">📚 MyLibrary</a>
+                </div>
+                <ul class="nav-links">
+                    <li><a th:href="@{/}" class="nav-link">🏠 Home</a></li>
+                    <li><a th:href="@{/books}" class="nav-link">Books</a></li>
+                    <li><a href="#" id="favorites-link" class="nav-link">Favorites</a></li>
+                    <li><a href="#" id="reservations-link" class="nav-link">Reservations</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="nav-container"
+             th:if="${not (#authentication.authenticated and #authentication.name != 'anonymousUser')}">
+            <div class="logo">
+                <a th:href="@{/}">📚 MyLibrary</a>
+            </div>
+            <ul class="nav-links">
+                <li><a th:href="@{/}" class="nav-link">🏠 Home</a></li>
+                <li><a th:href="@{/books}" class="nav-link">Books</a></li>
+                <li><a th:href="@{/users/login}" class="nav-link">Login</a></li>
+                <li><a th:href="@{/users/register}" class="nav-link">Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.querySelector(".nav-container[data-user-id]");
+            const userId = container?.dataset.userId;
+
+            if (userId) {
+                document.getElementById("favorites-link").href = `/favorites?userId=${userId}`;
+                document.getElementById("reservations-link").href = `/reservations?userId=${userId}`;
+            }
+        });
+    </script>
+</div>
+</body>
+</html>
