@@ -7,7 +7,6 @@ import com.example.librarymanagementsystem.DTOs.book.BookDetailViewDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackResponseDTO;
 import com.example.librarymanagementsystem.Entities.Book;
 import com.example.librarymanagementsystem.util.Genre;
-import com.example.librarymanagementsystem.Entities.Genre;
 import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.Services.BookService;

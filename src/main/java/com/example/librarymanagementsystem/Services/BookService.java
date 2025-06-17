@@ -5,7 +5,7 @@ import com.example.librarymanagementsystem.DTOs.book.TopFavoriteBookDTO;
 import com.example.librarymanagementsystem.DTOs.book.TopRatedBookDTO;
 import com.example.librarymanagementsystem.util.Genre;
 import com.example.librarymanagementsystem.DTOs.book.BookDetailViewDTO;
-import com.example.librarymanagementsystem.Entities.Genre;
+
 import com.example.librarymanagementsystem.Entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
