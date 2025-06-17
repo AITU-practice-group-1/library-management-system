@@ -1,6 +1,8 @@
 package com.example.librarymanagementsystem.Services.impl;
 
 import com.example.librarymanagementsystem.DTOs.book.BookDTO;
+import com.example.librarymanagementsystem.DTOs.book.TopFavoriteBookDTO;
+import com.example.librarymanagementsystem.DTOs.book.TopRatedBookDTO;
 import com.example.librarymanagementsystem.Entities.Book;
 import com.example.librarymanagementsystem.Entities.Genre;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
@@ -167,5 +169,27 @@ public class BookServiceImpl implements BookService {
         }
 
         bookRepository.save(book);
+    }
+
+    public List<TopRatedBookDTO> getTopRatedBooks(int limit) {
+        List<Object[]> results = bookRepository.findTopRatedBooks(limit);
+        return results.stream().map(result -> {
+            TopRatedBookDTO dto = new TopRatedBookDTO();
+            dto.setId((UUID) result[0]);
+            dto.setTitle((String) result[1]);
+            dto.setRatingAverage(((Number) result[2]).doubleValue());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    public List<TopFavoriteBookDTO> getTopFavoriteBooks(int limit) {
+        List<Object[]> results = bookRepository.findTopFavoriteBooks(limit);
+        return results.stream().map(result -> {
+            TopFavoriteBookDTO dto = new TopFavoriteBookDTO();
+            dto.setId((UUID) result[0]);
+            dto.setTitle((String) result[1]);
+            dto.setFavoriteCount(((Number) result[2]).intValue());
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

@@ -1,6 +1,8 @@
 package com.example.librarymanagementsystem.Services;
 
 import com.example.librarymanagementsystem.DTOs.book.BookDTO;
+import com.example.librarymanagementsystem.DTOs.book.TopFavoriteBookDTO;
+import com.example.librarymanagementsystem.DTOs.book.TopRatedBookDTO;
 import com.example.librarymanagementsystem.Entities.Genre;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,4 +26,6 @@ public interface BookService {
     void updateBookRating (UUID bookId, Integer rating);
     void recalculateBookRatingOnUpdate(UUID bookId, int oldRating, int newRating);
     void recalculateBookRatingOnDelete(UUID bookId, int ratingToRemove);
+    List<TopRatedBookDTO> getTopRatedBooks(int limit);
+    List<TopFavoriteBookDTO> getTopFavoriteBooks(int limit);
 }
