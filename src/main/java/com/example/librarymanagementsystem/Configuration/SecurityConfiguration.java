@@ -4,6 +4,8 @@ import com.example.librarymanagementsystem.Services.CustomUserDetailsService;
 import com.example.librarymanagementsystem.Services.SessionStore;
 import com.example.librarymanagementsystem.security.SingleDeviceAuthenticationFilter;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,10 +20,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.time.LocalDateTime;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
+
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
@@ -56,9 +62,16 @@ public class SecurityConfiguration {
                           HttpSession session = request.getSession();
                           UserDetails userDetails = (UserDetails) authentication.getPrincipal();
                           String deviceInfo = request.getRemoteAddr() + " | " + request.getHeader("User-Agent");
-                          //System.out.println(deviceInfo);
+                          logger.info("User {} logged in successfully from {}", userDetails.getUsername(), deviceInfo);
                           sessionStore.registerNewSession(userDetails.getUsername(), session.getId(), deviceInfo);
                           response.sendRedirect("/books");
+                      })
+                      .failureHandler((request, response, exception) -> {
+                          String username = request.getParameter("username");
+                          String ipAddress = request.getRemoteAddr();
+                          logger.warn("Login failed for user {} from IP {}: {}", username, ipAddress, exception.getMessage());
+                          request.getSession().setAttribute("error", "Invalid username or password");
+                          response.sendRedirect("/users/login?error=true");
                       })
               )
               .logout(logout -> logout
@@ -68,7 +81,8 @@ public class SecurityConfiguration {
                       .addLogoutHandler((request, response, authentication) -> {
                           HttpSession session = request.getSession(false);
                           if (session != null) {
-                              System.out.println(session.getId() + " is logged out");
+                              UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                              logger.info("User {} logged out from session {}", userDetails.getUsername(), session.getId());
                               sessionStore.invalidateSession(session.getId());
                           }
                       }))

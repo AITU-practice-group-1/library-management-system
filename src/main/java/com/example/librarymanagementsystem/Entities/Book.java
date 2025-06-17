@@ -1,5 +1,6 @@
 package com.example.librarymanagementsystem.Entities;
 
+import com.example.librarymanagementsystem.util.Genre;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;

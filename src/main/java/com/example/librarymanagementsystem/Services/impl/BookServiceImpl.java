@@ -4,7 +4,7 @@ import com.example.librarymanagementsystem.DTOs.book.BookDTO;
 import com.example.librarymanagementsystem.DTOs.book.TopFavoriteBookDTO;
 import com.example.librarymanagementsystem.DTOs.book.TopRatedBookDTO;
 import com.example.librarymanagementsystem.Entities.Book;
-import com.example.librarymanagementsystem.Entities.Genre;
+import com.example.librarymanagementsystem.util.Genre;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.Services.BookService;
 import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
