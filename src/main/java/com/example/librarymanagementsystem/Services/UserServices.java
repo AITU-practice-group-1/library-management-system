@@ -1,9 +1,11 @@
 package com.example.librarymanagementsystem.Services;
 
-import com.example.librarymanagementsystem.Controllers.UserController;
 import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
+import com.example.librarymanagementsystem.DTOs.Users.UserStatisticsBookDTO;
 import com.example.librarymanagementsystem.Entities.User;
+import com.example.librarymanagementsystem.Repositories.ReservationsRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
+import com.example.librarymanagementsystem.Repositories.UserStatisticsBookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,14 +27,17 @@ public class UserServices {
     private final PasswordEncoder passwordEncoder;
     private final  EmailTokenService emailTokenService;
     private final EmailService emailService ;
+    private final UserStatisticsBookRepository userStatisticsBookRepository;
+
 
     private static final Logger logger = LoggerFactory.getLogger(UserServices.class);
-    public UserServices(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailTokenService emailTokenService, EmailService emailService)
+    public UserServices(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailTokenService emailTokenService, EmailService emailService, UserStatisticsBookRepository userStatisticsBookRepository, ReservationsRepository reservationsRepository)
     {
         this.emailService = emailService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailTokenService = emailTokenService;
+        this.userStatisticsBookRepository = userStatisticsBookRepository;
     }
 
     public void register(UserDTO dto) throws Exception {
@@ -180,4 +185,51 @@ public class UserServices {
         }
         return allUsersByRole;
     }
+
+//    public List<UserStatisticsBook> getAllBooksOfTheUser(UUID id, Pageable pageable) throws Exception
+//    {
+//        List<UserStatisticsBook> books = new ArrayList<UserStatisticsBook>();
+//        Page<UserStatisticsBook> reservedBooks = userStatisticsBookRepository.findAllUserReservedBooks(id, pageable);
+//
+//        return books;
+//    }
+
+    public Page<UserStatisticsBookDTO> getAllReservedBooksOfTheUser(UUID id, Pageable pageable) throws Exception
+    {
+        try {
+            Page<UserStatisticsBookDTO> reservedBooks = userStatisticsBookRepository.findAllUserReservedBooks(id, pageable);
+            logger.info("Successfully got all reserved books of the user: {}", id);
+            return reservedBooks;
+        }catch (Exception e){
+            logger.error("Error getting all reserved books of the user: {} \n", e.getMessage());
+            throw new Exception("CAn not get reserved books of the user \n"  + e.getMessage());
+        }
+
+    }
+
+    public Page<UserStatisticsBookDTO> getAllLoanedBooksOfTheUser(UUID id, Pageable pageable) throws Exception
+    {
+        try {
+            Page<UserStatisticsBookDTO> loanedBooks = userStatisticsBookRepository.findAllUserLoanedBooks(id, pageable);
+            logger.info("Successfully got all loaned books of the user: {}", id);
+            return loanedBooks;
+        }catch (Exception e)
+        {
+            logger.error("Error getting all loaned books of the user: {} \n", e.getMessage());
+            throw new Exception("CAn not get loaned books of the user \n"  + e.getMessage());
+        }
+    }
+
+    public Page<UserStatisticsBookDTO> getAllReadBooksOfTheUser(UUID id, Pageable pageable)
+    {
+        try{
+            Page<UserStatisticsBookDTO> readBooks = userStatisticsBookRepository.findAllUserReadBooks(id, pageable);
+            logger.info("Successfully got all read books of the user: {}", id);
+            return readBooks;
+        }catch (Exception e){
+            logger.error("Error getting all read books of the user: {} \n", e.getMessage());
+            throw new RuntimeException("CAn not get read books of the user \n"  + e.getMessage());
+        }
+    }
+
 }

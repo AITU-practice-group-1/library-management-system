@@ -1,6 +1,7 @@
 package com.example.librarymanagementsystem.Controllers;
 
 import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
+import com.example.librarymanagementsystem.DTOs.Users.UserStatisticsBookDTO;
 import com.example.librarymanagementsystem.DTOs.reservations.ReservationsResponseDTO;
 import com.example.librarymanagementsystem.Services.EmailTokenService;
 import com.example.librarymanagementsystem.Services.ReservationsServices;
@@ -8,6 +9,9 @@ import com.example.librarymanagementsystem.Services.UserServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +43,7 @@ public class UserController
         try{
             UserDTO responceDTO = userServices.getAuthenticatedUser();
             model.addAttribute("user", responceDTO);
+            model.addAttribute("showStatistics", false);
         }catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());
             return "user/user-home";
@@ -138,5 +143,24 @@ public class UserController
         model.addAttribute("reservations", reservations);
         return "user/librarian-home";
     }
+
+    @GetMapping("/statistics/{id}")
+    private String statisticsPage(@PathVariable UUID id, Model model, @PageableDefault(size = 10) Pageable pageable) throws Exception {
+        logger.info("User with email {} entered the statistics page. at endpoint: /users/statistics", SecurityContextHolder.getContext().getAuthentication().getName());
+        Page<UserStatisticsBookDTO> reservedBooks = userServices.getAllReservedBooksOfTheUser(id,pageable);
+        Page<UserStatisticsBookDTO> loanedBooks = userServices.getAllLoanedBooksOfTheUser(id,pageable);
+        Page<UserStatisticsBookDTO> readBooks = userServices.getAllReadBooksOfTheUser(id,pageable);
+
+        UserDTO responseDTO = userServices.getAuthenticatedUser();
+        model.addAttribute("user", responseDTO);
+
+        model.addAttribute("reservedBooks", reservedBooks);
+        model.addAttribute("loanedBooks", loanedBooks);
+        model.addAttribute("readBooks", readBooks);
+        model.addAttribute("showStatistics", true);
+        return "user/user-home";
+    }
+
+
 
 }
