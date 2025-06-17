@@ -1,0 +1,82 @@
+.favorites-container {
+    background-color: white;
+    border-radius: var(--radius);
+    padding: 32px;
+    box-shadow: var(--shadow);
+    max-width: 700px;
+    margin: 40px auto;
+}
+
+h1 {
+    margin-bottom: 24px;
+    color: var(--accent-color);
+    text-align: center;
+}
+
+form {
+    margin-bottom: 24px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+input[type="text"] {
+    padding: 10px;
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius);
+    width: 100%;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+button {
+    background-color: var(--button-bg);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: var(--button-hover);
+}
+
+hr {
+    margin: 30px 0;
+    border: none;
+    border-top: 1px solid var(--input-border);
+}
+
+.favorites-list {
+    list-style: none;
+    padding: 0;
+}
+
+.favorites-list li {
+    background-color: #fafafa;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.book-title {
+    font-weight: bold;
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+form.inline {
+    display: inline;
+}

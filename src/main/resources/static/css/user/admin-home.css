@@ -1,0 +1,104 @@
+/* admin-home.css */
+
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    font-family: var(--font-family);
+}
+
+/* Правая панель */
+.sidebar {
+    width: 240px;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 32px 20px;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    background-color: var(--accent-hover);
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    transition: background-color 0.3s ease;
+}
+
+.sidebar a:hover {
+    background-color: #ffe0b2;
+    color: var(--accent-color);
+}
+
+.logout-link {
+    background-color: #e74c3c;
+}
+
+.logout-link:hover {
+    background-color: #c0392b;
+}
+
+/* Основной контент */
+.main-content {
+    flex: 1;
+    padding: 40px 60px;
+}
+
+.main-content h1 {
+    font-size: 28px;
+    color: var(--accent-color);
+    margin-bottom: 30px;
+}
+
+#userList {
+    background-color: var(--card-bg);
+    padding: 24px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+#userList h3 {
+    font-size: 22px;
+    margin-bottom: 16px;
+    color: var(--text-color);
+}
+
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+li {
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+li:last-child {
+    border-bottom: none;
+}
+
+a.user-link {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+a.user-link:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+.text-danger {
+    color: red;
+    margin-top: 20px;
+}

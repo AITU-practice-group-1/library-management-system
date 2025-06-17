@@ -1,0 +1,131 @@
+:root {
+    /* Цвета фона и текста */
+    --bg-color: #fdf6e3;
+    --text-color: #5d4037;
+
+    /* Навбар и футер */
+    --nav-bg: #fffaf0;
+    --footer-bg: #f0e5d8;
+    --nav-text: #5d4037;
+
+    /* Акценты */
+    --accent-color: #8d6e63;
+    --accent-hover: #6d4c41;
+
+    /* Элементы */
+    --input-border: #ccc;
+    --table-header: #efebe9;
+    --button-bg: #8d6e63;
+    --button-hover: #6d4c41;
+
+    /* Разное */
+    --radius: 12px;
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --font-family: 'Segoe UI', sans-serif;
+}
+
+/* Общие базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+/* NAVBAR (хедер) */
+nav {
+    background-color: var(--nav-bg);
+    box-shadow: var(--shadow);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: center; /* Центрируем контейнер */
+    border-bottom: 1px solid #ddd;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+/* Левая часть навбара */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+/* Правая часть навбара */
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: var(--nav-text);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover,
+.nav-link:hover {
+    color: var(--accent-hover);
+}
+
+.logo a {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+/* FOOTER */
+.footer {
+    background-color: var(--footer-bg);
+    padding: 20px 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-color);
+    border-top: 1px solid #ddd;
+    margin-top: 40px;
+}
+
+/* Кнопки */
+button, .btn {
+    background-color: var(--button-bg);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+}
+
+button:hover, .btn:hover {
+    background-color: var(--button-hover);
+}
+
+/* Контейнеры */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
