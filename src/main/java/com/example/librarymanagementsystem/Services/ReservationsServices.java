@@ -5,15 +5,15 @@ import com.example.librarymanagementsystem.DTOs.reservations.ReservationsRespons
 import com.example.librarymanagementsystem.Entities.*;
 import com.example.librarymanagementsystem.Repositories.ReservationsRepository;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
+import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
+import com.example.librarymanagementsystem.exceptions.ReservationNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,7 +35,7 @@ public class ReservationsServices {
         Book book = bookRepository.findById(dto.getBookId())
                 .orElseThrow(() -> {
                     logger.error("Book with id {} not found", dto.getBookId());
-                    return new RuntimeException("Book not found");
+                    return new BookNotFoundException("Book not found with ID: " + dto.getBookId());
                 });
 
         Reservations reservation = new Reservations();
@@ -74,7 +74,7 @@ public class ReservationsServices {
         Reservations reservation = reservationsRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Reservation with id {} not found", id);
-                    return new RuntimeException("Reservation not found");
+                    return new ReservationNotFoundException("Reservation not found with ID: " + id);
                 });
 
         reservation.setStatus(Reservations.ReservationStatus.CANCELLED);
@@ -88,19 +88,11 @@ public class ReservationsServices {
         Reservations reservation = reservationsRepository.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Reservation with id {} not found", id);
-                    return new RuntimeException("Reservation not found");
+                    return new ReservationNotFoundException("Reservation not found with ID: " + id);
                 });
 
         reservation.setStatus(Reservations.ReservationStatus.FULFILLED);
         logger.info("Reservation with id {} marked as fulfilled", id);
-    }
-
-    public Set<UUID> getActiveReservationBookIdsByUser(User user) {
-        if (user == null) {
-            return Collections.emptySet();
-        }
-        logger.info("Fetching active reservation book IDs for user: {}", user.getEmail());
-        return reservationsRepository.findActiveReservationBookIdsByUser(user);
     }
 
     private ReservationsResponseDTO toDto(Reservations reservation) {
