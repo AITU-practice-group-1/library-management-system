@@ -27,4 +27,10 @@ WARNING YOUT_APP_PASSWORD is application password not just email password
               starttls:
               
                 enable: true
-                
+
+
+
+Also Add Your Email in Custom also in this file
+
+    custom:
+      user_email: "khamidulla.alikhan@gmail.com"
