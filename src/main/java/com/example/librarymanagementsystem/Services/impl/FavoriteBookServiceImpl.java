@@ -38,7 +38,7 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
     @Transactional // Переопределяем транзакцию, так как этот метод изменяет данные
     public void addBookToFavorites(UUID userId, UUID bookId) {
         try {
-            UserDTO user = userServices.getAuhtenticatedUser();
+            UserDTO user = userServices.getAuthenticatedUser();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -47,10 +47,8 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Книга с ID " + bookId + " не найдена"));
 
-        // Проверяем, не добавлена ли уже книга в избранное
+
         if (favoriteBookRepository.existsByUserAndBook(user, book)) {
-            // Можно бросить исключение или просто ничего не делать
-            // throw new IllegalStateException("Книга уже в избранном");
             return;
         }
 
@@ -62,14 +60,14 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
     }
 
     @Override
-    @Transactional // Этот метод также изменяет данные
+    @Transactional
     public void removeBookFromFavorites(UUID userId, UUID bookId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + userId + " не найден"));
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Книга с ID " + bookId + " не найдена"));
 
-        // Используем метод репозитория для эффективного удаления
+
         favoriteBookRepository.deleteByUserAndBook(user, book);
     }
 

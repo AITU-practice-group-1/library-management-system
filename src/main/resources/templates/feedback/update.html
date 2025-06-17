@@ -21,7 +21,7 @@
         <p class="mt-2 text-sm text-gray-600">Made a mistake? You can edit your feedback here.</p>
     </div>
 
-    <form th:action="@{/api/feedback/{id}/edit(id=${feedback.id})}" th:object="${feedback}" th:method="post" class="mt-8 space-y-6">
+    <form th:action="@{/reviews/{id}/edit(id=${feedback.id})}" th:object="${feedback}" th:method="post" class="mt-8 space-y-6">
 
         <input type="hidden" th:field="*{id}" />
 
@@ -60,7 +60,7 @@
         </div>
 
         <div class="text-center">
-            <a th:href="@{/api/feedback/book/{bookId}(bookId=${feedback.bookId})}" class="font-medium text-sm text-blue-600 hover:text-blue-500">
+            <a th:href="@{/reviews/book/{bookId}(bookId=${feedback.bookId})}" class="font-medium text-sm text-blue-600 hover:text-blue-500">
                 Cancel
             </a>
         </div>

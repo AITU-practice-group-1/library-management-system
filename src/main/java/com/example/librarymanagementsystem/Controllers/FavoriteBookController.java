@@ -35,9 +35,9 @@ public class FavoriteBookController {
                                  RedirectAttributes redirectAttributes) {
         try {
             favoriteBookService.addBookToFavorites(user.getId(), bookId);
-            redirectAttributes.addFlashAttribute("successMessage", "Книга успешно добавлена в избранное!");
+            redirectAttributes.addFlashAttribute("successMessage", "Book successfully added to favorites");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Не удалось добавить книгу в избранное. " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Couldn't add to favorites" + e.getMessage());
         }
 
 
@@ -47,8 +47,6 @@ public class FavoriteBookController {
 
     @PostMapping("/remove")
     public String removeFromFavorites(@RequestParam("bookId") UUID bookId,
-                                      // This parameter is needed to determine what URL redirect to.
-                                      // Because this endpoint is used both all favorites and a detailed book page.
                                       @RequestParam(value = "redirectUrl", defaultValue = "/favoriteBooks") String redirectUrl,
                                       @AuthenticationPrincipal User user,
                                       RedirectAttributes redirectAttributes) {

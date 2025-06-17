@@ -17,7 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -34,7 +36,6 @@ import java.util.UUID;
 public class BookController {
     private final BookServiceImpl bookService;
     private final FeedbackService feedbackService;
-    // 1. Inject the FavoriteBookService
     private final FavoriteBookService favoriteBookService;
 
     @GetMapping("/new")
@@ -74,14 +75,16 @@ public class BookController {
                            @RequestParam(defaultValue = "createdAt") String sort,
                            @RequestParam(defaultValue = "desc") String dir,
                            @RequestParam(defaultValue = "0") int page,
-                           @RequestParam(defaultValue = "5") int size) throws Exception {
+                           @RequestParam(defaultValue = "5") int size) {
         System.out.println("BookDTO book = bookService.getBookById(id);");
         BookDTO book = bookService.getBookById(id);
         if (book == null) {
             return "books/book";
         }
         model.addAttribute("book", book);
-
+        System.out.println("book.getRatingCount() = " + book.getRatingCount());
+        System.out.println("book.getRatingSum() = " + book.getRatingSum());
+        System.out.println("book.getRatingAverage() = " + book.getRatingAverage());
 
         // Favorite Status
         boolean isFavorite = false;
@@ -94,7 +97,6 @@ public class BookController {
         Sort.Direction direction = "asc".equalsIgnoreCase(dir) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort));
 
-        System.out.println("Page<FeedbackResponseDTO> reviews");
 
         Page<FeedbackResponseDTO> reviews = null;
 
@@ -120,6 +122,15 @@ public class BookController {
         } else {
             model.addAttribute("hasUserReviewed", false);
         }
+
+        // Add current role to model for debugging
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities() != null && !auth.getAuthorities().isEmpty()) {
+            model.addAttribute("currentRole", auth.getAuthorities().iterator().next().getAuthority());
+        } else {
+            model.addAttribute("currentRole", "No Role");
+        }
+
         return "books/book";
     }
 
@@ -146,7 +157,10 @@ public class BookController {
         }
 
         Page<BookDTO> books = bookService.findPaginatedAndFiltered(keyword, genreEnum, pageable);
-
+        Optional<BookDTO> bookDTO = books.get().findFirst();
+        if (bookDTO.isPresent()) {
+            System.out.println(bookDTO);
+        }
         model.addAttribute("bookPage", books);
         model.addAttribute("keyword", keyword);
         model.addAttribute("genre", genreEnum);

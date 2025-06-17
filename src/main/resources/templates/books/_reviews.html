@@ -3,20 +3,22 @@
 <body>
 <div th:replace="fragments/navbar::navbar"></div>
 <div th:fragment="reviews-section">
-  <!-- User's Own Review Section -->
   <div sec:authorize="isAuthenticated()">
     <div th:if="${userReview != null}">
-      <!-- **FIXED**: Wrapped the fragment expression -->
       <div th:replace="~{books/_user-review :: user-review-display}"></div>
+      <div class="mt-2">
+        <form th:action="@{/reviews/{id}/delete(id=${userReview.id})}" method="post" style="display:inline;">
+          <input type="hidden" name="_method" value="delete"/>
+          <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete your review?');">Delete My Review</button>
+        </form>
+      </div>
     </div>
     <div th:if="${userReview == null}">
       <h4>Write a Review</h4>
-      <!-- **FIXED**: Wrapped the fragment expression -->
       <div th:replace="~{books/_review-form :: review-form(formAction=@{/reviews/add}, formObjectId='feedbackRequest', submitButtonText='Submit Review')}"></div>
     </div>
   </div>
 
-  <!-- Login/Register prompt for non-authenticated users -->
   <div sec:authorize="!isAuthenticated()">
     <div class="card bg-light">
       <div class="card-body text-center">
@@ -29,11 +31,9 @@
 
   <hr class="my-4">
 
-  <!-- All Community Reviews -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4>Community Reviews <span class="badge bg-secondary" th:text="${reviews.totalElements}"></span></h4>
     <div>
-      <!-- Sorting Controls -->
       <a th:href="@{/books/{id}(id=${book.id}, sort='rating', dir=${sortField == 'rating' && sortDir == 'desc' ? 'asc' : 'desc'})}" class="btn btn-sm btn-outline-secondary">
         Rating <i class="bi" th:classappend="${sortField == 'rating' ? (sortDir == 'desc' ? 'bi-sort-down' : 'bi-sort-up') : 'bi-sort-down-alt'}"></i>
       </a>
@@ -43,42 +43,67 @@
     </div>
   </div>
 
-  <!-- Message for no reviews -->
   <div th:if="${reviews.isEmpty()}" class="text-center text-muted p-3">
     <p>No community reviews yet. Be the first!</p>
   </div>
 
-  <!-- Display list of reviews -->
   <div th:unless="${reviews.isEmpty()}">
-    <div th:each="review : ${reviews.content}" class="card mb-3">
-      <div class="card-body">
-        <div class="d-flex justify-content-between">
-          <h6 class="card-title" th:text="${review.firstName}">User Name</h6>
-          <div class="star-rating">
-            <span th:each="i : ${#numbers.sequence(1, 5)}">
+    <div th:each="review : ${reviews.content}">
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <h6 class="card-title" th:text="${review.firstName}">User Name</h6>
+            <div class="star-rating">
+              <span th:each="i : ${#numbers.sequence(1, 5)}">
                 <i class="bi" th:classappend="${i <= review.rating} ? 'bi-star-fill' : 'bi-star'"></i>
-            </span>
+              </span>
+            </div>
+          </div>
+          <p class="card-text" th:text="${review.comment}">Review comment.</p>
+          <div class="d-flex justify-content-between align-items-center mt-2">
+            <small class="text-muted" th:text="'Reviewed on ' + ${#temporals.format(review.createdAt, 'MMMM dd, yyyy')}">Date</small>
+
+            <div sec:authorize="isAuthenticated()">
+              <form th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" th:action="@{/reviews/{id}/delete(id=${review.id})}" method="post" style="display:inline-block;">
+                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('ADMIN ACTION: Are you sure you want to directly delete this review?');"><i class="bi bi-trash"></i> Delete</button>
+              </form>
+
+              <div th:if="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" th:data-bs-target="'#reportModal-' + ${review.id}">
+                  <i class="bi bi-flag"></i> Report
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <p class="card-text" th:text="${review.comment}">Review comment.</p>
-        <small class="text-muted" th:text="'Reviewed on ' + ${#temporals.format(review.createdAt, 'MMMM dd, yyyy')}">Date</small>
       </div>
-    </div>
 
-    <!-- Pagination Controls -->
-    <nav th:if="${reviews.totalPages > 1}">
-      <ul class="pagination justify-content-center">
-        <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
-          <a class="page-link" th:href="@{/books/{id}(id=${book.id}, page=${reviews.number-1}, sort=${sortField}, dir=${sortDir})}">Previous</a>
-        </li>
-        <li class="page-item" th:each="i : ${#numbers.sequence(0, reviews.totalPages - 1)}" th:classappend="${i == reviews.number} ? 'active'">
-          <a class="page-link" th:href="@{/books/{id}(id=${book.id}, page=${i}, sort=${sortField}, dir=${sortDir})}" th:text="${i+1}"></a>
-        </li>
-        <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
-          <a class="page-link" th:href="@{/books/{id}(id=${book.id}, page=${reviews.number+1}, sort=${sortField}, dir=${sortDir})}">Next</a>
-        </li>
-      </ul>
-    </nav>
+      <div class="modal fade" th:id="'reportModal-' + ${review.id}" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="reportModalLabel">Confirm Report</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to report this review?</p>
+              <div class="alert alert-secondary">
+                <p class="fw-bold mb-1">Review by <span th:text="${review.firstName}"></span>:</p>
+                <p class="fst-italic mb-0" th:text="${review.comment}"></p>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <form th:action="@{/review-reports/report/{feedbackId}(feedbackId=${review.id})}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger"><i class="bi bi-flag-fill"></i> Yes, Report</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <nav th:if="${reviews.totalPages > 1}">
+  </nav>
   </div>
 </div>
 
