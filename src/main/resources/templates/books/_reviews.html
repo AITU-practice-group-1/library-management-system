@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-
+<div th:replace="fragments/navbar::navbar"></div>
 <div th:fragment="reviews-section">
   <div sec:authorize="isAuthenticated()">
     <div th:if="${userReview != null}">

@@ -1,0 +1,67 @@
+.login-container {
+    background: var(--card-bg);
+    padding: 40px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 340px;
+    text-align: center;
+    margin-top: 40px;
+}
+
+.login-container h1 {
+    margin-bottom: 24px;
+    color: var(--accent-color);
+}
+
+.login-container label {
+    display: block;
+    text-align: left;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 16px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+.login-container form button {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.login-container .message {
+    margin-top: 16px;
+    color: red;
+    font-size: 14px;
+}
+
+.login-container .logout-msg {
+    color: green;
+}
+
+.login-container .register-link {
+    margin-top: 16px;
+    display: block;
+    font-size: 14px;
+}
+
+.login-container .register-link a {
+    color: var(--accent-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.login-container .register-link a:hover {
+    text-decoration: underline;
+}
+.login-container {
+    margin: 80px auto;
+}

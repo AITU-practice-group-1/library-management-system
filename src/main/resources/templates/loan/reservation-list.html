@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><title>Approved Reservations</title></head>
+<head>
+    <title>Approved Reservations</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
+<div th:replace="fragments/navbar::navbar"></div>
 <h2>Approved Reservations for <span th:text="${email}"></span></h2>
 
 <table>

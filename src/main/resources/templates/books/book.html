@@ -26,7 +26,7 @@
     </style>
 </head>
 <body>
-
+<div th:replace="fragments/navbar::navbar"></div>
 <div class="container mt-5 mb-5">
     <!-- Message display for success or error -->
     <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>

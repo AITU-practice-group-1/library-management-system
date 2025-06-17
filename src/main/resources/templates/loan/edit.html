@@ -2,26 +2,33 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Edit Loan</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
+
+<div th:replace="fragments/navbar::navbar"></div>
+
 <h1>Edit Loan</h1>
 
-<form th:action="@{'/loans/' + ${loan.id} + '/edit'}" th:object="${updateDTO}" method="post">
-    <!-- DUE DATE -->
-    <label>Due Date:</label>
-    <input type="date" th:field="*{dueDate}" />
+<div class="form-container">
+    <form th:action="@{'/loans/' + ${loan.id} + '/edit'}" th:object="${updateDTO}" method="post">
+        <!-- DUE DATE -->
+        <label>Due Date:</label>
+        <input type="date" th:field="*{dueDate}" />
 
-    <!-- STATUS -->
-    <label>Status:</label>
-    <select th:field="*{status}">
-        <option th:value="BORROWED" th:text="'BORROWED'"></option>
-        <option th:value="RETURNED" th:text="'RETURNED'"></option>
-    </select>
+        <!-- STATUS -->
+        <label>Status:</label>
+        <select th:field="*{status}">
+            <option th:value="BORROWED" th:text="'BORROWED'"></option>
+            <option th:value="RETURNED" th:text="'RETURNED'"></option>
+        </select>
 
-    <button type="submit">Update Loan</button>
-</form>
+        <button type="submit">✅ Update Loan</button>
+    </form>
 
+    <a class="back-link" th:href="@{/loans}">← Back to Loans</a>
+</div>
 
-<a th:href="@{/loans}">Back to Loans</a>
 </body>
 </html>

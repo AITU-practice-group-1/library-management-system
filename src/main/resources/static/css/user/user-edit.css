@@ -1,0 +1,59 @@
+/* Специфичные стили для формы редактирования профиля */
+.form-container {
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 32px;
+    background-color: var(--card-bg, #fffaf0);
+    border-radius: var(--radius, 12px);
+    box-shadow: var(--shadow, 0 2px 10px rgba(0, 0, 0, 0.1));
+    font-family: var(--font-family, 'Segoe UI', sans-serif);
+}
+
+.form-container h1 {
+    text-align: center;
+    color: var(--accent-color, #8d6e63);
+    margin-bottom: 24px;
+}
+
+.form-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-container label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    color: var(--text-color, #5d4037);
+}
+
+.form-container input {
+    padding: 10px;
+    border: 1px solid var(--input-border, #ccc);
+    border-radius: var(--radius, 12px);
+    font-size: 14px;
+}
+
+.form-container button {
+    background-color: var(--button-bg, #8d6e63);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius, 12px);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-container button:hover {
+    background-color: var(--button-hover, #6d4c41);
+}
+
+.form-container .error {
+    color: red;
+    font-size: 14px;
+    margin-top: 16px;
+    text-align: center;
+}

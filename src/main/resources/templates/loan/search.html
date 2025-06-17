@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head><title>Search Approved Reservations</title></head>
+<head>
+    <title>Search Approved Reservations</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
 <body>
+<div th:replace="fragments/navbar::navbar"></div>
 <h2>Find Approved Reservations by Email</h2>
 
 <form th:action="@{/loans/search}" method="post">
