@@ -1,6 +1,10 @@
 package com.example.librarymanagementsystem.Controllers;
 
 import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
+import com.example.librarymanagementsystem.DTOs.reservations.ReservationsResponseDTO;
+import com.example.librarymanagementsystem.Entities.User;
+import com.example.librarymanagementsystem.Services.EmailTokenService;
+import com.example.librarymanagementsystem.Services.ReservationsServices;
 import com.example.librarymanagementsystem.Services.UserServices;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
@@ -17,9 +21,13 @@ import java.util.UUID;
 @RequestMapping("/users")
 public class UserController {
     private final UserServices userServices;
-    public UserController(UserServices userServices)
+    private final EmailTokenService emailTokenService;
+    private final ReservationsServices reservationsServices;
+    public UserController(UserServices userServices, EmailTokenService emailTokenService, ReservationsServices reservationsServices)
     {
         this.userServices = userServices;
+        this.emailTokenService = emailTokenService;
+        this.reservationsServices = reservationsServices;
     }
     @GetMapping("/home")
     private String homePage(Model model){
@@ -97,5 +105,23 @@ public class UserController {
             model.addAttribute("errorMessage", e.getMessage());
         }
         return "user/profile";
+    }
+
+    @GetMapping("/confirm")
+    private String confirm(@RequestParam("token") String token, Model model)
+    {
+        try{
+            emailTokenService.confirmToken(token);
+        }catch (Exception e){
+            model.addAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/users/login";
+    }
+
+    @GetMapping("librarian")
+    private String librarianPage(Model model) throws Exception {
+        List<ReservationsResponseDTO> reservations = reservationsServices.listAllWthEmail();
+        model.addAttribute("reservations", reservations);
+        return "user/librarian-home";
     }
 }

@@ -1,0 +1,109 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет библиотекаря</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/user/user-home.css">
+    <style>
+/*<!--        body {-->*/
+/*<!--            font-family: 'Segoe UI', sans-serif;-->*/
+/*<!--            margin: 0;-->*/
+/*<!--            padding: 0;-->*/
+/*<!--            background-color: #f0f2f5;-->*/
+/*<!--            color: #333;-->*/
+/*<!--        }-->*/
+
+/*<!--        header {-->*/
+/*<!--            background-color: #003366;-->*/
+/*<!--            color: white;-->*/
+/*<!--            padding: 20px;-->*/
+/*<!--            text-align: center;-->*/
+/*<!--        }-->*/
+
+/*<!--        h1 {-->*/
+/*<!--            margin: 0;-->*/
+/*<!--        }-->*/
+
+/*<!--        .container {-->*/
+/*<!--            padding: 30px;-->*/
+/*<!--        }-->*/
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #003366;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .no-reservations {
+            font-size: 18px;
+            padding: 20px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+
+<div th:replace="fragments/navbar::navbar"></div>
+
+
+<header>
+    <h1>Панель библиотекаря</h1>
+</header>
+
+<div class="container">
+    <h2>Резервации пользователей</h2>
+
+    <div th:if="${#lists.isEmpty(reservations)}" class="no-reservations">
+        Нет активных резерваций.
+    </div>
+
+    <table th:if="${not #lists.isEmpty(reservations)}">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Книга</th>
+            <th>Пользователь</th>
+            <th>Дата бронирования</th>
+            <th>Статус</th>
+            <th>Loan</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="res : ${reservations}">
+            <td th:text="${res.id}"></td>
+            <td th:text="${res.bookTitle}">Название книги</td>
+            <td th:text="${res.email}">Имя пользователя</td>
+            <td th:text="${res.reservedAt}">Дата начала</td>
+            <td th:text="${res.status}">Статус</td>
+            <td><a th:href="@{/loans/create-from-reservation/{id}(id = ${res.id})}"><button>Loan</button></a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -61,6 +61,10 @@ public class ReservationsServices {
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
+    public List<ReservationsResponseDTO> listAllWthEmail() {
+        logger.info("Fetching all reservations");
+        return reservationsRepository.findAllWithEmail();
+    }
 
     @Transactional
     public void cancel(UUID id) {

@@ -20,11 +20,14 @@ import java.util.UUID;
 public class UserServices {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    public UserServices(UserRepository userRepository, PasswordEncoder passwordEncoder)
+    private final  EmailTokenService emailTokenService;
+    private final EmailService emailService ;
+    public UserServices(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailTokenService emailTokenService, EmailService emailService)
     {
-
+        this.emailService = emailService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailTokenService = emailTokenService;
     }
 
     public void register(UserDTO dto) throws Exception {
@@ -34,7 +37,7 @@ public class UserServices {
         user.setRole(dto.getRole());
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
-        user.setActive(true);
+        user.setActive(false);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         try{
@@ -44,6 +47,16 @@ public class UserServices {
             System.out.println(e.getMessage());
             throw new Exception("Can not Add User \n" + e.getMessage());
         }
+        String token = UUID.randomUUID().toString();
+        try {
+            emailTokenService.saveToken(token, user);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            throw new Exception("Can not send email verification token \n" + e.getMessage());
+        }
+        String link = "http://localhost:8080/users/confirm?token=" + token;
+        emailService.sendEmail(user.getEmail(), "Confirm your email", "Click: " + link);
+
     }
 
     public UserDTO getAuthenticatedUser() throws Exception {
