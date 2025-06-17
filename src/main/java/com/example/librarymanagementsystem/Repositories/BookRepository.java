@@ -45,4 +45,19 @@ public interface BookRepository extends JpaRepository<Book, UUID>, JpaSpecificat
     @Modifying
     @Query("UPDATE Book b SET b.availableCopies = b.availableCopies + 1 WHERE b.id = :id")
     int incrementAvailableCopiesById(@Param("id") UUID id);
+
+    @Query("SELECT b.id, b.title, b.ratingAverage " +
+            "FROM Book b " +
+            "WHERE b.ratingCount > 0 " +
+            "ORDER BY b.ratingAverage DESC " +
+            "LIMIT :limit")
+    List<Object[]> findTopRatedBooks(int limit);
+
+    @Query("SELECT b.id, b.title, COUNT(fb.id) as favoriteCount " +
+            "FROM Book b " +
+            "LEFT JOIN FavoriteBook fb ON b.id = fb.book.id " +
+            "GROUP BY b.id, b.title " +
+            "ORDER BY favoriteCount DESC " +
+            "LIMIT :limit")
+    List<Object[]> findTopFavoriteBooks(int limit);
 }

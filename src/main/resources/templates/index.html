@@ -81,6 +81,15 @@
             bottom: 0;
             width: 100%;
         }
+
+        .leaderboard-section {
+            margin-bottom: 40px;
+        }
+
+        .leaderboard-section h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -93,15 +102,53 @@
     <a th:href="@{/books}" class="btn">📖 View Books</a>
     <a th:href="@{/users/home}" class="btn">👤 My Profile</a>
     <div th:if="${#authentication.getName() != 'anonymousUser'}">
-        <form th:action="@{/logout}" method="post" style="display:flex;">
-            <button type="submit" class="btn btn-danger">Logout</button>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="btn" style="background-color: #e74c3c;">Logout</button>
         </form>
     </div>
 
+    <!-- Top Rated Books Leaderboard -->
+    <div class="leaderboard-section">
+        <h2>Top 10 Rated Books</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Average Rating</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${topRatedBooks}">
+                <td th:text="${book.title}"></td>
+                <td th:text="${#numbers.formatDecimal(book.ratingAverage, 1, 2)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Top Favorited Books Leaderboard -->
+    <div class="leaderboard-section">
+        <h2>Top 10 Favorited Books</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Favorite Count</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${topFavoritedBooks}">
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.favoriteCount}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div class="footer">
-    &copy; 2025 Library Inc. Don't steal books, or else 🥊
+    © 2025 Library Inc. Don't steal books, or else 🥊
 </div>
 
 </body>

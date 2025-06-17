@@ -39,4 +39,4 @@ build/
 /src/main/java/com/example/librarymanagementsystem/Controllers/TryController.java
 
 ### logs ###
-logs/app.log
+logs/

@@ -1,12 +1,31 @@
 package com.example.librarymanagementsystem.Controllers;
 
+import com.example.librarymanagementsystem.DTOs.book.TopFavoriteBookDTO;
+import com.example.librarymanagementsystem.DTOs.book.TopRatedBookDTO;
+import com.example.librarymanagementsystem.Services.BookService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
 
 @Controller
 public class MainController {
+
+    private final BookService bookService;
+
+    @Autowired
+    public MainController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
     @GetMapping("/")
-    public String index(){
+    public String index(Model model){
+        List<TopRatedBookDTO> topRatedBooks = bookService.getTopRatedBooks(10);
+        model.addAttribute("topRatedBooks", topRatedBooks);
+        List<TopFavoriteBookDTO> topFavoritedBooks = bookService.getTopFavoriteBooks(10);
+        model.addAttribute("topFavoritedBooks", topFavoritedBooks);
         return "index";
     }
     @GetMapping("/error")
