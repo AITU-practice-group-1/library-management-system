@@ -1,10 +1,11 @@
 package com.example.librarymanagementsystem.Configuration;
 
 import com.example.librarymanagementsystem.Services.CustomUserDetailsService;
-import com.example.librarymanagementsystem.Services.InMemorySessionStore;
+import com.example.librarymanagementsystem.Services.SessionStore;
 import com.example.librarymanagementsystem.security.SingleDeviceAuthenticationFilter;
 import jakarta.servlet.http.HttpSession;
-import org.apache.coyote.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,26 +14,20 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
+
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
@@ -40,7 +35,7 @@ public class SecurityConfiguration {
     private SingleDeviceAuthenticationFilter singleDeviceAuthenticationFilter;
 
     @Autowired
-    private InMemorySessionStore sessionStore;
+    private SessionStore sessionStore;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -67,9 +62,16 @@ public class SecurityConfiguration {
                           HttpSession session = request.getSession();
                           UserDetails userDetails = (UserDetails) authentication.getPrincipal();
                           String deviceInfo = request.getRemoteAddr() + " | " + request.getHeader("User-Agent");
-                          //System.out.println(deviceInfo);
+                          logger.info("User {} logged in successfully from {}", userDetails.getUsername(), deviceInfo);
                           sessionStore.registerNewSession(userDetails.getUsername(), session.getId(), deviceInfo);
                           response.sendRedirect("/books");
+                      })
+                      .failureHandler((request, response, exception) -> {
+                          String username = request.getParameter("username");
+                          String ipAddress = request.getRemoteAddr();
+                          logger.warn("Login failed for user {} from IP {}: {}", username, ipAddress, exception.getMessage());
+                          request.getSession().setAttribute("error", "Invalid username or password");
+                          response.sendRedirect("/users/login?error=true");
                       })
               )
               .logout(logout -> logout
@@ -79,7 +81,8 @@ public class SecurityConfiguration {
                       .addLogoutHandler((request, response, authentication) -> {
                           HttpSession session = request.getSession(false);
                           if (session != null) {
-                              System.out.println(session.getId() + " is logged out");
+                              UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                              logger.info("User {} logged out from session {}", userDetails.getUsername(), session.getId());
                               sessionStore.invalidateSession(session.getId());
                           }
                       }))

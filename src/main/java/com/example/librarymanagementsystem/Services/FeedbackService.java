@@ -1,5 +1,6 @@
 package com.example.librarymanagementsystem.Services;
 
+import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackRequestDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackResponseDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackUpdateDTO;
@@ -17,12 +18,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
+
+import static javax.swing.UIManager.getString;
 
 @Service
 @Transactional(readOnly = true)
@@ -45,7 +49,8 @@ public class FeedbackService {
     }
 
     public FeedbackResponseDTO getById(UUID id) {
-        logger.info("Fetching feedback with ID: {}", id);
+        String currentUserId = getCurrentUser();
+        logger.info("User {}: Fetching feedback with ID: {}", currentUserId, id);
         Feedback feedback = feedbackRepo.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Feedback not found with ID: {}", id);
@@ -55,19 +60,22 @@ public class FeedbackService {
     }
 
     public Page<FeedbackResponseDTO> getByBookId(UUID bookId, Pageable pageable) {
-        logger.info("Fetching feedback for book ID: {}", bookId);
+        String currentUserId = getCurrentUser();
+        logger.info("User {}: Fetching feedback for book ID: {}", currentUserId, bookId);
         Page<Feedback> feedbackPage = feedbackRepo.findByBookId(bookId, pageable);
         return feedbackPage.map(feedbackMapper::toDTO);
     }
 
     public Page<FeedbackResponseDTO> getByUserId(UUID userId, Pageable pageable) {
-        logger.info("Fetching feedback for user ID: {}", userId);
+        String currentUserId = getCurrentUser();
+        logger.info("User {}: Fetching feedback for user ID: {}", currentUserId, userId);
         Page<Feedback> feedbackPage = feedbackRepo.findByUserId(userId, pageable);
         return feedbackPage.map(feedbackMapper::toDTO);
     }
 
     public Optional<FeedbackResponseDTO> getByBookIdAndUserId(UUID bookId, UUID userId) {
-        logger.info("Fetching feedback for book ID: {} and user ID: {}", bookId, userId);
+        String currentUserId = getCurrentUser();
+        logger.info("User {}: Fetching feedback for book ID: {} and user ID: {}", currentUserId, bookId, userId);
         return feedbackRepo.findByBookIdAndUserId(bookId, userId)
                 .map(feedbackMapper::toDTO);
     }
@@ -129,6 +137,10 @@ public class FeedbackService {
     public void deleteFeedback(UUID id) {
         logger.info("Deleting feedback with ID: {}", id);
 
+        String currentUserId = getCurrentUser();
+
+        logger.info("User {}: Deleting feedback with ID: {}", currentUserId, id);
+
         Feedback feedback = feedbackRepo.findById(id)
                 .orElseThrow(() -> {
                     logger.error("Cannot delete. Feedback not found with ID: {}", id);
@@ -140,5 +152,17 @@ public class FeedbackService {
         feedbackRepo.delete(feedback);
 
         logger.info("Feedback with ID: {} deleted successfully", id);
+    }
+
+    private static String getCurrentUser() {
+        String currentUser = "UNKNOWN_USER";
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof User) {
+            currentUser = ((User) principal).getUsername();
+        } else if (principal instanceof String) {
+            currentUser = (String) principal;
+        }
+        return currentUser;
     }
 }

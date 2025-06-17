@@ -1,6 +1,6 @@
 package com.example.librarymanagementsystem.security;
 
-import com.example.librarymanagementsystem.Services.InMemorySessionStore;
+import com.example.librarymanagementsystem.Services.SessionStore;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +23,7 @@ public class SingleDeviceAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(SingleDeviceAuthenticationFilter.class);
 
     @Autowired
-    private InMemorySessionStore sessionStore;
+    private SessionStore sessionStore;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {

@@ -1,4 +1,4 @@
-package com.example.librarymanagementsystem.Entities;
+package com.example.librarymanagementsystem.util;
 
 import lombok.Getter;
 
