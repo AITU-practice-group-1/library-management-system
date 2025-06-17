@@ -2,11 +2,13 @@ package com.example.librarymanagementsystem.Controllers;
 
 import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.DTOs.reservations.ReservationsResponseDTO;
-import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Services.EmailTokenService;
 import com.example.librarymanagementsystem.Services.ReservationsServices;
 import com.example.librarymanagementsystem.Services.UserServices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,7 +21,9 @@ import java.util.UUID;
 
 @Controller
 @RequestMapping("/users")
-public class UserController {
+public class UserController
+{
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserServices userServices;
     private final EmailTokenService emailTokenService;
     private final ReservationsServices reservationsServices;
@@ -31,6 +35,7 @@ public class UserController {
     }
     @GetMapping("/home")
     private String homePage(Model model){
+        logger.info("User with email{} entered the home page. at endpoint: /users/home", SecurityContextHolder.getContext().getAuthentication().getName());
         try{
             UserDTO responceDTO = userServices.getAuthenticatedUser();
             model.addAttribute("user", responceDTO);
@@ -42,6 +47,7 @@ public class UserController {
     }
     @GetMapping("/register")
     private String loginPage(Model model){
+        logger.info("User entered the register page. at endpoint: /users/register");
         model.addAttribute("user", new UserDTO());
         return "user/register";
     }
@@ -49,7 +55,9 @@ public class UserController {
     @Validated
     @PostMapping("/register")
     private String login(@Valid @ModelAttribute("user") UserDTO dto, BindingResult bindingResult, Model model){
+        logger.info("User posted information to  the register page. at endpoint: /users/register");
         if(bindingResult.hasErrors()){
+            logger.info("User entered invalid information to  the register page. at endpoint: /users/register");
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .toList();
@@ -68,11 +76,13 @@ public class UserController {
 
     @GetMapping("/login")
     private String login(){
+        logger.info("User entered the login page. at endpoint: /users/login");
         return "user/login";
     }
 
     @GetMapping("/edit")
     private String editPage(Model model){
+        logger.info("User with email {} entered the edit page. at endpoint: /users/edit", SecurityContextHolder.getContext().getAuthentication().getName());
         try{
             UserDTO dto = userServices.getAuthenticatedUser();
             model.addAttribute("user", dto);
@@ -85,6 +95,7 @@ public class UserController {
 
     @PostMapping("/edit")
     private String edit(@ModelAttribute("user") UserDTO dto, Model model){
+        logger.info("User with email {} posted information to  the edit page. at endpoint: /users/edit", SecurityContextHolder.getContext().getAuthentication().getName());
         System.out.println(dto.getFirstName());
         try{
             userServices.updateUser(dto);
@@ -99,6 +110,7 @@ public class UserController {
     @GetMapping("/profile/{id}")
     private String profile(@PathVariable UUID id, Model model)
     {
+        logger.info("User with email {} entered the profile page. at endpoint: /users/profile/{id}", SecurityContextHolder.getContext().getAuthentication().getName());
         try {
             model.addAttribute("user", userServices.getUserById(id));
         } catch (Exception e) {
@@ -110,6 +122,7 @@ public class UserController {
     @GetMapping("/confirm")
     private String confirm(@RequestParam("token") String token, Model model)
     {
+        logger.info("User entered the confirm page. at endpoint: /users/confirm");
         try{
             emailTokenService.confirmToken(token);
         }catch (Exception e){
@@ -120,8 +133,10 @@ public class UserController {
 
     @GetMapping("librarian")
     private String librarianPage(Model model) throws Exception {
+        logger.info("User with email {} entered the librarian page. at endpoint: /users/librarian", SecurityContextHolder.getContext().getAuthentication().getName());
         List<ReservationsResponseDTO> reservations = reservationsServices.listAllWthEmail();
         model.addAttribute("reservations", reservations);
         return "user/librarian-home";
     }
+
 }
