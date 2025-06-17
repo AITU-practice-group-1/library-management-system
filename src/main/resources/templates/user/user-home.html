@@ -3,60 +3,8 @@
 <head>
     <title>User Home</title>
     <meta charset="UTF-8">
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f0f2f5;
-            color: #333;
-            text-align: center;
-            padding: 50px;
-        }
-
-        h1 {
-            color: #2c3e50;
-        }
-
-        .email {
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-
-        .button-group {
-            margin-top: 30px;
-        }
-
-        a.button-link {
-            display: inline-block;
-            margin: 10px;
-            padding: 12px 24px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        a.button-link:hover {
-            background-color: #2980b9;
-        }
-
-        a.button-link.red {
-            background-color: #e74c3c;
-        }
-
-        a.button-link.red:hover {
-            background-color: #c0392b;
-        }
-
-        a.button-link.green {
-            background-color: #2ecc71;
-        }
-
-        a.button-link.green:hover {
-            background-color: #27ae60;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/user/user-home.css">
 </head>
 <body>
 
@@ -69,7 +17,6 @@
     <a th:href="@{/users/edit}" class="button-link green">Изменить профиль</a>
     <!-- <a th:href="@{/users/delete}" class="button-link red">Удалить аккаунт</a> -->
     <a th:href="@{/logout}" class="button-link red">Выйти</a>
-    <br><br><br><br><br>
     <div th:if="${user.getRole() == 'ROLE_ADMIN'}">
     <a th:href="@{/admin/home}" class="button-link">Панель администратора</a>
     </div>
