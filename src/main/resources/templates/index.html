@@ -18,6 +18,7 @@
 <div class="container">
     <a th:href="@{/books}" class="btn">📖 View Books</a>
     <a th:href="@{/users/home}" class="btn">👤 My Profile</a>
+  
     <div th:if="${#authentication.getName() != 'anonymousUser'}">
         <form th:action="@{/logout}" method="post" style="display:flex;">
             <button type="submit" class="btn btn-danger">Logout</button>

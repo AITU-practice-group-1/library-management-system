@@ -22,6 +22,9 @@
         <div class="register-link">
             Нет аккаунта? <a th:href="@{/users/register}">Создать</a>
         </div>
+        <div class="reset-password-link">
+            Забыли пароль? <a th:href="@{/forgot-password}">Сбросить пароль</a>
+        </div>
         <a th:href = "@{/users/register}"> <button >Регистрация </button>  </a>
         <p th:if="${param.error}" class="message">Неверный логин или пароль.</p>
         <p th:if="${param.logout}" class="message logout-msg">Вы вышли из системы.</p>
