@@ -18,7 +18,9 @@
 
     <a th:href="@{/users/edit}" class="button-link green">Изменить профиль</a>
     <!-- <a th:href="@{/users/delete}" class="button-link red">Удалить аккаунт</a> -->
-    <a th:href="@{/logout}" class="button-link red">Выйти</a>
+    <form th:action="@{/logout}" method="post">
+    <button type = "submit" class="button-link red">Выйти</button>
+    </form>
     <div th:if="${user.getRole() == 'ROLE_ADMIN'}">
     <a th:href="@{/admin/home}" class="button-link">Панель администратора</a>
     </div>

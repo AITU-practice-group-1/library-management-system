@@ -20,6 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -69,7 +72,24 @@ public class SecurityConfiguration {
                           String deviceInfo = request.getRemoteAddr() + " | " + request.getHeader("User-Agent");
                           //System.out.println(deviceInfo);
                           sessionStore.registerNewSession(userDetails.getUsername(), session.getId(), deviceInfo);
-                          response.sendRedirect("/books");
+
+                          RequestCache requestCache = new HttpSessionRequestCache();
+                          SavedRequest savedRequest = requestCache.getRequest(request, response);
+                          if(savedRequest != null)
+                          {
+                              String targetUrl = savedRequest.getRedirectUrl();
+                              if(targetUrl.contains("?error"))
+                              {
+                                  targetUrl = "/users/login?error";
+                              }
+                              response.sendRedirect(targetUrl);
+                              return;
+                          }
+                          else{
+                              response.sendRedirect("/");
+                              return;
+                          }
+//                          response.sendRedirect("/books");x
                       })
               )
               .logout(logout -> logout
