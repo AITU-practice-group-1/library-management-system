@@ -24,6 +24,43 @@
         </form>
     </div>
 
+    <!-- Top Rated Books Leaderboard -->
+    <div class="leaderboard-section">
+        <h2>Top 10 Rated Books</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Average Rating</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${topRatedBooks}">
+                <td th:text="${book.title}"></td>
+                <td th:text="${#numbers.formatDecimal(book.ratingAverage, 1, 2)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Top Favorited Books Leaderboard -->
+    <div class="leaderboard-section">
+        <h2>Top 10 Favorited Books</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Favorite Count</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${topFavoritedBooks}">
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.favoriteCount}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div class="footer">

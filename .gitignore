@@ -37,7 +37,8 @@ build/
 ###apllication.yml###
 /src/main/resources/application.yml
 /src/main/java/com/example/librarymanagementsystem/Controllers/TryController.java
-logs/
 
-### logs ###
+## logs ##
+logs/
 logs/app.log
+
