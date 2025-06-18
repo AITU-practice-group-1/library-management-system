@@ -1,15 +1,20 @@
-package com.example.librarymanagementsystem.Services;
+package com.example.librarymanagementsystem.Services.impl;
 
 import com.example.librarymanagementsystem.Entities.ActiveSession;
+import com.example.librarymanagementsystem.Services.SessionStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class InMemorySessionStore {
+public class InMemorySessionStore implements SessionStore {
 
     private final Map<String, ActiveSession> activeSessions = new ConcurrentHashMap<>();
+
+    @Value("${session.expHrs:24}")
+    private int expirationHours;
 
     public void registerNewSession(String username, String sessionId, String deviceInfo) {
         // Invalidate existing sessions for the user
@@ -32,7 +37,7 @@ public class InMemorySessionStore {
 
     private boolean isSessionExpired(String sessionId) {
         ActiveSession session = activeSessions.get(sessionId);
-        return session != null && session.getLastActive().plusHours(24).isBefore(LocalDateTime.now());
+        return session != null && session.getLastActive().plusHours(expirationHours).isBefore(LocalDateTime.now());
     }
 
     public void invalidateSession(String sessionId) {

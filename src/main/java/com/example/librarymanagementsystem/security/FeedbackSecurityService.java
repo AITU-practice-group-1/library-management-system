@@ -1,11 +1,10 @@
-package com.example.librarymanagementsystem.Controllers;
+package com.example.librarymanagementsystem.security;
 
 import com.example.librarymanagementsystem.Entities.Feedback;
 import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.FeedbackRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;

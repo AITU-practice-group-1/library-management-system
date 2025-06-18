@@ -1,5 +1,6 @@
 package com.example.librarymanagementsystem.Entities;
 
+import com.example.librarymanagementsystem.util.Genre;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -11,7 +12,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "books")
+@Table(name = "books", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "isbn", name = "uk_book_isbn")
+})
 @Data
 @ToString
 public class Book {
@@ -38,14 +41,15 @@ public class Book {
     private String publisher;
 
     @Column(name = "published_year", nullable = false)
-    @Max(value = 2025, message = "Published year cannot be in the future")
+    @Max(value = 2025, message = "Published year cannot be in the future") // Consider making this dynamic
     private int publishedYear;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull(message = "Genre must be selected")
     private Genre genre;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     @NotEmpty(message = "Description cannot be empty")
     @Size(max = 1000, message = "Description cannot exceed 1000 characters")
     private String description;
@@ -73,15 +77,58 @@ public class Book {
     @Column(name = "rating_average", nullable = false, precision = 3, scale = 2)
     private BigDecimal ratingAverage = BigDecimal.ZERO;
 
+    // --- Business Logic Encapsulation ---
+
+    /**
+     * Adds a new rating and recalculates the average.
+     * @param rating The rating value (1-5).
+     */
     public void addRating(int rating) {
-        if (rating < 1 || rating > 5) {
-            throw new IllegalArgumentException("Rating must be between 1 and 5.");
-        }
+        validateRating(rating);
         this.ratingSum += rating;
         this.ratingCount++;
+        recalculateAverage();
+    }
+
+    /**
+     * Removes a rating and recalculates the average.
+     * @param ratingToRemove The rating value to remove (1-5).
+     */
+    public void removeRating(int ratingToRemove) {
+        validateRating(ratingToRemove);
+        if (this.ratingCount > 0 && this.ratingSum >= ratingToRemove) {
+            this.ratingSum -= ratingToRemove;
+            this.ratingCount--;
+            recalculateAverage();
+        }
+    }
+
+    /**
+     * Updates an existing rating and recalculates the average.
+     * @param oldRating The user's previous rating.
+     * @param newRating The user's new rating.
+     */
+    public void updateRating(int oldRating, int newRating) {
+        validateRating(oldRating);
+        validateRating(newRating);
+        this.ratingSum = (this.ratingSum - oldRating) + newRating;
+        // The rating count remains the same, so we just recalculate the average.
+        recalculateAverage();
+    }
+
+    private void recalculateAverage() {
         if (this.ratingCount > 0) {
             this.ratingAverage = BigDecimal.valueOf(this.ratingSum)
                     .divide(BigDecimal.valueOf(this.ratingCount), 2, RoundingMode.HALF_UP);
+        } else {
+            this.ratingAverage = BigDecimal.ZERO;
+            this.ratingSum = 0L; // Ensure sum is also zero if count is zero
+        }
+    }
+
+    private void validateRating(int rating) {
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5.");
         }
     }
 
@@ -91,12 +138,8 @@ public class Book {
         updatedAt = LocalDateTime.now();
     }
 
-
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-
 }
-

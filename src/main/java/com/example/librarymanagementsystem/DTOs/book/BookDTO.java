@@ -1,7 +1,6 @@
 package com.example.librarymanagementsystem.DTOs.book;
 
-import com.example.librarymanagementsystem.Entities.Genre;
-import jakarta.persistence.Column;
+import com.example.librarymanagementsystem.util.Genre;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
