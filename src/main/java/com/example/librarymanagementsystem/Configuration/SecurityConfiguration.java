@@ -20,12 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
 
 import java.util.List;
 
@@ -56,7 +51,7 @@ public class SecurityConfiguration {
               //.csrf(AbstractHttpConfigurer::disable)
               //.cors(AbstractHttpConfigurer::disable)
               .authorizeHttpRequests(auth ->auth
-                      .requestMatchers("/","/users/login", "/users/register","users/confirm", "/books","/books/{id}", "/css/**", "/js/**").permitAll()
+                      .requestMatchers("/","/users/login", "/users/register","users/confirm", "/books","/books/{id}", "/css/**", "/js/**", "/forgot-password", "reset-password").permitAll()
                       .requestMatchers("/admin/*").hasRole("ADMIN")
                       .anyRequest().authenticated())
 //                      .anyRequest().permitAll())
