@@ -19,6 +19,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
 
 import java.time.LocalDateTime;
 
@@ -64,7 +74,24 @@ public class SecurityConfiguration {
                           String deviceInfo = request.getRemoteAddr() + " | " + request.getHeader("User-Agent");
                           logger.info("User {} logged in successfully from {}", userDetails.getUsername(), deviceInfo);
                           sessionStore.registerNewSession(userDetails.getUsername(), session.getId(), deviceInfo);
-                          response.sendRedirect("/books");
+
+                          RequestCache requestCache = new HttpSessionRequestCache();
+                          SavedRequest savedRequest = requestCache.getRequest(request, response);
+                          if(savedRequest != null)
+                          {
+                              String targetUrl = savedRequest.getRedirectUrl();
+                              if(targetUrl.contains("?error"))
+                              {
+                                  targetUrl = "/users/login?error";
+                              }
+                              response.sendRedirect(targetUrl);
+                              return;
+                          }
+                          else{
+                              response.sendRedirect("/");
+                              return;
+                          }
+//                          response.sendRedirect("/books");x
                       })
                       .failureHandler((request, response, exception) -> {
                           String username = request.getParameter("username");
