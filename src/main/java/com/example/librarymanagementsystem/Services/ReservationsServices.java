@@ -13,7 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -111,5 +113,13 @@ public class ReservationsServices {
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public Set<UUID> getActiveReservationBookIdsByUser(User user) {
+        if (user == null) {
+            return Collections.emptySet();
+        }
+        logger.info("Fetching active reservation book IDs for user: {}", user.getEmail());
+        return reservationsRepository.findActiveReservationBookIdsByUser(user);
     }
 }
