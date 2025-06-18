@@ -47,19 +47,19 @@
     color: green;
 }
 
-.login-container .register-link {
+.login-container .register-link .reset-password-link {
     margin-top: 16px;
     display: block;
     font-size: 14px;
 }
 
-.login-container .register-link a {
+.login-container .register-link .reset-password-link a {
     color: var(--accent-color);
     font-weight: 600;
     text-decoration: none;
 }
 
-.login-container .register-link a:hover {
+.login-container .register-link .reset-password-link a:hover {
     text-decoration: underline;
 }
 .login-container {
