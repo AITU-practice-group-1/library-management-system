@@ -8,13 +8,15 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
+//@Component
 public class InMemorySessionStore implements SessionStore {
 
     private final Map<String, ActiveSession> activeSessions = new ConcurrentHashMap<>();
 
     @Value("${session.expHrs:24}")
     private int expirationHours;
+    @Value("${session.expMins:0}")
+    private int expirationMins;
 
     public void registerNewSession(String username, String sessionId, String deviceInfo) {
         // Invalidate existing sessions for the user
@@ -37,7 +39,7 @@ public class InMemorySessionStore implements SessionStore {
 
     private boolean isSessionExpired(String sessionId) {
         ActiveSession session = activeSessions.get(sessionId);
-        return session != null && session.getLastActive().plusHours(expirationHours).isBefore(LocalDateTime.now());
+        return session != null && session.getLastActive().plusHours(expirationHours).plusMinutes(expirationMins).isBefore(LocalDateTime.now());
     }
 
     public void invalidateSession(String sessionId) {
