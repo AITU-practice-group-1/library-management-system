@@ -104,6 +104,22 @@ public class UserServices {
         }
         return user;
     }
+    public UserDTO getUserDTOById(UUID id) throws Exception {
+        UserDTO dto = new UserDTO() ;
+        try {
+            User user = userRepository.findById(id).orElseThrow(() -> new Exception("User not found"));
+            dto.setFirstName(user.getFirstName());
+            dto.setLastName(user.getLastName());
+            dto.setEmail(user.getEmail());
+            dto.setRole(user.getRole());
+            dto.setId(user.getId());
+            logger.info("Successfully got userDto by id: {}", id);
+        }catch (Exception e){
+            logger.error("Error getting userDto by id: {} \n {}", id, e.getMessage());
+            throw new Exception("CAn not get User by Id" + e.getMessage());
+        }
+        return dto;
+    }
     public Optional<User> getUserByEmail(String email) throws Exception {
         Optional<User> user;
         try{
