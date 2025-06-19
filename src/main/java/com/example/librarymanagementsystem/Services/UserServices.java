@@ -248,4 +248,17 @@ public class UserServices {
         }
     }
 
+    public List<UserDTO> lisTopUsers(Pageable pageable)
+    {
+        try{
+            List<UserDTO> users = userRepository.findTopUsers(pageable);
+            logger.info("Successfully got top users");
+            return users;
+        }catch (Exception e){
+            logger.error("Error getting top users: {} \n", e.getMessage());
+            throw new RuntimeException("CAn not get top users \n"  + e.getMessage());
+        }
+
+    }
+
 }

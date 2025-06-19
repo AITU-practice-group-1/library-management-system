@@ -20,4 +20,26 @@ public class UserDTO {
     private String firstName;
     @NotBlank
     private String lastName;
+    private Long totalRead;
+
+    public UserDTO() {
+
+    }
+
+    public UserDTO(UUID id, String email, String firstName, String lastName, Long totalRead) {
+        this.id = id;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.totalRead = totalRead;
+    }
+
+    public UserDTO(UUID id, String email, String firstName, String lastName, String role, String password) {
+        this.id = id;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.role = role;
+        this.password = password;
+    }
 }
