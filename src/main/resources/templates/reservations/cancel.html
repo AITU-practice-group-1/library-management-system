@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Cancel a reservation</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div th:replace="fragments/navbar::navbar"></div>
+
+<h2>Cancel a reservation</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Book</th>
+        <th>Status</th>
+        <th>Reserved At</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="res : ${reservations}">
+        <td th:text="${res.bookTitle}">Book Title</td>
+        <td th:text="${res.status}">Status</td>
+        <td th:text="${res.reservedAt}">Reserved At</td>
+        <td>
+            <form th:action="@{'/reservations/' + ${res.id} + '/cancel'}" method="post">
+                <input type="hidden" name="_method" value="put"/>
+                <button type="submit">Cancel</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

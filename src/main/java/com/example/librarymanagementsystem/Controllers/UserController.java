@@ -118,6 +118,7 @@ public class UserController
         logger.info("User with email {} entered the profile page. at endpoint: /users/profile/{id}", SecurityContextHolder.getContext().getAuthentication().getName());
         try {
             model.addAttribute("user", userServices.getUserById(id));
+            model.addAttribute("showStatistics", false);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
         }
@@ -147,20 +148,35 @@ public class UserController
     @GetMapping("/statistics/{id}")
     private String statisticsPage(@PathVariable UUID id, Model model, @PageableDefault(size = 10) Pageable pageable) throws Exception {
         logger.info("User with email {} entered the statistics page. at endpoint: /users/statistics", SecurityContextHolder.getContext().getAuthentication().getName());
+        addStatistics(model, id, pageable);
+        return "user/user-home";
+    }
+    @GetMapping("/statisticsOfOther/{id}")
+    private String statisticsOfOtherPage(@PathVariable UUID id, Model model, @PageableDefault(size = 10) Pageable pageable) throws Exception {
+        logger.info("User with email {} entered the statistics page of other profile. at endpoint: /users/statistics", SecurityContextHolder.getContext().getAuthentication().getName());
+        addStatistics(model, id, pageable);
+        return "user/profile";
+    }
+
+    private void addStatistics(Model model, UUID id, Pageable pageable) throws Exception {
         Page<UserStatisticsBookDTO> reservedBooks = userServices.getAllReservedBooksOfTheUser(id,pageable);
         Page<UserStatisticsBookDTO> loanedBooks = userServices.getAllLoanedBooksOfTheUser(id,pageable);
         Page<UserStatisticsBookDTO> readBooks = userServices.getAllReadBooksOfTheUser(id,pageable);
 
-        UserDTO responseDTO = userServices.getAuthenticatedUser();
+        UserDTO responseDTO = userServices.getUserDTOById(id);
         model.addAttribute("user", responseDTO);
 
         model.addAttribute("reservedBooks", reservedBooks);
         model.addAttribute("loanedBooks", loanedBooks);
         model.addAttribute("readBooks", readBooks);
         model.addAttribute("showStatistics", true);
-        return "user/user-home";
     }
 
-
+    @GetMapping("/top")
+    private String topUsers(Model model, @PageableDefault(size = 10) Pageable pageable){
+        List<UserDTO> users = userServices.lisTopUsers(pageable);
+        model.addAttribute("users", users);
+        return "user/top-users";
+    }
 
 }

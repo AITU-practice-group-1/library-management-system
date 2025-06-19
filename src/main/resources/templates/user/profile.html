@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="/css/user/user-profile.css">
 </head>
 <body>
+
+<div th:replace="fragments/navbar::navbar"></div>
+
+
 <div class="profile-container">
     <div class="profile-header">
         <h2>User Profile</h2>
@@ -18,6 +22,76 @@
         <div><strong>Last Name:</strong> <span th:text="${user.getLastName()}"></span></div>
         <div><strong>Email:</strong> <span th:text="${user.getEmail()}"></span></div>
     </div>
+</div>
+
+<a th:href="@{/users/statisticsOfOther/{id}(id=${user.getId()})}"><button >Show Statistics</button></a>
+
+<div class="user-statistics" th:if="${showStatistics}">
+    <h2>User Statistics</h2>
+
+    <!-- Reserved Books Table -->
+    <div class="mb-4">
+        <h4>Reserved Books</h4>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Reserved Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${reservedBooks.content}">
+                <td th:text="${book.bookTitle}">Title</td>
+                <!--                    <td th:text="${book.author}">Author</td>-->
+                <!--                    <td th:text="${#temporals.format(book.timestamp, 'yyyy-MM-dd')}">Date</td>-->
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Loaned Books Table -->
+    <div class="mb-4">
+        <h4>Loaned Books</h4>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Loaned Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${loanedBooks.content}">
+                <td th:text="${book.bookTitle}">Title</td>
+                <!--                    <td th:text="${book.author}">Author</td>-->
+                <!--                    <td th:text="${#temporals.format(book.timestamp, 'yyyy-MM-dd')}">Date</td>-->
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Read Books Table -->
+    <div class="mb-4">
+        <h4>Read Books</h4>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <!--                    <th>Author</th>-->
+                <!--                    <th>Finished Reading</th>-->
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${readBooks.content}">
+                <td th:text="${book.bookTitle}">Title</td>
+                <!--                    <td th:text="${book.author}">Author</td>-->
+                <!--                    <td th:text="${#temporals.format(book.timestamp, 'yyyy-MM-dd')}">Date</td>-->
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 </div>
 </body>
 </html>
