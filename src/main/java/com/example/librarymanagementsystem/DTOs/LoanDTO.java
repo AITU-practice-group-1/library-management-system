@@ -22,6 +22,8 @@ public class LoanDTO {
     private String status;
     private LocalDateTime updatedAt;
 
+    private UUID reservationId;
+
 
     private String userEmail;
     private String bookTitle;
