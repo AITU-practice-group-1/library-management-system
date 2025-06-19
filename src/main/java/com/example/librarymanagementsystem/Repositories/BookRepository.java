@@ -41,21 +41,8 @@ public interface BookRepository extends JpaRepository<Book, UUID>, JpaSpecificat
             "LIMIT :limit")
     List<Object[]> findTopFavoriteBooks(int limit);
 
-    /**
-     * Finds a book by its ISBN. Using Optional is a best practice.
-     *
-     * @param isbn The 13-digit ISBN.
-     * @return An Optional containing the book if found.
-     */
+
     Optional<Book> findByIsbn(String isbn);
 
-    /**
-     * Checks if an ISBN exists for any book other than the one with the given ID.
-     * Useful for validation during an update operation.
-     *
-     * @param isbn The ISBN to check.
-     * @param id The ID of the book to exclude from the check.
-     * @return true if the ISBN is used by another book, false otherwise.
-     */
     boolean existsByIsbnAndIdNot(String isbn, UUID id);
 }

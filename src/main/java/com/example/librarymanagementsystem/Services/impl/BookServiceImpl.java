@@ -56,8 +56,9 @@ public class BookServiceImpl implements BookService {
             List<Predicate> predicates = new ArrayList<>();
 
             if (keyword != null && !keyword.trim().isEmpty()) {
-                var titleLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + keyword.toLowerCase() + "%");
-                var authorLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("author")), "%" + keyword.toLowerCase() + "%");
+                String lowerCaseKeyword = "%" + keyword.toLowerCase().trim() + "%";
+                Predicate titleLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), lowerCaseKeyword);
+                Predicate authorLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("author")), lowerCaseKeyword);
                 predicates.add(criteriaBuilder.or(titleLike, authorLike));
             }
 
@@ -65,7 +66,7 @@ public class BookServiceImpl implements BookService {
                 predicates.add(criteriaBuilder.equal(root.get("genre"), genre));
             }
 
-            return criteriaBuilder.conjunction();
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
         return bookRepository.findAll(spec, pageable).map(mapper::toDTO);
     }
