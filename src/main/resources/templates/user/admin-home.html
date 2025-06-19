@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,6 +23,11 @@
                         <span th:text="${user.getFirstName()}">User Name</span> —
                         <span th:text="${user.role}">Role</span>
                     </a>
+                    <!-- Только для админов, например в navbar.html или admin-panel.html -->
+                <li sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/setup}">Настроить 2FA</a>
+                </li>
+
                 </li>
             </ul>
         </div>

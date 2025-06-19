@@ -1,7 +1,10 @@
 package com.example.librarymanagementsystem.Configuration;
 
+import com.example.librarymanagementsystem.Entities.TwoFactorAuthData;
+import com.example.librarymanagementsystem.Repositories.TwoFactorAuthRepository;
 import com.example.librarymanagementsystem.Services.CustomUserDetailsService;
 import com.example.librarymanagementsystem.Services.InMemorySessionStore;
+import com.example.librarymanagementsystem.security.Admin2FAFilter;
 import com.example.librarymanagementsystem.security.SingleDeviceAuthenticationFilter;
 import jakarta.servlet.http.HttpSession;
 import org.apache.coyote.Request;
@@ -14,6 +17,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +46,12 @@ public class SecurityConfiguration {
     @Autowired
     private InMemorySessionStore sessionStore;
 
+    @Autowired
+    private TwoFactorAuthRepository twoFactorAuthRepository;
+
+    @Autowired
+    private Admin2FAFilter admin2FAFilter;
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -56,7 +66,7 @@ public class SecurityConfiguration {
               //.csrf(AbstractHttpConfigurer::disable)
               //.cors(AbstractHttpConfigurer::disable)
               .authorizeHttpRequests(auth ->auth
-                      .requestMatchers("/","/users/login", "/users/register","users/confirm", "/books","/books/{id}", "/css/**", "/js/**").permitAll()
+                      .requestMatchers("/","/users/login", "/users/register","users/confirm", "/books","/books/{id}", "/css/**", "/js/**", "/auth", "/verify").permitAll()
                       .requestMatchers("/admin/*").hasRole("ADMIN")
                       .anyRequest().authenticated())
 //                      .anyRequest().permitAll())
@@ -66,9 +76,28 @@ public class SecurityConfiguration {
                       .successHandler((request, response, authentication) -> {
                           HttpSession session = request.getSession();
                           UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+                          com.example.librarymanagementsystem.Entities.User user =
+                                  (com.example.librarymanagementsystem.Entities.User) authentication.getPrincipal();
+
+                          if (user.getRole().equalsIgnoreCase("ADMIN")) {
+                              TwoFactorAuthData data = twoFactorAuthRepository.findByUser(user).orElse(null);
+                              if (data != null && data.isEnabled()) {
+                                  // ❗ НЕ сохраняем SecurityContext
+                                  SecurityContextHolder.clearContext();
+                                  session.removeAttribute("SPRING_SECURITY_CONTEXT");
+
+                                  // сохраняем временного пользователя в сессии
+                                  session.setAttribute("tempUser", user.getEmail());
+
+                                  response.sendRedirect("/auth");
+                                  return;
+                              }
+                          }
                           String deviceInfo = request.getRemoteAddr() + " | " + request.getHeader("User-Agent");
                           //System.out.println(deviceInfo);
                           sessionStore.registerNewSession(userDetails.getUsername(), session.getId(), deviceInfo);
+                          session.setAttribute("verified2FA", true);
                           response.sendRedirect("/books");
                       })
               )
@@ -84,6 +113,7 @@ public class SecurityConfiguration {
                           }
                       }))
               .addFilterBefore(singleDeviceAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+              .addFilterBefore(admin2FAFilter, UsernamePasswordAuthenticationFilter.class)
               .exceptionHandling(ex ->ex.accessDeniedPage("/error/403"))
               .build();
     }

@@ -2,24 +2,25 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Настройка двухфакторной аутентификации</title>
+    <title>Настройка 2FA</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/user/factor.css">
 </head>
 <body>
-<div class="container">
-    <h2>Настройка двухфакторной аутентификации (2FA)</h2>
+<div class="twofa-wrapper">
+    <h1>Настройка 2FA</h1>
 
-    <p>Отсканируйте QR-код с помощью Google Authenticator или введите ключ вручную:</p>
+    <p>Отсканируйте QR-код в Google Authenticator</p>
+    <img th:src="@{${qrUrl}}" alt="QR Code" class="qr">
 
-    <img th:src="@{'data:image/png;base64,' + ${qrImageBase64}}" alt="QR Code" />
-
-    <p><strong>Секретный ключ:</strong> <span th:text="${secret}"></span></p>
-
-    <form method="post" th:action="@{/user/2fa/verify}">
-        <label for="code">Введите код из приложения:</label>
-        <input type="text" name="code" id="code" required />
+    <form th:action="@{/verify}" method="post">
+        <input type="number" name="code" placeholder="Введите код из приложения" required>
         <button type="submit">Подтвердить</button>
     </form>
+
+    <div th:if="${param.error}" class="error">
+        Неверный код. Попробуйте снова.
+    </div>
 </div>
 </body>
 </html>
