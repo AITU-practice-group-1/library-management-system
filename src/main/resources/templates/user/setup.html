@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Настройка двухфакторной аутентификации</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div class="container">
+    <h2>Настройка двухфакторной аутентификации (2FA)</h2>
+
+    <p>Отсканируйте QR-код с помощью Google Authenticator или введите ключ вручную:</p>
+
+    <img th:src="@{'data:image/png;base64,' + ${qrImageBase64}}" alt="QR Code" />
+
+    <p><strong>Секретный ключ:</strong> <span th:text="${secret}"></span></p>
+
+    <form method="post" th:action="@{/user/2fa/verify}">
+        <label for="code">Введите код из приложения:</label>
+        <input type="text" name="code" id="code" required />
+        <button type="submit">Подтвердить</button>
+    </form>
+</div>
+</body>
+</html>
