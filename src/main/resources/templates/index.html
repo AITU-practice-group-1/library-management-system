@@ -20,12 +20,6 @@
     <a th:href="@{/users/home}" class="btn">👤 My Profile</a>
     <a th:href="@{/users/top}" class="btn"> 🔥 Top Users</a>
 
-    <div th:if="${#authentication.getName() != 'anonymousUser'}">
-        <form th:action="@{/logout}" method="post" style="display:flex;">
-            <button type="submit" class="btn btn-danger">Logout</button>
-        </form>
-    </div>
-
     <!-- Top Rated Books Leaderboard -->
     <div class="leaderboard-section">
         <h2>Top 10 Rated Books</h2>
