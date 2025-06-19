@@ -91,6 +91,7 @@ public class LoanController {
         LoanDTO loanDTO = new LoanDTO();
         loanDTO.setUserId(res.getUser().getId());
         loanDTO.setBookId(res.getBook().getId());
+        loanDTO.setReservationId(res.getId());
         loanDTO.setIssueDate(LocalDateTime.now());
 
         model.addAttribute("loan", loanDTO);
