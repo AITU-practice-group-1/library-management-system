@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="admin-sidebar">
+  <aside class="sidebar" style="padding: 1rem; background-color: #f5f5f5; border-left: 1px solid #ddd;">
+    <h2>Меню</h2>
+    <ul style="list-style: none; padding-left: 0;">
+      <li><a href="/home/default">👥 Все пользователи</a></li>
+      <li><a href="/home/librarian">📚 Библиотекари</a></li>
+      <li><a href="/books">📖 Список книг</a></li>
+      <li><a href="/users">🧑‍💼 Пользователи</a></li>
+      <li><a href="/review-reports">🚨 Жалобы</a></li>
+      <li><a href="/logout" class="logout-link">🔓 Выйти</a></li>
+    </ul>
+  </aside>
+</div>
+</body>
+</html>

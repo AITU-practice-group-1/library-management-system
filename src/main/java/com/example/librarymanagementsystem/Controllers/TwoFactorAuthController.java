@@ -5,7 +5,7 @@ import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.TwoFactorAuthRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Services.GAService;
-import com.example.librarymanagementsystem.Services.InMemorySessionStore;
+import com.example.librarymanagementsystem.Services.impl.InMemorySessionStore;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -3,7 +3,7 @@ package com.example.librarymanagementsystem.Configuration;
 import com.example.librarymanagementsystem.Entities.TwoFactorAuthData;
 import com.example.librarymanagementsystem.Repositories.TwoFactorAuthRepository;
 import com.example.librarymanagementsystem.Services.CustomUserDetailsService;
-import com.example.librarymanagementsystem.Services.InMemorySessionStore;
+import com.example.librarymanagementsystem.Services.impl.InMemorySessionStore;
 import com.example.librarymanagementsystem.security.Admin2FAFilter;
 import com.example.librarymanagementsystem.security.SingleDeviceAuthenticationFilter;
 import jakarta.servlet.http.HttpSession;
