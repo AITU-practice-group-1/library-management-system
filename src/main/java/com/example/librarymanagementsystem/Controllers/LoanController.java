@@ -97,6 +97,7 @@ public class LoanController {
         model.addAttribute("userEmail", res.getUser().getEmail());
         model.addAttribute("bookTitle", res.getBook().getTitle());
         model.addAttribute("predefined", true); // флаг, чтобы в шаблоне понять откуда вызов
+
         return "loan/create";
     }
 
@@ -108,6 +109,10 @@ public class LoanController {
 
         loanDTO.setIssuedBy(librarian.getId());
         loanServices.createLoan(loanDTO);
+
+        if (loanDTO.getReservationId() != null) {
+            reservationsServices.fulfill(loanDTO.getReservationId(), librarian);
+        }
 
         return "redirect:/loans";
     }
