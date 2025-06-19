@@ -172,4 +172,11 @@ public class UserController
         model.addAttribute("showStatistics", true);
     }
 
+    @GetMapping("/top")
+    private String topUsers(Model model, @PageableDefault(size = 10) Pageable pageable){
+        List<UserDTO> users = userServices.lisTopUsers(pageable);
+        model.addAttribute("users", users);
+        return "user/top-users";
+    }
+
 }
