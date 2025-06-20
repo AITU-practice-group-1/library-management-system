@@ -8,6 +8,8 @@ import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.LoanRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
+import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
+import com.example.librarymanagementsystem.exceptions.LoanNotFoundException;
 import com.example.librarymanagementsystem.mapper.LoanMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,7 @@ public class LoanServices {
         var user = userRepository.findById(dto.getUserId())
                 .orElseThrow(()-> new RuntimeException("User not found"));
         var book = bookRepository.findById(dto.getBookId())
-                .orElseThrow(()-> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new BookNotFoundException("Book with ID " + dto.getBookId() + " not found"));
         var issuedBy = userRepository.findById(dto.getIssuedBy())
                 .orElseThrow(()-> new RuntimeException("Librarian (issuedBy) not found"));
 
@@ -50,13 +52,15 @@ public class LoanServices {
         return loanRepository.findAll().stream().map(loanMapper::toDto).toList();
     }
 
-    public LoanDTO findById(UUID id){
-        return loanRepository.findById(id).map(loanMapper::toDto).orElseThrow(()-> new RuntimeException("Loan not found"));
+    public LoanDTO findById(UUID id) {
+        return loanRepository.findById(id)
+                .map(loanMapper::toDto)
+                .orElseThrow(() -> new LoanNotFoundException("Loan with ID " + id + " not found"));
     }
 
     public LoanDTO updateLoan(UUID id ,LoanUpdateDTO dto){
         Loan loan = loanRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Loan not found"));
+                .orElseThrow(() -> new LoanNotFoundException("Loan with ID " + id + " not found"));
         if (dto.getStatus() != null){
             loan.setStatus(dto.getStatus());
         }

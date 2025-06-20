@@ -3,11 +3,10 @@ package com.example.librarymanagementsystem.Configuration;
 import com.example.librarymanagementsystem.Entities.TwoFactorAuthData;
 import com.example.librarymanagementsystem.Repositories.TwoFactorAuthRepository;
 import com.example.librarymanagementsystem.Services.CustomUserDetailsService;
-import com.example.librarymanagementsystem.Services.impl.InMemorySessionStore;
+import com.example.librarymanagementsystem.Services.SessionStore;
 import com.example.librarymanagementsystem.security.Admin2FAFilter;
 import com.example.librarymanagementsystem.security.SingleDeviceAuthenticationFilter;
 import jakarta.servlet.http.HttpSession;
-import org.apache.coyote.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,22 +15,12 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -44,7 +33,7 @@ public class SecurityConfiguration {
     private SingleDeviceAuthenticationFilter singleDeviceAuthenticationFilter;
 
     @Autowired
-    private InMemorySessionStore sessionStore;
+    private SessionStore sessionStore;
 
     @Autowired
     private TwoFactorAuthRepository twoFactorAuthRepository;
