@@ -29,4 +29,8 @@ public interface ReservationsRepository extends JpaRepository<Reservations, UUID
 
     @Query("SELECT r.book.id FROM Reservations r WHERE r.user = :user AND r.status = 'PENDING'")
     Set<UUID> findActiveReservationBookIdsByUser(@Param("user") User user);
+
+    @Query("SELECT r FROM Reservations r WHERE r.status = :status")
+    List<Reservations> findAllByStatus(@Param("status") Reservations.ReservationStatus status);
+
 }

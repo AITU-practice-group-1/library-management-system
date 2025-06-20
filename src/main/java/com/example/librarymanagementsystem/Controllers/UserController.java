@@ -149,7 +149,7 @@ public class UserController
     @GetMapping("librarian")
     private String librarianPage(Model model) throws Exception {
         logger.info("User with email {} entered the librarian page. at endpoint: /users/librarian", SecurityContextHolder.getContext().getAuthentication().getName());
-        List<ReservationsResponseDTO> reservations = reservationsServices.listAll();
+        List<ReservationsResponseDTO> reservations = reservationsServices.listAllPending();
         model.addAttribute("reservations", reservations);
         return "user/librarian-home";
     }

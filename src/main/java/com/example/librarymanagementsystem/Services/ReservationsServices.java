@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -73,9 +74,24 @@ public class ReservationsServices {
                 .collect(Collectors.toList());
     }
 
+    @Transactional // Use readOnly for performance
     public List<ReservationsResponseDTO> listAll() {
-        logger.info("Fetching all reservations with details");
-        return reservationsRepository.findAllWithDetails();
+        List<Reservations> reservations = reservationsRepository.findAll(); // Assuming you have a repository
+
+        // Convert each Entity to a DTO *inside the transaction*
+        return reservations.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional // Use readOnly for performance
+    public List<ReservationsResponseDTO> listAllPending() {
+        List<Reservations> reservations = reservationsRepository.findAllByStatus(Reservations.ReservationStatus.PENDING); // Assuming you have a repository
+
+        // Convert each Entity to a DTO *inside the transaction*
+        return reservations.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
 
@@ -155,14 +171,6 @@ public class ReservationsServices {
         logger.info("Reservation with id {} marked as FULFILLED and Loan created.", reservationId);
     }
 
-    private ReservationsResponseDTO toDto(Reservations reservation) {
-        ReservationsResponseDTO dto = new ReservationsResponseDTO();
-        dto.setId(reservation.getId());
-        dto.setBookTitle(reservation.getBook().getTitle());
-        dto.setStatus(reservation.getStatus().name());
-        dto.setReservedAt(reservation.getReservedAt().toString());
-        return dto;
-    }
 
     public List<ReservationsResponseDTO> findApprovedByEmail(String email) {
         logger.info("Fetching fulfilled reservations for email: {}", email);
@@ -180,4 +188,32 @@ public class ReservationsServices {
         logger.info("Fetching active reservation book IDs for user: {}", user.getEmail());
         return reservationsRepository.findActiveReservationBookIdsByUser(user);
     }
+
+    private ReservationsResponseDTO convertToDto(Reservations reservation) {
+        ReservationsResponseDTO dto = new ReservationsResponseDTO();
+        dto.setId(reservation.getId());
+        dto.setUserId(reservation.getUser().getId());
+        dto.setUserEmail(reservation.getUser().getEmail());
+        dto.setBookTitle(reservation.getBook().getTitle());
+        dto.setStatus(reservation.getStatus().name());
+        dto.setReservedAt(reservation.getReservedAt());
+        dto.setExpiresAt(reservation.getExpiresAt());
+
+        if (reservation.getCancelledAt() != null) {
+            dto.setCancelledAt(reservation.getCancelledAt());
+        }
+
+        return dto;
+    }
+
+    private ReservationsResponseDTO toDto(Reservations reservation) {
+        ReservationsResponseDTO dto = new ReservationsResponseDTO();
+        dto.setId(reservation.getId());
+        dto.setBookTitle(reservation.getBook().getTitle());
+        dto.setStatus(reservation.getStatus().name());
+        dto.setReservedAt(reservation.getReservedAt()); // Update this as well
+        return dto;
+    }
+
+
 }

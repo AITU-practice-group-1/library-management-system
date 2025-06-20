@@ -29,7 +29,10 @@ public class ImageUploadService {
             dto.setImageId(publicId);
             userServices.updateUser(dto);
 
-            cloudinary.uploader().destroy(oldPublicId, ObjectUtils.emptyMap());
+            if(oldPublicId != null) {
+                cloudinary.uploader().destroy(oldPublicId, ObjectUtils.emptyMap());
+            }
+
             return url;
         } catch (Exception e) {
             throw new RuntimeException(e);

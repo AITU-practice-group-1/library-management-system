@@ -3,8 +3,8 @@
 <head>
     <title>Login</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/user/login.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/user/login.css}">
 </head>
 <body>
 <div class="page-center">
@@ -25,7 +25,7 @@
         <div class="reset-password-link">
             Забыли пароль? <a th:href="@{/forgot-password}">Сбросить пароль</a>
         </div>
-        <a th:href = "@{/users/register}"> <button >Регистрация </button>  </a>
+        <a th:href="@{/users/register}"><button>Регистрация</button></a>
         <p th:if="${param.error}" class="message">Неверный логин или пароль.</p>
         <p th:if="${param.logout}" class="message logout-msg">Вы вышли из системы.</p>
     </div>

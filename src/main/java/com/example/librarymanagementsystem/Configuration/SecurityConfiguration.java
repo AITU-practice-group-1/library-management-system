@@ -70,10 +70,23 @@ public class SecurityConfiguration {
         return http
                 //.csrf(AbstractHttpConfigurer::disable)
                 //.cors(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth ->auth
-                        .requestMatchers("/","/users/login", "/users/register","users/confirm", "/books","/books/{id}", "/css/", "/js/", "/forgot-password", "reset-password").permitAll()
-                        .requestMatchers("/admin/*").hasRole("ADMIN")
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth
+                        // CORRECTED: Added /** to permit all resources in these directories
+                        .requestMatchers(
+                                "/",
+                                "/users/login",
+                                "/users/register",
+                                "users/confirm",
+                                "/books",
+                                "/books/{id}",
+                                "/css/**",  // <-- FIX
+                                "/js/**",   // <-- FIX
+                                "/forgot-password",
+                                "reset-password"
+                        ).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // Good practice to use /admin/**
+                        .anyRequest().authenticated()
+                )
 //                      .anyRequest().permitAll())
                 .formLogin(form -> form
                                 .loginPage("/users/login")

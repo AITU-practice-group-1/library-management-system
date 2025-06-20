@@ -52,11 +52,13 @@ public class ReservationsController {
 
 
     @GetMapping
-    public String listByUser(@RequestParam UUID userId, Model model) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    public String listByUser(Model model) throws Exception {
+        UserDTO userDTO = userServices.getAuthenticatedUser();
+
+        User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new RuntimeException("User not found"));
         List<ReservationsResponseDTO> reservations = reservationsServices.listByUser(user);
         model.addAttribute("reservations", reservations);
-        model.addAttribute("userId", userId);
+        model.addAttribute("userId", userDTO.getId());
         return "reservations";
     }
 
