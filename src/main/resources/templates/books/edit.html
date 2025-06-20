@@ -33,7 +33,11 @@
                 <div class="card-body p-4 p-md-5">
 
                     <!-- This form correctly binds to th:object="book" (BookUpdateDTO on submit) -->
-                    <form th:action="@{/books/{id}/update(id=${book.id})}" th:object="${book}" method="post" novalidate>
+                    <form th:action="@{/books/{id}/update(id=${book.id})}" th:object="${book}" method="post" novalidate enctype="multipart/form-data">
+
+                        <div id = "edit photo">
+                            <label> <h1> Edit Book Photo </h1> <input type = "file" name = "image" /></label>
+                        </div>
 
                         <!-- Error message display -->
                         <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>

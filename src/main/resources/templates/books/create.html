@@ -33,8 +33,10 @@
                 <div class="card-body p-4 p-md-5">
 
                     <!-- This form correctly uses th:object="book" which binds to the BookCreateDTO -->
-                    <form th:action="@{/books}" th:object="${book}" method="post" novalidate>
-
+                    <form th:action="@{/books}" th:object="${book}" method="post" novalidate enctype="multipart/form-data">
+                        <div id = "add photo">
+                            <label> <h1> Add Book Photo </h1> <input type = "file" name = "image" /></label>
+                        </div>
                         <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger mb-4">
                             Please review the fields below and correct the indicated errors.
                         </div>

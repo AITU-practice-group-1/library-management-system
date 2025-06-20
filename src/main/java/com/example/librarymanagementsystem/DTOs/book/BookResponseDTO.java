@@ -22,4 +22,6 @@ public class BookResponseDTO {
     private int availableCopies;
     private long ratingCount;
     private BigDecimal ratingAverage;
+    private String imageUrl;
+    private String imageId;
 }

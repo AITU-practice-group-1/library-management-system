@@ -71,7 +71,7 @@ public class SecurityConfiguration {
                 //.csrf(AbstractHttpConfigurer::disable)
                 //.cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->auth
-                        .requestMatchers("/","/users/login", "/users/register","users/confirm", "/books","/books/{id}", "/css/", "/js/", "/forgot-password", "reset-password").permitAll()
+                        .requestMatchers("/","/users/login", "/users/register","users/confirm", "/books","/books/{id}", "/css/**", "/js/**", "/forgot-password", "reset-password").permitAll()
                         .requestMatchers("/admin/*").hasRole("ADMIN")
                         .anyRequest().authenticated())
 //                      .anyRequest().permitAll())

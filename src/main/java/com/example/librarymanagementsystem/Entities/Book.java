@@ -91,6 +91,10 @@ public class Book {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+    @Column(name = "image_id")
+    private String imageId;
 
     // --- Business Logic for Ratings ---
     public void addRating(int rating) {
