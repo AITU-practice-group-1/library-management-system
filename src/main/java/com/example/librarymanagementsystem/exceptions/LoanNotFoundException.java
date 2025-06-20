@@ -1,6 +1,8 @@
 package com.example.librarymanagementsystem.exceptions;
 
 public class LoanNotFoundException extends RuntimeException {
-    public LoanNotFoundException(String s) {
-    }
+
+  public LoanNotFoundException(String message) {
+    super(message);
+  }
 }
