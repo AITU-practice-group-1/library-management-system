@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Чёрный список</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="container">
+  <h2>📛 Чёрный список пользователей</h2>
+
+  <table>
+    <thead>
+    <tr>
+      <th>Имя</th>
+      <th>Email</th>
+      <th>Дней просрочки</th>
+      <th>Причина</th>
+      <th>Дата добавления</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="entry : ${entries}">
+      <td th:text="${entry.user.firstName + ' ' + entry.user.lastName}"></td>
+      <td th:text="${entry.user.email}"></td>
+      <td th:text="${entry.daysOverdue}"></td>
+      <td th:text="${entry.reason}"></td>
+      <td th:text="${#temporals.format(entry.addedAt, 'dd.MM.yyyy')}"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

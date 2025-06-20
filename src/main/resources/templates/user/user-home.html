@@ -28,6 +28,9 @@
     <div th:if="${user.getRole() == 'ROLE_LIBRARIAN'}">
     <a th:href="@{/users/librarian}" class="button-link">All Reservations</a>
     </div>
+    <div th:if="${user.getRole() == 'ROLE_ADMIN' or user.getRole() == 'ROLE_LIBRARIAN'}">
+        <a th:href="@{/blacklist}" class="button-link">Чёрный список</a>
+    </div>
 
     <a th:href="@{/reservations(userId=${user.getId()})}" class="button-link">Мои бронирования</a>
     <a th:href="@{/favoriteBooks}" class="button-link">Избранное</a>

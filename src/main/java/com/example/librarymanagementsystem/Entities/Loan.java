@@ -48,7 +48,8 @@ public class Loan {
 
     public enum LoanStatus {
         BORROWED,
-        RETURNED
+        RETURNED,
+        EXPIRED
     }
 
 }
