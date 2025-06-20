@@ -39,6 +39,8 @@ public class User implements UserDetails {
 
     @Column(name = "image_url")
     private String imageUrl;
+    @Column(name = "image_id")
+    private String imageId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -83,6 +83,10 @@ public class UserServices {
         {
             userDTO.setImageUrl(userDetails.getImageUrl());
         }
+        if(userDetails.getImageId() != null)
+        {
+            userDTO.setImageId(userDetails.getImageId());
+        }
         return userDTO;
     }
 
@@ -172,6 +176,9 @@ public class UserServices {
             }
             if(dto.getImageUrl() != null){
                 user.setImageUrl(dto.getImageUrl());
+            }
+            if(dto.getImageId() != null){
+                user.setImageId(dto.getImageId());
             }
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);

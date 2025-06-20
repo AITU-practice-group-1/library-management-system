@@ -1,0 +1,1 @@
+ALTER TABLE if exists users ADD COLUMN image_id VARCHAR(255);

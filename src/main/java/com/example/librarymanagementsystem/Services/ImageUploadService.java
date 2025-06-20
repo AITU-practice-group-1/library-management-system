@@ -20,11 +20,16 @@ public class ImageUploadService {
         File tempFile = File.createTempFile("upload", file.getOriginalFilename());
         file.transferTo(tempFile);
         try {
+            String oldPublicId = userServices.getAuthenticatedUser().getImageId();
             Map uploadResult = cloudinary.uploader().upload(tempFile, ObjectUtils.emptyMap());
+            String publicId = (String) uploadResult.get("public_id");
             String url = (String) uploadResult.get("url");
             UserDTO dto = new UserDTO();
             dto.setImageUrl(url);
+            dto.setImageId(publicId);
             userServices.updateUser(dto);
+
+            cloudinary.uploader().destroy(oldPublicId, ObjectUtils.emptyMap());
             return url;
         } catch (Exception e) {
             throw new RuntimeException(e);
