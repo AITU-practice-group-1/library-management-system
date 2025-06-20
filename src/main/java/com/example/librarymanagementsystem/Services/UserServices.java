@@ -78,6 +78,15 @@ public class UserServices {
         userDTO.setFirstName(userDetails.getFirstName());
         userDTO.setLastName(userDetails.getLastName());
         userDTO.setId(userDetails.getId());
+
+        if(userDetails.getImageUrl() != null)
+        {
+            userDTO.setImageUrl(userDetails.getImageUrl());
+        }
+        if(userDetails.getImageId() != null)
+        {
+            userDTO.setImageId(userDetails.getImageId());
+        }
         return userDTO;
     }
 
@@ -96,7 +105,7 @@ public class UserServices {
     public User getUserById(UUID id) throws Exception {
         User user;
         try {
-            user = userRepository.findById(id).orElseThrow(() -> new Exception("User not found"));
+            user  = userRepository.findById(id).orElseThrow(() -> new Exception("User not found"));
             logger.info("Successfully got user by id: {}", id);
         }catch (Exception e){
             logger.error("Error getting user by id: {} \n {}", id, e.getMessage());
@@ -113,6 +122,7 @@ public class UserServices {
             dto.setEmail(user.getEmail());
             dto.setRole(user.getRole());
             dto.setId(user.getId());
+            dto.setImageUrl(user.getImageUrl());
             logger.info("Successfully got userDto by id: {}", id);
         }catch (Exception e){
             logger.error("Error getting userDto by id: {} \n {}", id, e.getMessage());
@@ -163,6 +173,12 @@ public class UserServices {
             }
             if(dto.getLastName() != null){
                 user.setLastName(dto.getLastName());
+            }
+            if(dto.getImageUrl() != null){
+                user.setImageUrl(dto.getImageUrl());
+            }
+            if(dto.getImageId() != null){
+                user.setImageId(dto.getImageId());
             }
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);

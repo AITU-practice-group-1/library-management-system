@@ -1,0 +1,1 @@
+ALTER TABLE if exists users ADD COLUMN image_url VARCHAR(255);
