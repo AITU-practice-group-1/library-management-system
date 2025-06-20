@@ -5,6 +5,7 @@ import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.TwoFactorAuthRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Services.GAService;
+import com.example.librarymanagementsystem.Services.SessionStore;
 import com.example.librarymanagementsystem.Services.impl.InMemorySessionStore;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,7 +32,7 @@ public class TwoFactorAuthController {
     private final TwoFactorAuthRepository twoFactorAuthRepository;
     private final UserRepository userRepository;
     private final GAService gaService;
-    private final InMemorySessionStore sessionStore; // ✅ добавь сюда
+    private final SessionStore sessionStore; // ✅ добавь сюда
 
     // Показывает QR код для настройки 2FA
     @GetMapping("/setup")
