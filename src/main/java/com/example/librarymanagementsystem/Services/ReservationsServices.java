@@ -1,6 +1,7 @@
 package com.example.librarymanagementsystem.Services;
 
 import com.example.librarymanagementsystem.DTOs.LoanRequestDTO;
+import com.example.librarymanagementsystem.DTOs.LoanResponseDTO;
 import com.example.librarymanagementsystem.DTOs.reservations.ReservationsRequestDTO;
 import com.example.librarymanagementsystem.DTOs.reservations.ReservationsResponseDTO;
 import com.example.librarymanagementsystem.Entities.*;
@@ -149,7 +150,7 @@ public class ReservationsServices {
         // Standard loan period, e.g., 14 days
         loanDto.setDueDate(LocalDateTime.now().plusDays(14));
 
-        loanService.createLoan(loanDto, librarian);
+        LoanResponseDTO loan = loanService.createLoan(loanDto, librarian);
 
         logger.info("Reservation with id {} marked as FULFILLED and Loan created.", reservationId);
     }

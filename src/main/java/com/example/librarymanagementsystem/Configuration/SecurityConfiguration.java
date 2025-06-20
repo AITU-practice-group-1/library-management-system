@@ -1,5 +1,6 @@
 package com.example.librarymanagementsystem.Configuration;
 
+import com.example.librarymanagementsystem.Repositories.TwoFactorAuthRepository;
 import com.example.librarymanagementsystem.Services.CustomUserDetailsService;
 import com.example.librarymanagementsystem.Services.SessionStore;
 import com.example.librarymanagementsystem.security.SingleDeviceAuthenticationFilter;

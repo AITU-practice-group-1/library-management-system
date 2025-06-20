@@ -1,5 +1,6 @@
 package com.example.librarymanagementsystem.Services;
 
+import com.example.librarymanagementsystem.DTOs.LoanDTO;
 import com.example.librarymanagementsystem.DTOs.LoanRequestDTO;
 import com.example.librarymanagementsystem.DTOs.LoanResponseDTO;
 import com.example.librarymanagementsystem.DTOs.LoanUpdateDTO;
@@ -39,23 +40,6 @@ public class LoanServices {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
     private final LoanMapper loanMapper;
-
-    public LoanDTO createLoan(LoanDTO dto){
-        var user = userRepository.findById(dto.getUserId())
-                .orElseThrow(()-> new RuntimeException("User not found"));
-        var book = bookRepository.findById(dto.getBookId())
-                .orElseThrow(() -> new BookNotFoundException("Book with ID " + dto.getBookId() + " not found"));
-        var issuedBy = userRepository.findById(dto.getIssuedBy())
-                .orElseThrow(()-> new RuntimeException("Librarian (issuedBy) not found"));
-
-        Loan loan = loanMapper.toEntity(dto);
-        loan.setUser(user);
-        loan.setBook(book);
-        loan.setIssuedBy(issuedBy);
-        loan.setUpdatedAt(LocalDateTime.now());
-        loan.setDueDate(dto.getDueDate().atStartOfDay());
-        loan.setStatus(Loan.LoanStatus.valueOf("BORROWED"));
-
 
     @Transactional
     public LoanResponseDTO createLoan(LoanRequestDTO dto, User librarian) {
