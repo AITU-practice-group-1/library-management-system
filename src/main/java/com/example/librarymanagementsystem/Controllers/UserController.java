@@ -104,10 +104,14 @@ public class UserController
     }
 
     @PostMapping("/edit")
-    private String edit(@ModelAttribute("user") UserDTO dto, Model model){
+    private String edit(@RequestParam("image") MultipartFile file ,@ModelAttribute("user") UserDTO dto, Model model){
         logger.info("User with email {} posted information to  the edit page. at endpoint: /users/edit", SecurityContextHolder.getContext().getAuthentication().getName());
-        System.out.println(dto.getFirstName());
         try{
+            if(!file.isEmpty()){
+                String imageUrl = imageUploadService.uploadFile(file);
+                model.addAttribute("imageUrl", imageUrl);
+            }
+
             userServices.updateUser(dto);
         }
         catch (Exception e){
@@ -122,7 +126,7 @@ public class UserController
     {
         logger.info("User with email {} entered the profile page. at endpoint: /users/profile/{id}", SecurityContextHolder.getContext().getAuthentication().getName());
         try {
-            model.addAttribute("user", userServices.getUserById(id));
+            model.addAttribute("user", userServices.getUserDTOById(id));
             model.addAttribute("showStatistics", false);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
@@ -184,17 +188,17 @@ public class UserController
         return "user/top-users";
     }
 
-    @PostMapping("/upload")
-    private String upload(@RequestParam("image") MultipartFile file, @ModelAttribute UserDTO user,  Model model){
-        try{
-            String imageUrl = imageUploadService.uploadFile(file);
-            model.addAttribute("imageUrl", imageUrl);
-            model.addAttribute("user", user);
-        }catch (Exception e){
-            model.addAttribute("errorMessage", e.getMessage());
-
-        }
-        return "user/user-edit";
-    }
+//    @PostMapping("/upload")
+//    private String upload(@RequestParam("image") MultipartFile file, @ModelAttribute("user") UserDTO user,  Model model){
+//        try{
+//            String imageUrl = imageUploadService.uploadFile(file);
+//            model.addAttribute("imageUrl", imageUrl);
+//            model.addAttribute("user", user);
+//        }catch (Exception e){
+//            model.addAttribute("errorMessage", e.getMessage());
+//
+//        }
+//        return "user/user-edit";
+//    }
 
 }

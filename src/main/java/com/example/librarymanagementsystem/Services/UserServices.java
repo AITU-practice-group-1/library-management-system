@@ -78,6 +78,7 @@ public class UserServices {
         userDTO.setFirstName(userDetails.getFirstName());
         userDTO.setLastName(userDetails.getLastName());
         userDTO.setId(userDetails.getId());
+
         if(userDetails.getImageUrl() != null)
         {
             userDTO.setImageUrl(userDetails.getImageUrl());
@@ -100,7 +101,7 @@ public class UserServices {
     public User getUserById(UUID id) throws Exception {
         User user;
         try {
-            user = userRepository.findById(id).orElseThrow(() -> new Exception("User not found"));
+            user  = userRepository.findById(id).orElseThrow(() -> new Exception("User not found"));
             logger.info("Successfully got user by id: {}", id);
         }catch (Exception e){
             logger.error("Error getting user by id: {} \n {}", id, e.getMessage());
@@ -117,6 +118,7 @@ public class UserServices {
             dto.setEmail(user.getEmail());
             dto.setRole(user.getRole());
             dto.setId(user.getId());
+            dto.setImageUrl(user.getImageUrl());
             logger.info("Successfully got userDto by id: {}", id);
         }catch (Exception e){
             logger.error("Error getting userDto by id: {} \n {}", id, e.getMessage());

@@ -17,6 +17,10 @@
     <div class="profile-header">
         <h2>User Profile</h2>
     </div>
+    <div>
+        <p>Profile Image:</p>
+        <img th:src="${user.imageUrl}" width="300" alt="Photo"/>
+    </div>
     <div class="profile-info">
         <div><strong>First Name:</strong> <span th:text="${user.getFirstName()}"></span></div>
         <div><strong>Last Name:</strong> <span th:text="${user.getLastName()}"></span></div>
