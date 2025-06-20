@@ -78,6 +78,10 @@ public class UserServices {
         userDTO.setFirstName(userDetails.getFirstName());
         userDTO.setLastName(userDetails.getLastName());
         userDTO.setId(userDetails.getId());
+        if(userDetails.getImageUrl() != null)
+        {
+            userDTO.setImageUrl(userDetails.getImageUrl());
+        }
         return userDTO;
     }
 
@@ -163,6 +167,9 @@ public class UserServices {
             }
             if(dto.getLastName() != null){
                 user.setLastName(dto.getLastName());
+            }
+            if(dto.getImageUrl() != null){
+                user.setImageUrl(dto.getImageUrl());
             }
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);

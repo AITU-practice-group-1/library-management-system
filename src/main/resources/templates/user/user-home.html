@@ -10,6 +10,10 @@
 <div th:replace="fragments/navbar::navbar"></div>
 
 <div class="user-home-container">
+    <div>
+        <p>Uploaded Image:</p>
+        <img th:src="${user.imageUrl}" width="300" alt="Photo"/>
+    </div>
     <h1>Добро пожаловать, <span th:text="${user.getFirstName()}"></span>!</h1>
     <p class="email" th:text="${user.getEmail()}"></p>
     <p id="id" style="display: none" th:text="${user.getId()}"></p>
