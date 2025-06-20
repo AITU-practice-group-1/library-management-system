@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage All Loans</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container my-5">
+    <header class="p-4 mb-4 bg-light rounded-3 border">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold"><i class="bi bi-collection-fill"></i> Manage All Loans</h1>
+                <p class="fs-5 text-muted">View, search, and process returns for all loans in the system.</p>
+            </div>
+            <a th:href="@{/loans/create-direct}" class="btn btn-primary btn-lg" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
+                <i class="bi bi-plus-circle-fill"></i> Create Direct Loan
+            </a>
+        </div>
+    </header>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form th:action="@{/loans}" method="get" class="row g-3 align-items-center">
+                <div class="col-md-10">
+                    <label for="keyword" class="visually-hidden">Search</label>
+                    <input type="search" class="form-control" id="keyword" name="keyword" th:value="${keyword}" placeholder="Search by book title or user email...">
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Borrower</th>
+                        <th>Issue Date</th>
+                        <th>Due Date</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="loan : ${loans}" th:classappend="${loan.isOverdue and loan.status != 'RETURNED'} ? 'table-danger' : ''">
+                        <td>
+                            <strong th:text="${loan.bookTitle}"></strong><br>
+                            <small class="text-muted" th:text="'ISBN: ' + ${loan.bookIsbn}"></small>
+                        </td>
+                        <td th:text="${loan.userEmail}"></td>
+                        <td th:text="${#temporals.format(loan.issueDate, 'MMM dd, yyyy')}"></td>
+                        <td th:text="${#temporals.format(loan.dueDate, 'MMM dd, yyyy')}"></td>
+                        <td class="text-center">
+                            <span th:if="${loan.status == 'RETURNED'}" class="badge rounded-pill bg-success">Returned</span>
+                            <span th:if="${loan.status != 'RETURNED' and loan.isOverdue}" class="badge rounded-pill bg-danger">Overdue</span>
+                            <span th:if="${loan.status != 'RETURNED' and !loan.isOverdue}" class="badge rounded-pill bg-primary">On Loan</span>
+                        </td>
+                        <td class="text-center">
+                            <div th:if="${loan.status != 'RETURNED'}">
+                                <form th:action="@{/loans/{id}/return(id=${loan.id})}" method="post" onsubmit="return confirm('Are you sure you want to mark this book as returned?');">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="bi bi-arrow-return-left"></i> Return
+                                    </button>
+                                </form>
+                            </div>
+                            <div th:if="${loan.status == 'RETURNED'}">
+                                <i class="bi bi-check-circle-fill text-success fs-5" title="Returned"></i>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(loans)}">
+                        <td colspan="6" class="text-center text-muted p-4">
+                            <h5>No loans found.</h5>
+                            <p>Try adjusting your search criteria or create a new loan.</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

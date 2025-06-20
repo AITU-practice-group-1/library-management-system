@@ -1,16 +1,14 @@
 package com.example.librarymanagementsystem.DTOs;
 
 import com.example.librarymanagementsystem.Entities.Loan;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
-public class LoanUpdateDTO{
+public class LoanUpdateDTO {
+    private LocalDateTime dueDate;
 
-    private LocalDate dueDate;
+    @NotNull(message = "Loan status must be provided.")
     private Loan.LoanStatus status;
-
 }
