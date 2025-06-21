@@ -9,7 +9,6 @@
 <div th:replace="fragments/navbar :: navbar"></div>
 
 <h1>Loan List</h1>
-
 <a th:href="@{/loans/create}" class="create-button">+ Create New Loan</a>
 
 <table class="loan-table">
@@ -31,12 +30,18 @@
     <td>
       <a th:href="@{'/loans/' + ${loan.id}}">View</a>
       <span th:if="${canEdit}">
-    |
-    <a th:href="@{'/loans/' + ${loan.id} + '/edit'}">Edit</a>
-  </span>
+        |
+        <a th:href="@{'/loans/' + ${loan.id} + '/edit'}">Edit</a>
+      </span>
     </td>
+    <td>
+      <form th:action="@{/loans/{id}/notify(id=${loan.id})}" method="post">
+        <button type="submit">Notify User</button>
+      </form>
+    </td>
+    <td th:if="${notified}" th:text="${notified}" class="success">
 
-
+    </td>
   </tr>
   </tbody>
 </table>

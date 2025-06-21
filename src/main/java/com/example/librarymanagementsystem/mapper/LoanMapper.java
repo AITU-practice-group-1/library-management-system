@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Mapper(componentModel="spring", uses = {UserMapper.class})
 public interface LoanMapper{
+    @Mapping(target = "bookAuthor", source = "book.author")
     LoanDTO toDto (Loan loan);
     Loan toEntity(LoanDTO dto);
 

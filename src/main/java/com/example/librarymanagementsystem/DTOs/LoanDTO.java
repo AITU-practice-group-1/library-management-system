@@ -25,6 +25,7 @@ public class LoanDTO {
 
     private String userEmail;
     private String bookTitle;
+    private String bookAuthor;
     private String issuedByEmail;
 }
 

@@ -9,7 +9,9 @@ import com.example.librarymanagementsystem.Repositories.LoanRepository;
 import com.example.librarymanagementsystem.Repositories.ReservationsRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Services.LoanServices;
+import com.example.librarymanagementsystem.Services.NotificationSender;
 import com.example.librarymanagementsystem.Services.ReservationsServices;
+import com.example.librarymanagementsystem.Services.impl.KafkaNotificationSender;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -32,9 +35,8 @@ public class LoanController {
     private final LoanServices loanServices;
     private final UserRepository userRepository;
     private final ReservationsRepository reservationsRepository;
-    private final ReservationsServices  reservationsServices;
     private final BookRepository bookRepository;
-    private final LoanRepository loanRepository;
+    private final NotificationSender notificationSender;
 
     @GetMapping
     public String listLoans(Model model, Principal principal) {
@@ -55,6 +57,13 @@ public class LoanController {
         return "loan/list";
     }
 
+    @PostMapping("{id}/notify")
+    public String notifyUser(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
+        LoanDTO loan = loanServices.findById(id);
+        notificationSender.notifyDueDate(loan.getUserEmail(),loan.getBookTitle(), loan.getBookAuthor(), loan.getDueDate().atStartOfDay());
+        redirectAttributes.addFlashAttribute("notified", "Notification sent to user");
+        return "redirect:/loans";
+    }
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
