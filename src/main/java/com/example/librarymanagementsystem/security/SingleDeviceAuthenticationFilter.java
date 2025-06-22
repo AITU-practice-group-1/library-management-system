@@ -35,16 +35,16 @@ public class SingleDeviceAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        logger.debug("Processing request: {}", request.getRequestURI());
+        logger.info("Processing request: {}", request.getRequestURI());
         HttpSession session = request.getSession(false);
         if (session != null) {
             String sessionId = session.getId();
-            logger.debug("Session ID: {}", sessionId);
+            logger.info("Session ID: {}", sessionId);
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserDetails) {
                 UserDetails userDetails = (UserDetails) auth.getPrincipal();
-                logger.debug("Authenticated user: {}", userDetails.getUsername());
-                System.out.print(sessionId + " " + userDetails.getUsername() + "\n");
+                logger.info("Authenticated user: {}", userDetails.getUsername());
+                //System.out.print(sessionId + " " + userDetails.getUsername() + "\n");
                 if (!sessionStore.isValidSession(sessionId)) {
                     logger.warn("Invalid session for user: {}. Logging out.", userDetails.getUsername());
                     SecurityContextHolder.clearContext();
@@ -52,14 +52,14 @@ public class SingleDeviceAuthenticationFilter extends OncePerRequestFilter {
                     response.sendRedirect("/users/login?sessionExpired=true");
                     return;
                 } else {
-                    logger.debug("Updating last active time for session: {}", sessionId);
+                    logger.info("Updating last active time for session: {}", sessionId);
                     sessionStore.updateLastActive(sessionId);
                 }
             } else {
-                logger.debug("Unauthenticated request for session: {}", sessionId);
+                logger.info("Unauthenticated request for session: {}", sessionId);
             }
         } else {
-            logger.debug("No session found for request: {}", request.getRequestURI());
+            logger.info("No session found for request: {}", request.getRequestURI());
         }
         chain.doFilter(request, response);
     }
