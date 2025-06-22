@@ -14,4 +14,14 @@ public class KafkaTopicConfig {
                 .replicas(1)
                 .build();
     }
+    @Bean
+    public NewTopic consumerOffsetsTopic() {
+        return TopicBuilder.name("__consumer_offsets")
+                .partitions(50)  // Matches Kafka's default for __consumer_offsets
+                .replicas(1)     // Matches single-broker setup
+                .config("cleanup.policy", "compact")
+                .config("compression.type", "producer")
+                .config("segment.bytes", "104857600")
+                .build();
+    }
 }

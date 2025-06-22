@@ -13,6 +13,7 @@ public class KafkaMessageListener {
 
     @KafkaListener(topics = "notification-topic", groupId = "notifier-group")
     public void consume(com.example.librarymanagementsystem.Entities.events.NotificationEvent event) {
+        System.out.println("CONSUMER KAFKA");
         emailService.sendEmail(event.getUserEmail(), event.getTitle(), event.getMessage());
     }
 

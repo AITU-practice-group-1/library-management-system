@@ -5,6 +5,7 @@ services:
       - "6379:6379"
   kafka:
     image: confluentinc/cp-kafka:7.5.0
+
     ports:
       - "9092:9092"
     environment:
@@ -17,7 +18,7 @@ services:
       KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: EXTERNAL
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk #some random uuid
     healthcheck:
       test: [ "CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list" ]
