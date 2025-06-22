@@ -24,10 +24,8 @@ public class KafkaNotificationSender implements NotificationSender {
 
     @Override
     public void sendNotification(String userEmail, String title, String message) {
-        NotificationEvent event = new NotificationEvent();
-        event.setUserEmail(userEmail);
-        event.setTitle(title);
-        event.setMessage(message);
+        NotificationEvent event = new NotificationEvent(userEmail, title, message);
+
         kafkaTemplate.send("notification-topic", event).whenComplete((result, ex) -> {
             if (ex != null) {
                 logger.error("Failed to send notification: {}", ex.getMessage());
@@ -35,7 +33,6 @@ public class KafkaNotificationSender implements NotificationSender {
                 logger.info("Successfully sent notification to topic 'notification-topic' for user: {}", userEmail);
             }
         });
-        //System.out.println("Notification sent to " + userEmail);
     }
 
     @Override
@@ -44,7 +41,6 @@ public class KafkaNotificationSender implements NotificationSender {
                 "You borrowed book %s by %s, please do not forget to return it by %s.",
                 bookName, authorName, dueDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
         );
-        //System.out.println("SEND");
         sendNotification(userEmail, "Loan Due Date Reminder", message);
     }
 }

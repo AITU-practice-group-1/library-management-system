@@ -39,8 +39,8 @@
         <button type="submit">Notify User</button>
       </form>
     </td>
-    <td th:if="${notified}" th:text="${notified}" class="success">
-
+    <td th:if="${notifiedId == loan.getId()}" class="success">
+      Notification sent to user
     </td>
   </tr>
   </tbody>

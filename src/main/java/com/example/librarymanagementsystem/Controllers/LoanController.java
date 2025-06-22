@@ -61,7 +61,7 @@ public class LoanController {
     public String notifyUser(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         LoanDTO loan = loanServices.findById(id);
         notificationSender.notifyDueDate(loan.getUserEmail(),loan.getBookTitle(), loan.getBookAuthor(), loan.getDueDate().atStartOfDay());
-        redirectAttributes.addFlashAttribute("notified", "Notification sent to user");
+        redirectAttributes.addFlashAttribute("notifiedId", loan.getId());
         return "redirect:/loans";
     }
 
