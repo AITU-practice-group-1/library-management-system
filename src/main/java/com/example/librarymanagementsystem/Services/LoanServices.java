@@ -1,5 +1,8 @@
 package com.example.librarymanagementsystem.Services;
 
+import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
+import com.example.librarymanagementsystem.DTOs.book.BookResponseDTO;
+import com.example.librarymanagementsystem.DTOs.book.ContractBookDTO;
 import com.example.librarymanagementsystem.DTOs.loan.LoanRequestDTO;
 import com.example.librarymanagementsystem.DTOs.loan.LoanResponseDTO;
 import com.example.librarymanagementsystem.DTOs.loan.LoanUpdateDTO;
@@ -9,7 +12,9 @@ import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.Repositories.LoanRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
+import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
 import com.example.librarymanagementsystem.exceptions.LoanNotFoundException;
+import com.example.librarymanagementsystem.exceptions.UserNotFoundException;
 import com.example.librarymanagementsystem.mapper.LoanMapper;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
@@ -147,5 +152,14 @@ public class LoanServices {
             // This creates the final clause: "where lower(book.title) like '%keyword%' OR lower(user.email) like '%keyword%'"
             return criteriaBuilder.or(titlePredicate, emailPredicate);
         };
+    }
+
+    public UserDTO findUserByLoanId(UUID loanId) {
+        return loanRepository.findUserDtoByLoan(loanId).orElseThrow(() -> new UserNotFoundException("User is not Found"));
+    }
+
+    public ContractBookDTO findBookByLoanId(UUID loanID)
+    {
+        return loanRepository.findBookDtoByLoan(loanID).orElseThrow(() -> new BookNotFoundException("Book is not found"));
     }
 }
