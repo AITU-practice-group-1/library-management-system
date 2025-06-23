@@ -41,5 +41,4 @@ build/
 logs/
 logs/app.log
 
-docker-compose.yml
-.gitignore
+.env
