@@ -49,6 +49,7 @@ public class Loan {
     public enum LoanStatus {
         BORROWED,
         RETURNED,
+        EXPIRED,
         OVERDUE // Optional: Can be useful for filtering
     }
 

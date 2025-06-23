@@ -9,6 +9,7 @@ import com.example.librarymanagementsystem.DTOs.loan.LoanUpdateDTO;
 import com.example.librarymanagementsystem.Entities.Book;
 import com.example.librarymanagementsystem.Entities.Loan;
 import com.example.librarymanagementsystem.Entities.User;
+import com.example.librarymanagementsystem.Repositories.BlacklistRepository;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.Repositories.LoanRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
@@ -41,8 +42,9 @@ public class LoanServices {
     private final LoanRepository loanRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final BlacklistService blacklistService;
     private final LoanMapper loanMapper;
-
+    
     @Transactional
     public LoanResponseDTO createLoan(LoanRequestDTO dto, User librarian) {
         logger.info("Creating loan for user ID: {} and book ID: {}", dto.getUserId(), dto.getBookId());
@@ -50,7 +52,9 @@ public class LoanServices {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Book book = bookRepository.findById(dto.getBookId())
                 .orElseThrow(() -> new RuntimeException("Book not found"));
-
+        if (blacklistService.isUserBanned(user)) {
+            throw new RuntimeException("User is banned.");
+        }
         // Note: We assume book availability was handled by the Reservations service.
         // For a direct loan (no reservation), a check should be performed here.
 

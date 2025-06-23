@@ -11,6 +11,7 @@ import com.example.librarymanagementsystem.exceptions.BookNotAvailableException;
 import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
 import com.example.librarymanagementsystem.exceptions.ReservationNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,27 +24,25 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ReservationsServices {
 
     private static final Logger logger = LoggerFactory.getLogger(ReservationsServices.class);
 
     private final ReservationsRepository reservationsRepository;
     private final BookRepository bookRepository;
+
+    private final UserServices userServices;
     private final LoanServices loanService; // Inject LoanService to create a loan
-
-    public ReservationsServices(ReservationsRepository reservationsRepository, BookRepository bookRepository, LoanServices loanService) {
-        this.reservationsRepository = reservationsRepository;
-        this.bookRepository = bookRepository;
-        this.loanService = loanService;
-    }
-
 
     @Transactional
     public Reservations create(ReservationsRequestDTO dto, User user) throws BookNotAvailableException {
         logger.info("Creating reservation for user: {} and bookId: {}", user.getEmail(), dto.getBookId());
         Book book = bookRepository.findById(dto.getBookId())
                 .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + dto.getBookId()));
-
+        if (userServices.isUserBanned(user.getId())) {
+            throw new IllegalStateException("User is banned and cannot borrow books.");
+        }
         if (book.getAvailableCopies() <= 0) {
             throw new BookNotAvailableException("No copies of the book are available for reservation.");
         }
@@ -51,7 +50,6 @@ public class ReservationsServices {
         // Decrement available copies
         book.setAvailableCopies(book.getAvailableCopies() - 1);
         bookRepository.save(book);
-
         Reservations reservation = new Reservations();
         reservation.setBook(book);
         reservation.setUser(user);
