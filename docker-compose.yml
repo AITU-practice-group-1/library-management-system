@@ -3,16 +3,25 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis-data:/data
+    networks:
+      - library-network
+
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-
     ports:
       - "9092:9092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9092
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka:9092
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
@@ -26,4 +35,62 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - kafka-data:/bitnami/kafka
+    networks:
+      - library-network
 
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: library
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - library-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: library-app
+    ports:
+      - "8080:8080"
+    environment:
+      # Only set non-sensitive defaults or overrides if needed
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/library
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - library-network
+    volumes:
+      - logs:/app/logs
+
+networks:
+  library-network:
+    driver: bridge
+
+volumes:
+  logs:
+  kafka-data:
+  redis-data:
+  postgres-data:
