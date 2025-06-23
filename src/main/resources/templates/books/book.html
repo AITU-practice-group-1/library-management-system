@@ -35,8 +35,8 @@
     <div th:if="${book != null}" class="card shadow-sm p-4">
         <div class="row g-5">
             <div class="col-md-4 text-center d-flex flex-column">
-                <div class="book-cover ratio ratio-3x4 mx-auto">
-                    <i class="bi bi-book"></i>
+                <div>
+                    <img th:src="${book.imageUrl}"  alt="book" width="300">
                 </div>
                 <div class="mt-5">
                     <div class="d-grid gap-2">

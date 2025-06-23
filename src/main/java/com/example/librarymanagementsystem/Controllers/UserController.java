@@ -108,7 +108,7 @@ public class UserController
         logger.info("User with email {} posted information to  the edit page. at endpoint: /users/edit", SecurityContextHolder.getContext().getAuthentication().getName());
         try{
             if(!file.isEmpty()){
-                String imageUrl = imageUploadService.uploadFile(file);
+                String imageUrl = imageUploadService.uploadUserFile(file);
                 model.addAttribute("imageUrl", imageUrl);
             }
 

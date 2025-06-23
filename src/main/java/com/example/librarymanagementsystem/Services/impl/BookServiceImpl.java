@@ -4,6 +4,7 @@ import com.example.librarymanagementsystem.DTOs.book.*;
 import com.example.librarymanagementsystem.Entities.Book;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.Services.BookService;
+import com.example.librarymanagementsystem.Services.ImageUploadService;
 import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
 import com.example.librarymanagementsystem.mapper.BookMapper;
 import com.example.librarymanagementsystem.util.Genre;
@@ -15,7 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
+    private final ImageUploadService imageUploadService;
 
     @Override
     @Transactional
@@ -191,4 +195,52 @@ public void recalculateBookRatingOnDelete(UUID bookId, int ratingToRemove) {
         }).collect(Collectors.toList());
 
     }
-}
+
+
+    @Override
+    @Transactional
+    public BookResponseDTO createBook(BookCreateDTO bookDTO, MultipartFile imageFile) throws IOException {
+        if (bookRepository.findByIsbn(bookDTO.getIsbn()).isPresent()) {
+            throw new DataIntegrityViolationException("A book with this ISBN already exists.");
+        }
+        String[] urlAndId = imageUploadService.uploadFile(imageFile);
+
+        Book book = bookMapper.toEntity(bookDTO);
+        book.setImageUrl(urlAndId[0]);
+        book.setImageId(urlAndId[1]);
+        // On creation, all copies are available.
+        book.setAvailableCopies(book.getTotalCopies());
+        Book savedBook = bookRepository.save(book);
+        return bookMapper.toResponseDTO(savedBook);
+
+
+    }
+
+    @Override
+    @Transactional
+    public BookResponseDTO updateBook(UUID id, BookUpdateDTO bookDTO, MultipartFile file) throws IOException {
+        if (bookRepository.existsByIsbnAndIdNot(bookDTO.getIsbn(), id)) {
+            throw new DataIntegrityViolationException("Another book with this ISBN already exists.");
+        }
+
+        Book existingBook = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + id));
+
+        int checkedOutCopies = existingBook.getTotalCopies() - existingBook.getAvailableCopies();
+        if (bookDTO.getTotalCopies() < checkedOutCopies) {
+            throw new IllegalStateException("Total copies cannot be less than the number of currently checked-out or reserved books (" + checkedOutCopies + ").");
+        }
+
+        String[] urlAndId = imageUploadService.uploadBookFileWithId(file, existingBook.getImageId());
+
+        bookMapper.updateEntityFromDto(bookDTO, existingBook);
+        existingBook.setAvailableCopies(bookDTO.getTotalCopies() - checkedOutCopies);
+
+        existingBook.setImageUrl(urlAndId[0]);
+        existingBook.setImageId(urlAndId[1]);
+
+        Book updatedBook = bookRepository.save(existingBook);
+        return bookMapper.toResponseDTO(updatedBook);
+    }
+
+    }

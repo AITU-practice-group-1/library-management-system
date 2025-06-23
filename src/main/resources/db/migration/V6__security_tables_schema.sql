@@ -1,4 +1,4 @@
-CREATE TABLE two_factor_auth (
+CREATE TABLE if not exists two_factor_auth (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL UNIQUE,
     secret VARCHAR(100) NOT NULL,
@@ -6,7 +6,7 @@ CREATE TABLE two_factor_auth (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE password_reset_token (
+CREATE TABLE if not exists password_reset_token (
     id BIGSERIAL PRIMARY KEY,
     token VARCHAR(255) NOT NULL,
     expiry_date TIMESTAMP NOT NULL,
