@@ -43,7 +43,6 @@
             </form>
         </div>
     </div>
-
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
@@ -56,6 +55,7 @@
                         <th>Due Date</th>
                         <th class="text-center">Status</th>
                         <th class="text-center">Action</th>
+                        <!--                        <th class="text-center">Notify</th>-->
                     </tr>
                     </thead>
                     <tbody>
@@ -83,6 +83,14 @@
                             <div th:if="${loan.status == 'RETURNED'}">
                                 <i class="bi bi-check-circle-fill text-success fs-5" title="Returned"></i>
                             </div>
+
+                            <form th:if="${loan.status != 'RETURNED'}" th:action="@{/loans/{id}/notify(id=${loan.id})}" method="post">
+                                <button type="submit">Notify User</button>
+                            </form>
+
+                            <p th:if="${notifiedId == loan.getId()}" class="success">
+                                Notification sent to user</p>
+
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(loans)}">

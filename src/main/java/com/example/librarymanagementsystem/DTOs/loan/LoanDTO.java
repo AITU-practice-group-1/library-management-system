@@ -1,10 +1,8 @@
-package com.example.librarymanagementsystem.DTOs;
+package com.example.librarymanagementsystem.DTOs.loan;
 
-import com.example.librarymanagementsystem.Entities.Loan;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;

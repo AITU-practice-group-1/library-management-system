@@ -14,6 +14,7 @@ public class KafkaMessageListener {
     @KafkaListener(topics = "notification-topic", groupId = "notifier-group")
     public void consume(NotificationEvent event) {
         System.out.println("CONSUMER KAFKA is sending email to " + event.getUserEmail());
+
         emailService.sendEmail(event.getUserEmail(), event.getTitle(), event.getMessage());
     }
 

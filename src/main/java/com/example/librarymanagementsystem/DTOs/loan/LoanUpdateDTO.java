@@ -1,4 +1,4 @@
-package com.example.librarymanagementsystem.DTOs;
+package com.example.librarymanagementsystem.DTOs.loan;
 
 import com.example.librarymanagementsystem.Entities.Loan;
 import jakarta.validation.constraints.NotNull;

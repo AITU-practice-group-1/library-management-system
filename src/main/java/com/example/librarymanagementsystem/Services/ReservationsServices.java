@@ -1,7 +1,7 @@
 package com.example.librarymanagementsystem.Services;
 
-import com.example.librarymanagementsystem.DTOs.LoanRequestDTO;
-import com.example.librarymanagementsystem.DTOs.LoanResponseDTO;
+import com.example.librarymanagementsystem.DTOs.loan.LoanRequestDTO;
+import com.example.librarymanagementsystem.DTOs.loan.LoanResponseDTO;
 import com.example.librarymanagementsystem.DTOs.reservations.ReservationsRequestDTO;
 import com.example.librarymanagementsystem.DTOs.reservations.ReservationsResponseDTO;
 import com.example.librarymanagementsystem.Entities.*;
@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;

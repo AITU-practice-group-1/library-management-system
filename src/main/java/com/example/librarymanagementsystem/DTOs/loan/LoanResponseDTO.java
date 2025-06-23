@@ -1,4 +1,4 @@
-package com.example.librarymanagementsystem.DTOs;
+package com.example.librarymanagementsystem.DTOs.loan;
 
 import lombok.Builder;
 import lombok.Data;
@@ -18,4 +18,6 @@ public class LoanResponseDTO {
     private LocalDateTime dueDate;
     private String status;
     private boolean isOverdue;
+
+    private String bookAuthor;
 }

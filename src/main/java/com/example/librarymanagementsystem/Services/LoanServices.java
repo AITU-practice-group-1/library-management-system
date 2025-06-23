@@ -1,17 +1,14 @@
 package com.example.librarymanagementsystem.Services;
 
-import com.example.librarymanagementsystem.DTOs.LoanDTO;
-import com.example.librarymanagementsystem.DTOs.LoanRequestDTO;
-import com.example.librarymanagementsystem.DTOs.LoanResponseDTO;
-import com.example.librarymanagementsystem.DTOs.LoanUpdateDTO;
+import com.example.librarymanagementsystem.DTOs.loan.LoanRequestDTO;
+import com.example.librarymanagementsystem.DTOs.loan.LoanResponseDTO;
+import com.example.librarymanagementsystem.DTOs.loan.LoanUpdateDTO;
 import com.example.librarymanagementsystem.Entities.Book;
 import com.example.librarymanagementsystem.Entities.Loan;
 import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.Repositories.LoanRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
-import com.example.librarymanagementsystem.Repositories.BookRepository;
-import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
 import com.example.librarymanagementsystem.exceptions.LoanNotFoundException;
 import com.example.librarymanagementsystem.mapper.LoanMapper;
 import jakarta.persistence.criteria.Predicate;
@@ -61,7 +58,7 @@ public class LoanServices {
 
         Loan savedLoan = loanRepository.save(loan);
         logger.info("Loan created successfully with ID: {}", savedLoan.getId());
-        return loanMapper.toDto(savedLoan);
+        return loanMapper.toResponseDto(savedLoan);
     }
       
     @Transactional
@@ -90,24 +87,24 @@ public class LoanServices {
         }
 
         Loan updatedLoan = loanRepository.save(loan);
-        return loanMapper.toDto(updatedLoan);
+        return loanMapper.toResponseDto(updatedLoan);
     }
 
     public List<LoanResponseDTO> findAll() {
         return loanRepository.findAll().stream()
-                .map(loanMapper::toDto)
+                .map(loanMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
 
     public LoanResponseDTO findById(UUID id) {
         return loanRepository.findById(id)
-                .map(loanMapper::toDto)
+                .map(loanMapper::toResponseDto)
                 .orElseThrow(() -> new LoanNotFoundException("Loan not found with ID: " + id));
     }
 
     public List<LoanResponseDTO> getLoansByUserId(UUID userId) {
         return loanRepository.findByUserId(userId).stream()
-                .map(loanMapper::toDto)
+                .map(loanMapper::toResponseDto)
                 .collect(Collectors.toList());
     }
 
@@ -119,7 +116,7 @@ public class LoanServices {
         // Call the new findAll method provided by JpaSpecificationExecutor
         Page<Loan> loanPage = loanRepository.findAll(spec, pageable);
 
-        return loanPage.map(loanMapper::toDto);
+        return loanPage.map(loanMapper::toResponseDto);
     }
     private Specification<Loan> createSearchSpecification(String keyword) {
         // Return a lambda that implements the Specification interface's toPredicate method

@@ -1,10 +1,13 @@
 package com.example.librarymanagementsystem.Controllers;
 
+import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.DTOs.book.TopFavoriteBookDTO;
 import com.example.librarymanagementsystem.DTOs.book.TopRatedBookDTO;
 import com.example.librarymanagementsystem.Services.BookService;
 import com.example.librarymanagementsystem.Services.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,20 +27,12 @@ public class MainController {
     }
 
     @GetMapping("/")
-    public String index(Model model) throws Exception {
-        var userDTO = userServices.getAuthenticatedUser();
-        switch (userDTO.getRole()) {
-            case "ADMIN":
-                return "redirect:/admin/home";
-            case "LIBRARIAN":
-                return "redirect:/users/librarian";
-            default:
-                List<TopRatedBookDTO> topRatedBooks = bookService.getTopRatedBooks(10);
-                model.addAttribute("topRatedBooks", topRatedBooks);
-                List<TopFavoriteBookDTO> topFavoritedBooks = bookService.getTopFavoriteBooks(10);
-                model.addAttribute("topFavoritedBooks", topFavoritedBooks);
-                return "index";
-        }
+    public String index(Model model) {
+        List<TopRatedBookDTO> topRatedBooks = bookService.getTopRatedBooks(10);
+        model.addAttribute("topRatedBooks", topRatedBooks);
+        List<TopFavoriteBookDTO> topFavoritedBooks = bookService.getTopFavoriteBooks(10);
+        model.addAttribute("topFavoritedBooks", topFavoritedBooks);
+        return "index";
     }
 
     @GetMapping("/error")
