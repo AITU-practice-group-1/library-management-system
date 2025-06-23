@@ -18,6 +18,8 @@ public interface BookMapper {
     Book toEntity(BookCreateDTO dto);
 
     // Entity to DTO
+    @Mapping(source = "imageUrl", target = "imageUrl")
+    @Mapping(source = "imageId", target = "imageId")
     BookResponseDTO toResponseDTO(Book book);
 
     // For updates: copies DTO fields to an existing entity

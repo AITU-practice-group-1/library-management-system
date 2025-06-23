@@ -75,6 +75,10 @@
         <div th:each="book : ${bookPage.content}" class="col">
             <div class="card h-100 shadow-sm">
                 <div class="card-body d-flex flex-column">
+                    <div th:if="${book.imageUrl != null and !#strings.isEmpty(book.imageUrl)}" class="text-center mb-3">
+                        <img th:src="${book.imageUrl}" alt="Book Cover" class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: cover;">
+                    </div>
+
                     <h5 class="card-title fw-bold" th:text="${book.title}">Book Title</h5>
                     <h6 class="card-subtitle mb-2 text-muted" th:text="${book.author}">Author Name</h6>
 

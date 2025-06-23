@@ -52,12 +52,13 @@ public class BookController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public String createBook(@Valid @ModelAttribute("book") BookCreateDTO bookDTO,
-                             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, @RequestParam MultipartFile imageFile) {
+                             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, @RequestParam(value = "image", required = false) MultipartFile imageFile) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("allGenres", Genre.values());
             return "books/create";
         }
         try {
+            System.out.println(imageFile.getOriginalFilename());
             if(imageFile != null)
             {
                 bookService.createBook(bookDTO, imageFile);
@@ -82,6 +83,7 @@ public class BookController {
                            @PageableDefault(size = 5) Pageable pageable) {
 
         BookResponseDTO bookDTO = bookService.getBookById(id);
+        System.out.println("BOOK IMAGE " + bookDTO.getImageUrl() + "\n\n\n");
 
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortField);
         Pageable reviewPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
@@ -187,7 +189,7 @@ public class BookController {
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public String updateBook(@PathVariable UUID id,
                              @Valid @ModelAttribute("book") BookUpdateDTO bookDTO,
-                             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, @RequestParam MultipartFile imageFile) throws IOException {
+                             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException {
         if (bindingResult.hasErrors()) {
             model.addAttribute("allGenres", Genre.values());
             return "books/edit";
