@@ -16,15 +16,15 @@ public class Loan {
     @GeneratedValue
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="book_id",nullable = false)
     private Book book;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "issued_by", nullable = false)
     private User issuedBy; //librarian
 
@@ -50,6 +50,15 @@ public class Loan {
         BORROWED,
         RETURNED,
         EXPIRED
+        OVERDUE // Optional: Can be useful for filtering
     }
 
+    /**
+     * Helper method to check if a loan is past its due date and not yet returned.
+     * @return true if the loan is overdue, false otherwise.
+     */
+    @Transient // This means it won't be persisted to the database
+    public boolean isOverdue() {
+        return this.status == LoanStatus.BORROWED && LocalDateTime.now().isAfter(this.dueDate);
+    }
 }

@@ -21,6 +21,8 @@ public class UserDTO {
     @NotBlank
     private String lastName;
     private Long totalRead;
+    private String imageUrl;
+    private String imageId;
 
     public UserDTO() {
 
@@ -34,12 +36,14 @@ public class UserDTO {
         this.totalRead = totalRead;
     }
 
-    public UserDTO(UUID id, String email, String firstName, String lastName, String role, String password) {
+    public UserDTO(UUID id, String email, String firstName, String lastName, String role, String password, String imageUrl, String imageId) {
         this.id = id;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.role = role;
         this.password = password;
+        this.imageUrl = imageUrl;
+        this.imageId = imageId;
     }
 }

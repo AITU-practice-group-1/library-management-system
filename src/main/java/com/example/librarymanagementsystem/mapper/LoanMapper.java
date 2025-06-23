@@ -1,36 +1,24 @@
 package com.example.librarymanagementsystem.mapper;
 
-
-import com.example.librarymanagementsystem.DTOs.LoanDTO;
+import com.example.librarymanagementsystem.DTOs.loan.LoanDTO;
+import com.example.librarymanagementsystem.DTOs.loan.LoanResponseDTO;
 import com.example.librarymanagementsystem.Entities.Loan;
-import com.example.librarymanagementsystem.Entities.Reservations;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Component;
 
 @Component
 @Mapper(componentModel="spring", uses = {UserMapper.class})
 public interface LoanMapper{
+    LoanMapper INSTANCE = Mappers.getMapper(LoanMapper.class);
+
+    @Mapping(target = "bookAuthor", source = "book.author")
+    @Mapping(target = "userEmail", source = "user.email")
+    @Mapping(target = "bookTitle", source = "book.title")
+    @Mapping(target = "bookIsbn", source = "book.isbn")
+    LoanResponseDTO toResponseDto(Loan loan);
+    @Mapping(target = "bookAuthor", source = "book.author")
     LoanDTO toDto (Loan loan);
     Loan toEntity(LoanDTO dto);
-
-    @Mapping(target = "issuedBy", ignore = true)
-    @Mapping(target = "issueDate", ignore = true)
-    @Mapping(target = "dueDate", ignore = true)
-    @Mapping(target = "returnDate", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    LoanDTO fromReservation(Reservations reservation);
-
-    @org.mapstruct.AfterMapping
-    default void enrichDto(@org.mapstruct.MappingTarget LoanDTO dto, Loan loan) {
-        if (loan.getUser() != null) {
-            dto.setUserEmail(loan.getUser().getEmail());
-        }
-        if (loan.getBook() != null) {
-            dto.setBookTitle(loan.getBook().getTitle());
-        }
-        if (loan.getIssuedBy() != null) {
-            dto.setIssuedByEmail(loan.getIssuedBy().getEmail());
-        }
-    }
 }

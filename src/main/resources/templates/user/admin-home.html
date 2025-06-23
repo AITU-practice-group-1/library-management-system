@@ -1,49 +1,82 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Home Page</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/user/admin-home.css">
+    <style>
+        .filters { margin-bottom: 1.5rem; }
+        .filters a { margin-right: 1rem; text-decoration: none; color: #007bff; font-weight: bold; }
+        .user-table { width: 100%; border-collapse: collapse; }
+        .user-table th, .user-table td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
+        .user-table th { background-color: #f4f4f4; }
+        .pagination { margin-top: 1rem; }
+    </style>
 </head>
 <body>
 
 <div th:replace="fragments/navbar::navbar"></div>
 
 <div class="admin-container">
+    <aside class="sidebar">
+        <h2>Navigation</h2>
+        <a th:href="@{/admin/home}">User Management</a>
+        <a th:href="@{/books/manage}">Book Management</a>
+        <a th:href="@{/loans}">Loan Management</a>
+        <a th:href="@{/review-reports}">Review Reports</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/setup}">Setup 2FA</a>
+        <a th:href="@{/logout}" class="logout-link">Logout</a>
+    </aside>
+
     <div class="main-content">
-        <h1>Панель администратора</h1>
+        <h1>Admin Dashboard</h1>
+        <h2>User Management</h2>
 
-        <div id="userList">
-            <h3>Пользователи:</h3>
-            <ul>
-                <li th:each="user : ${users}">
-                    <a th:href="@{/users/profile/{id}(id=${user.getId()})}" class="user-link">
-                        <span th:text="${user.getFirstName()}">User Name</span> —
-                        <span th:text="${user.role}">Role</span>
-                    </a>
-                    <!-- Только для админов, например в navbar.html или admin-panel.html -->
-                <li sec:authorize="hasRole('ADMIN')">
-                    <a th:href="@{/setup}">Настроить 2FA</a>
-                </li>
-
-                </li>
-            </ul>
+        <div class="filters">
+            <a th:href="@{/admin/home}">All Users</a>
+            <a th:href="@{/admin/home/default}">Default Users</a>
+            <a th:href="@{/admin/home/librarian}">Librarians</a>
         </div>
 
         <p th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger"></p>
-    </div>
 
-    <aside class="sidebar">
-        <h2>Меню</h2>
-        <a href="/home/default">Все пользователи</a>
-        <a href="/home/librarian">Библиотекари</a>
-        <a href="/books">Список книг</a>
-        <a href="/users">Пользователи</a>
-        <a href="/review-reports">Жалобы</a>
-        <a href="/logout" class="logout-link">Выйти</a>
-    </aside>
+        <div th:if="${users != null and !users.isEmpty()}">
+            <table class="user-table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Profile</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.getFirstName() + ' ' + user.getLastName()}">User Name</td>
+                    <td th:text="${user.getEmail()}">user@example.com</td>
+                    <td th:text="${user.role}">Role</td>
+                    <td>
+                        <a th:href="@{/users/profile/{id}(id=${user.getId()})}" class="user-link">View Profile</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination" th:if="${users.totalPages > 1}">
+                <span>Pages:</span>
+                <span th:each="i : ${#numbers.sequence(0, users.totalPages - 1)}">
+                    <a th:if="${users.number != i}" th:href="@{/admin/home(page=${i})}" th:text="${i + 1}"></a>
+                    <strong th:if="${users.number == i}" th:text="${i + 1}"></strong>
+                </span>
+            </div>
+
+        </div>
+        <div th:if="${users == null or users.isEmpty()}">
+            <p>No users found for this filter.</p>
+        </div>
+    </div>
 </div>
 
 </body>

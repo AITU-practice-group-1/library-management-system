@@ -1,9 +1,9 @@
 package com.example.librarymanagementsystem.Controllers;
 
-import com.example.librarymanagementsystem.DTOs.book.BookDTO;
-import com.example.librarymanagementsystem.DTOs.book.BookDetailViewDTO;
+import com.example.librarymanagementsystem.DTOs.book.*;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackRequestDTO;
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackResponseDTO;
+import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
 import com.example.librarymanagementsystem.util.Genre;
 import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Services.*;
@@ -22,8 +22,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -38,28 +40,36 @@ public class BookController {
     private final ReservationsServices reservationsServices;
 
     @GetMapping("/new")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public String showCreateBookPage(Model model) {
         if (!model.containsAttribute("book")) {
-            model.addAttribute("book", new BookDTO());
+            model.addAttribute("book", new BookCreateDTO());
         }
         model.addAttribute("allGenres", Genre.values());
         return "books/create";
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
-    public String createBook(@Valid @ModelAttribute("book") BookDTO bookDTO,
-                             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+    public String createBook(@Valid @ModelAttribute("book") BookCreateDTO bookDTO,
+                             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, @RequestParam(value = "image", required = false) MultipartFile imageFile) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("allGenres", Genre.values());
             return "books/create";
         }
         try {
-            bookService.createBook(bookDTO);
+            System.out.println(imageFile.getOriginalFilename());
+            if(imageFile != null)
+            {
+                bookService.createBook(bookDTO, imageFile);
+            }
+            else
+            {
+                bookService.createBook(bookDTO);
+            }
             redirectAttributes.addFlashAttribute("successMessage", "Book created successfully!");
             return "redirect:/books/manage";
-        } catch (DataIntegrityViolationException e) {
+        } catch (DataIntegrityViolationException | IOException e) {
             bindingResult.addError(new FieldError("book", "isbn", "This ISBN already exists."));
             model.addAttribute("allGenres", Genre.values());
             return "books/create";
@@ -72,7 +82,8 @@ public class BookController {
                            @RequestParam(defaultValue = "desc", name = "dir") String sortDir,
                            @PageableDefault(size = 5) Pageable pageable) {
 
-        BookDTO bookDTO = bookService.getBookById(id);
+        BookResponseDTO bookDTO = bookService.getBookById(id);
+        System.out.println("BOOK IMAGE " + bookDTO.getImageUrl() + "\n\n\n");
 
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortField);
         Pageable reviewPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
@@ -139,7 +150,7 @@ public class BookController {
     }
 
     private void populateBookListPageModel(String keyword, Genre genre, Pageable pageable, Model model) {
-        Page<BookDTO> bookPage = bookService.findPaginatedAndFiltered(keyword, genre, pageable);
+        Page<BookResponseDTO> bookPage = bookService.findPaginatedAndFiltered(keyword, genre, pageable);
         model.addAttribute("bookPage", bookPage);
         model.addAttribute("keyword", keyword);
         model.addAttribute("genre", genre);
@@ -164,10 +175,10 @@ public class BookController {
 
 
     @GetMapping("/{id}/edit")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public String showUpdateBookPage(@PathVariable UUID id, Model model) {
         if (!model.containsAttribute("book")) {
-            model.addAttribute("book", bookService.getBookById(id));
+            model.addAttribute("book", bookService.getBookById(id)); // Send ResponseDTO to pre-fill form
         }
         model.addAttribute("allGenres", Genre.values());
         return "books/edit";
@@ -175,32 +186,45 @@ public class BookController {
 
 
     @PostMapping("/{id}/update")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     public String updateBook(@PathVariable UUID id,
-                             @Valid @ModelAttribute("book") BookDTO bookDTO,
-                             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+                             @Valid @ModelAttribute("book") BookUpdateDTO bookDTO,
+                             BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes, @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException {
         if (bindingResult.hasErrors()) {
             model.addAttribute("allGenres", Genre.values());
             return "books/edit";
         }
         try {
-            bookService.updateBook(id, bookDTO);
+            if(imageFile != null)
+            {
+                bookService.updateBook(id, bookDTO, imageFile);
+            }
+            else {
+                bookService.updateBook(id, bookDTO);
+            }
             redirectAttributes.addFlashAttribute("successMessage", "Book updated successfully!");
             return "redirect:/books/manage";
         } catch (DataIntegrityViolationException e) {
-            bindingResult.addError(new FieldError("book", "isbn", bookDTO.getIsbn(), false, null, null, "This ISBN already exists."));
+            bindingResult.addError(new FieldError("book", "isbn", "This ISBN already exists."));
             model.addAttribute("allGenres", Genre.values());
             return "books/edit";
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/books/" + id + "/edit";
         }
     }
 
 
 
     @PostMapping("/{id}/delete")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('LIBRARIAN')")
+    @PreAuthorize("hasRole('ADMIN')") // Deleting should be restricted, perhaps only to Admins
     public String deleteBook(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
-        bookService.deleteBook(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Book deleted successfully.");
+        try {
+            bookService.deleteBook(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Book deleted successfully.");
+        } catch (IllegalStateException | BookNotFoundException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
         return "redirect:/books/manage";
     }
 }

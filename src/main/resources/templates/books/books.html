@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <style>
-        /* A few enhancements for better UX */
         body { background-color: #f8f9fa; }
         .card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; border: none; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
@@ -65,14 +64,6 @@
                 <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='title,asc')}"  th:classappend="${sortField == 'title' && sortDir == 'asc' ? 'active' : ''}">Title (A-Z)</a></li>
                 <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='title,desc')}" th:classappend="${sortField == 'title' && sortDir == 'desc' ? 'active' : ''}">Title (Z-A)</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Author</h6></li>
-                <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='author,asc')}"  th:classappend="${sortField == 'author' && sortDir == 'asc' ? 'active' : ''}">Author (A-Z)</a></li>
-                <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='author,desc')}" th:classappend="${sortField == 'author' && sortDir == 'desc' ? 'active' : ''}">Author (Z-A)</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Published Year</h6></li>
-                <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='publishedYear,desc')}" th:classappend="${sortField == 'publishedYear' && sortDir == 'desc' ? 'active' : ''}">Year (Newest First)</a></li>
-                <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='publishedYear,asc')}"  th:classappend="${sortField == 'publishedYear' && sortDir == 'asc' ? 'active' : ''}">Year (Oldest First)</a></li>
-                <li><hr class="dropdown-divider"></li>
                 <li><h6 class="dropdown-header">Rating</h6></li>
                 <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='ratingAverage,desc')}" th:classappend="${sortField == 'ratingAverage' && sortDir == 'desc' ? 'active' : ''}">Rating (High to Low)</a></li>
                 <li><a class="dropdown-item" th:href="@{/books(keyword=${keyword}, genre=${genre}, sort='ratingAverage,asc')}"  th:classappend="${sortField == 'ratingAverage' && sortDir == 'asc' ? 'active' : ''}">Rating (Low to High)</a></li>
@@ -80,11 +71,14 @@
         </div>
     </div>
 
-
     <div th:if="${bookPage.hasContent()}" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
         <div th:each="book : ${bookPage.content}" class="col">
             <div class="card h-100 shadow-sm">
                 <div class="card-body d-flex flex-column">
+                    <div th:if="${book.imageUrl != null and !#strings.isEmpty(book.imageUrl)}" class="text-center mb-3">
+                        <img th:src="${book.imageUrl}" alt="Book Cover" class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: cover;">
+                    </div>
+
                     <h5 class="card-title fw-bold" th:text="${book.title}">Book Title</h5>
                     <h6 class="card-subtitle mb-2 text-muted" th:text="${book.author}">Author Name</h6>
 
@@ -103,7 +97,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <span th:if="${book.availableCopies > 0}" class="badge rounded-pill bg-success-subtle border border-success-subtle text-success-emphasis">Available</span>
-                                <span th:if="${book.availableCopies == 0}" class="badge rounded-pill bg-danger-subtle border border-danger-subtle text-danger-emphasis">All Loaned</span>
+                                <span th:if="${book.availableCopies == 0}" class="badge rounded-pill bg-danger-subtle border border-danger-subtle text-danger-emphasis">Unavailable</span>
                             </div>
                             <small class="text-muted" th:text="${book.availableCopies} + ' / ' + ${book.totalCopies} + ' copies'"></small>
                         </div>
@@ -146,12 +140,10 @@
                 <li class="page-item" th:classappend="${bookPage.isFirst()} ? 'disabled'">
                     <a class="page-link" th:href="${bookPage.isFirst()} ? '#' : @{${pageUrl}(page=${bookPage.number - 1})}">Previous</a>
                 </li>
-
                 <li th:each="i : ${#numbers.sequence(0, bookPage.totalPages - 1)}"
                     class="page-item" th:classappend="${i == bookPage.number} ? 'active'">
                     <a class="page-link" th:href="@{${pageUrl}(page=${i})}" th:text="${i + 1}"></a>
                 </li>
-
                 <li class="page-item" th:classappend="${bookPage.isLast()} ? 'disabled'">
                     <a class="page-link" th:href="${bookPage.isLast()} ? '#' : @{${pageUrl}(page=${bookPage.number + 1})}">Next</a>
                 </li>

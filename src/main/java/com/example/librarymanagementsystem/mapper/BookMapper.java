@@ -1,20 +1,28 @@
 package com.example.librarymanagementsystem.mapper;
 
-import com.example.librarymanagementsystem.DTOs.book.BookDTO;
+import com.example.librarymanagementsystem.DTOs.book.BookCreateDTO;
+import com.example.librarymanagementsystem.DTOs.book.BookResponseDTO;
+import com.example.librarymanagementsystem.DTOs.book.BookUpdateDTO;
 import com.example.librarymanagementsystem.Entities.Book;
-import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.springframework.stereotype.Component;
+import org.mapstruct.factory.Mappers;
 
-@Component
 @Mapper(componentModel = "spring")
 public interface BookMapper {
 
-    Book toEntity(BookDTO bookDTO);
+    BookMapper INSTANCE = Mappers.getMapper(BookMapper.class);
 
-    BookDTO toDTO(Book book);
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDto(BookDTO bookDTO, @MappingTarget Book book);
+    // DTO to Entity
+    Book toEntity(BookCreateDTO dto);
+
+    // Entity to DTO
+    @Mapping(source = "imageUrl", target = "imageUrl")
+    @Mapping(source = "imageId", target = "imageId")
+    BookResponseDTO toResponseDTO(Book book);
+
+    // For updates: copies DTO fields to an existing entity
+    @Mapping(target = "id", ignore = true) // Don't copy the ID
+    void updateEntityFromDto(BookUpdateDTO dto, @MappingTarget Book book);
 }

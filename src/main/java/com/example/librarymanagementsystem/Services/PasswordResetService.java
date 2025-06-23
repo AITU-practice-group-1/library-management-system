@@ -19,7 +19,8 @@ public class PasswordResetService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
+    //private final EmailService emailService;
+    private final NotificationSender notificationSender;
 
     public void createPasswordResetToken(String email){
         Optional<User> optionalUser = userRepository.findByEmail(email);
@@ -38,7 +39,8 @@ public class PasswordResetService {
             String resetLink = "http://localhost:8080/reset-password?token=" + token;
             String subject = "Password Reset";
             String body = "To reset your password, follow the link" + resetLink;
-            emailService.sendEmail(user.getEmail(), subject, body);
+            //emailService.sendEmail(user.getEmail(), subject, body);
+            notificationSender.sendNotification(user.getEmail(), subject, body);
         }
         public void passwordReset(String token, String newPassword){
             PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token);

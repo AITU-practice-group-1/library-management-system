@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 //@Component
+//Unnecessary if Redis caching is working
 public class InMemorySessionStore implements SessionStore {
 
     private final Map<String, ActiveSession> activeSessions = new ConcurrentHashMap<>();

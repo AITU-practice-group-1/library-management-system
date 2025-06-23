@@ -4,11 +4,14 @@ import com.example.librarymanagementsystem.util.Genre;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -16,14 +19,15 @@ import java.util.UUID;
         @UniqueConstraint(columnNames = "isbn", name = "uk_book_isbn")
 })
 @Data
-@ToString
+@ToString(exclude = {"feedbacks", "favoriteBooks"}) // Exclude collections from toString to avoid performance issues
+@EqualsAndHashCode(exclude = {"feedbacks", "favoriteBooks"}) // Also exclude from equals/hashCode
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "VARCHAR(255)")
     @NotEmpty(message = "Title cannot be empty")
     private String title;
 
@@ -62,12 +66,15 @@ public class Book {
     @Min(value = 0, message = "Available copies cannot be negative")
     private int availableCopies;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    // --- Relationships ---
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Feedback> feedbacks = new ArrayList<>();
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<FavoriteBook> favoriteBooks = new ArrayList<>();
 
+
+    // --- Rating Fields ---
     @Column(name = "rating_sum", nullable = false)
     private long ratingSum = 0L;
 
@@ -77,12 +84,19 @@ public class Book {
     @Column(name = "rating_average", nullable = false, precision = 3, scale = 2)
     private BigDecimal ratingAverage = BigDecimal.ZERO;
 
-    // --- Business Logic Encapsulation ---
+    // --- Timestamps ---
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    /**
-     * Adds a new rating and recalculates the average.
-     * @param rating The rating value (1-5).
-     */
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+    @Column(name = "image_id")
+    private String imageId;
+
+    // --- Business Logic for Ratings ---
     public void addRating(int rating) {
         validateRating(rating);
         this.ratingSum += rating;
@@ -90,10 +104,6 @@ public class Book {
         recalculateAverage();
     }
 
-    /**
-     * Removes a rating and recalculates the average.
-     * @param ratingToRemove The rating value to remove (1-5).
-     */
     public void removeRating(int ratingToRemove) {
         validateRating(ratingToRemove);
         if (this.ratingCount > 0 && this.ratingSum >= ratingToRemove) {
@@ -103,16 +113,10 @@ public class Book {
         }
     }
 
-    /**
-     * Updates an existing rating and recalculates the average.
-     * @param oldRating The user's previous rating.
-     * @param newRating The user's new rating.
-     */
     public void updateRating(int oldRating, int newRating) {
         validateRating(oldRating);
         validateRating(newRating);
         this.ratingSum = (this.ratingSum - oldRating) + newRating;
-        // The rating count remains the same, so we just recalculate the average.
         recalculateAverage();
     }
 
@@ -122,7 +126,7 @@ public class Book {
                     .divide(BigDecimal.valueOf(this.ratingCount), 2, RoundingMode.HALF_UP);
         } else {
             this.ratingAverage = BigDecimal.ZERO;
-            this.ratingSum = 0L; // Ensure sum is also zero if count is zero
+            this.ratingSum = 0L;
         }
     }
 
@@ -134,12 +138,12 @@ public class Book {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 }

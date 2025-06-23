@@ -9,8 +9,19 @@
 <body>
 <div th:include="fragments/navbar::navbar"></div>
 <div class="form-container">
+    <div>
+        <p>Profile Image:</p>
+        <img th:src="${user.imageUrl}" width="300" alt="Photo"/>
+    </div>
+
+<!--    <form th:action="@{/users/upload}" method="post" enctype="multipart/form-data">-->
+<!--        -->
+<!--        <div style="display: none" name="user" th:object="${user}"></div>-->
+<!--        <button type="submit">Upload</button>-->
+<!--    </form>-->
     <h1>Edit Profile</h1>
-    <form th:action="@{/users/edit}" th:object="${user}" method="post">
+    <form th:action="@{/users/edit}" th:object="${user}" method="post" enctype="multipart/form-data">
+        <label> Edit Photo<input type="file" name="image"/></label>
         <label>First Name:
             <input type="text" th:field="*{firstName}" required/>
         </label>

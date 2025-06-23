@@ -1,61 +1,68 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Create New Loan</title>
+    <title>Create Direct Loan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card-header { background-color: #0d6efd; color: white; }
+    </style>
 </head>
 <body>
 
-<div th:replace="fragments/navbar :: navbar"></div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<h1>Create New Loan</h1>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header text-center py-3">
+                    <h1 class="h3 mb-0"><i class="bi bi-person-check"></i> Create Direct Loan (Walk-in)</h1>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form th:action="@{/loans/create-direct}" th:object="${loanRequest}" method="post" novalidate>
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label for="userId" class="form-label">User</label>
+                                <select id="userId" class="form-select" th:field="*{userId}" th:classappend="${#fields.hasErrors('userId')} ? 'is-invalid' : ''">
+                                    <option value="" disabled>-- Select User --</option>
+                                    <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.fullName} + ' (' + ${user.email} + ')'"></option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
+                            </div>
 
-<div class="form-container">
-    <form action="#" th:action="@{/loans/create}" th:object="${loan}" method="post">
-        <!-- Hidden Fields -->
-        <input type="hidden" th:field="*{issuedBy}" />
-        <input type="hidden" th:field="*{issueDate}" />
+                            <div class="col-12">
+                                <label for="bookId" class="form-label">Book</label>
+                                <select id="bookId" class="form-select" th:field="*{bookId}" th:classappend="${#fields.hasErrors('bookId')} ? 'is-invalid' : ''">
+                                    <option value="" disabled>-- Select an Available Book --</option>
+                                    <option th:each="book : ${availableBooks}" th:value="${book.id}" th:text="${book.title} + ' by ' + ${book.author}"></option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('bookId')}" th:errors="*{bookId}"></div>
+                            </div>
 
-        <!-- USER -->
-        <div>
-            <label>User Email:</label>
-            <div th:if="${predefined}">
-                <input type="text" th:value="${userEmail}" readonly />
-                <input type="hidden" th:field="*{userId}" />
-            </div>
-            <div th:unless="${predefined}">
-                <select th:field="*{userId}">
-                    <option value="">-- Select User --</option>
-                    <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.email}"></option>
-                </select>
+                            <div class="col-12">
+                                <label for="dueDate" class="form-label">Due Date</label>
+                                <input type="datetime-local" class="form-control" id="dueDate" th:field="*{dueDate}" th:classappend="${#fields.hasErrors('dueDate')} ? 'is-invalid' : ''"/>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('dueDate')}" th:errors="*{dueDate}"></div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a th:href="@{/loans}" class="btn btn-secondary"><i class="bi bi-x-circle"></i> Cancel</a>
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-journal-plus"></i> Create Loan</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-
-        <!-- BOOK -->
-        <div>
-            <label>Book:</label>
-            <div th:if="${predefined}">
-                <input type="text" th:value="${bookTitle}" readonly />
-                <input type="hidden" th:field="*{bookId}" />
-            </div>
-            <div th:unless="${predefined}">
-                <select th:field="*{bookId}">
-                    <option value="">-- Select Book --</option>
-                    <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title}"></option>
-                </select>
-            </div>
-        </div>
-
-        <!-- DUE DATE -->
-        <div>
-            <label>Due Date:</label>
-            <input type="date" th:field="*{dueDate}" />
-        </div>
-
-        <button type="submit">📄 Create Loan</button>
-    </form>
+    </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

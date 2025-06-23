@@ -16,11 +16,11 @@ public class Reservations {
     @GeneratedValue
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="book_id", nullable = false)
     private Book book;
 
@@ -29,21 +29,19 @@ public class Reservations {
     private ReservationStatus status = ReservationStatus.PENDING;
 
     @CreationTimestamp
-    @Column(nullable = false, name = "reserved_at")
+    @Column(nullable = false, name = "reserved_at", updatable = false)
     private LocalDateTime reservedAt;
 
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
-    @Column(name = "expires_at")
+    @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
 
     public enum ReservationStatus {
-        PENDING,
-        FULFILLED,
-        CANCELLED
+        PENDING,    // User has reserved, waiting for pickup
+        FULFILLED,  // User has picked up the book and a loan was created
+        CANCELLED,  // User manually cancelled the reservation
+        EXPIRED     // Reservation expired due to timeout
     }
-//    public String Email;
-//
-////    public String Email = user.getEmail();
 }

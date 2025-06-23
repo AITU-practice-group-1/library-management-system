@@ -2,6 +2,7 @@ package com.example.librarymanagementsystem.DTOs.book;
 
 
 import com.example.librarymanagementsystem.DTOs.feedback.FeedbackResponseDTO;
+import com.example.librarymanagementsystem.Repositories.BookRepository;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.util.Optional;
 @Getter
 @Setter
 public class BookDetailViewDTO {
-    private BookDTO book;
+    private BookResponseDTO book;
     private boolean isFavorite;
     private boolean hasUserReviewed;
     private Page<FeedbackResponseDTO> reviews;

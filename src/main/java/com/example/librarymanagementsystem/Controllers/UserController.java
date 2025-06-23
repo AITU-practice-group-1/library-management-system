@@ -4,8 +4,10 @@ import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.DTOs.Users.UserStatisticsBookDTO;
 import com.example.librarymanagementsystem.DTOs.reservations.ReservationsResponseDTO;
 import com.example.librarymanagementsystem.Services.EmailTokenService;
+import com.example.librarymanagementsystem.Services.ImageUploadService;
 import com.example.librarymanagementsystem.Services.ReservationsServices;
 import com.example.librarymanagementsystem.Services.UserServices;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -18,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,18 +28,20 @@ import java.util.UUID;
 
 @Controller
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController
 {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserServices userServices;
     private final EmailTokenService emailTokenService;
     private final ReservationsServices reservationsServices;
-    public UserController(UserServices userServices, EmailTokenService emailTokenService, ReservationsServices reservationsServices)
-    {
-        this.userServices = userServices;
-        this.emailTokenService = emailTokenService;
-        this.reservationsServices = reservationsServices;
-    }
+    private final ImageUploadService imageUploadService;
+//    public UserController(UserServices userServices, EmailTokenService emailTokenService, ReservationsServices reservationsServices)
+//    {
+//        this.userServices = userServices;
+//        this.emailTokenService = emailTokenService;
+//        this.reservationsServices = reservationsServices;
+//    }
     @GetMapping("/home")
     private String homePage(Model model){
         logger.info("User with email{} entered the home page. at endpoint: /users/home", SecurityContextHolder.getContext().getAuthentication().getName());
@@ -99,10 +104,14 @@ public class UserController
     }
 
     @PostMapping("/edit")
-    private String edit(@ModelAttribute("user") UserDTO dto, Model model){
+    private String edit(@RequestParam("image") MultipartFile file ,@ModelAttribute("user") UserDTO dto, Model model){
         logger.info("User with email {} posted information to  the edit page. at endpoint: /users/edit", SecurityContextHolder.getContext().getAuthentication().getName());
-        System.out.println(dto.getFirstName());
         try{
+            if(!file.isEmpty()){
+                String imageUrl = imageUploadService.uploadUserFile(file);
+                model.addAttribute("imageUrl", imageUrl);
+            }
+
             userServices.updateUser(dto);
         }
         catch (Exception e){
@@ -117,7 +126,7 @@ public class UserController
     {
         logger.info("User with email {} entered the profile page. at endpoint: /users/profile/{id}", SecurityContextHolder.getContext().getAuthentication().getName());
         try {
-            model.addAttribute("user", userServices.getUserById(id));
+            model.addAttribute("user", userServices.getUserDTOById(id));
             model.addAttribute("showStatistics", false);
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
@@ -140,7 +149,7 @@ public class UserController
     @GetMapping("librarian")
     private String librarianPage(Model model) throws Exception {
         logger.info("User with email {} entered the librarian page. at endpoint: /users/librarian", SecurityContextHolder.getContext().getAuthentication().getName());
-        List<ReservationsResponseDTO> reservations = reservationsServices.listAllWthEmail();
+        List<ReservationsResponseDTO> reservations = reservationsServices.listAllPending();
         model.addAttribute("reservations", reservations);
         return "user/librarian-home";
     }
@@ -178,5 +187,18 @@ public class UserController
         model.addAttribute("users", users);
         return "user/top-users";
     }
+
+//    @PostMapping("/upload")
+//    private String upload(@RequestParam("image") MultipartFile file, @ModelAttribute("user") UserDTO user,  Model model){
+//        try{
+//            String imageUrl = imageUploadService.uploadFile(file);
+//            model.addAttribute("imageUrl", imageUrl);
+//            model.addAttribute("user", user);
+//        }catch (Exception e){
+//            model.addAttribute("errorMessage", e.getMessage());
+//
+//        }
+//        return "user/user-edit";
+//    }
 
 }

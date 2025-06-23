@@ -1,95 +1,63 @@
 package com.example.librarymanagementsystem.Services.impl;
 
-import com.example.librarymanagementsystem.DTOs.book.BookDTO;
-import com.example.librarymanagementsystem.DTOs.book.TopFavoriteBookDTO;
-import com.example.librarymanagementsystem.DTOs.book.TopRatedBookDTO;
-import com.example.librarymanagementsystem.DTOs.book.BookDetailViewDTO;
-import com.example.librarymanagementsystem.DTOs.feedback.FeedbackResponseDTO;
+import com.example.librarymanagementsystem.DTOs.book.*;
 import com.example.librarymanagementsystem.Entities.Book;
-import com.example.librarymanagementsystem.util.Genre;
-import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.Services.BookService;
-import com.example.librarymanagementsystem.Services.FavoriteBookService;
-import com.example.librarymanagementsystem.Services.FeedbackService;
+import com.example.librarymanagementsystem.Services.ImageUploadService;
 import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
 import com.example.librarymanagementsystem.mapper.BookMapper;
-import com.example.librarymanagementsystem.mapper.BookMapperImpl;
+import com.example.librarymanagementsystem.util.Genre;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
+
     private final BookRepository bookRepository;
-
-    private final BookMapperImpl mapper;
-
+    private final BookMapper bookMapper;
+    private final ImageUploadService imageUploadService;
 
     @Override
     @Transactional
-    public BookDTO createBook(BookDTO bookDTO) {
-        Book book = mapper.toEntity(bookDTO);
+    public BookResponseDTO createBook(BookCreateDTO bookDTO) {
+        if (bookRepository.findByIsbn(bookDTO.getIsbn()).isPresent()) {
+            throw new DataIntegrityViolationException("A book with this ISBN already exists.");
+        }
+        Book book = bookMapper.toEntity(bookDTO);
+        // On creation, all copies are available.
         book.setAvailableCopies(book.getTotalCopies());
-        return mapper.toDTO(bookRepository.save(book));
-    }
-
-    @Override
-    public Page<BookDTO> findPaginatedAndFiltered(String keyword, Genre genre, Pageable pageable) {
-        Specification<Book> spec = (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                String lowerCaseKeyword = "%" + keyword.toLowerCase().trim() + "%";
-                Predicate titleLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), lowerCaseKeyword);
-                Predicate authorLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("author")), lowerCaseKeyword);
-                predicates.add(criteriaBuilder.or(titleLike, authorLike));
-            }
-
-            if (genre != null) {
-                predicates.add(criteriaBuilder.equal(root.get("genre"), genre));
-            }
-
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
-        return bookRepository.findAll(spec, pageable).map(mapper::toDTO);
+        Book savedBook = bookRepository.save(book);
+        return bookMapper.toResponseDTO(savedBook);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public BookDTO getBookById(UUID id) {
+    public BookResponseDTO getBookById(UUID id) {
         return bookRepository.findById(id)
-                .map(mapper::toDTO)
+                .map(bookMapper::toResponseDTO)
                 .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + id));
     }
 
     @Override
-    public List<BookDTO> getAllBooks() {
-        return bookRepository.findAll()
-                .stream()
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     @Transactional
-    public BookDTO updateBook(UUID id, BookDTO bookDTO) {
+    public BookResponseDTO updateBook(UUID id, BookUpdateDTO bookDTO) {
         if (bookRepository.existsByIsbnAndIdNot(bookDTO.getIsbn(), id)) {
             throw new DataIntegrityViolationException("Another book with this ISBN already exists.");
         }
@@ -97,56 +65,28 @@ public class BookServiceImpl implements BookService {
         Book existingBook = bookRepository.findById(id)
                 .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + id));
 
-        int booksCheckedOut = existingBook.getTotalCopies() - existingBook.getAvailableCopies();
-        if (bookDTO.getTotalCopies() < booksCheckedOut) {
-            throw new IllegalStateException("Total copies cannot be less than the number of currently checked-out books.");
+        int checkedOutCopies = existingBook.getTotalCopies() - existingBook.getAvailableCopies();
+        if (bookDTO.getTotalCopies() < checkedOutCopies) {
+            throw new IllegalStateException("Total copies cannot be less than the number of currently checked-out or reserved books (" + checkedOutCopies + ").");
         }
 
-        // Use the mapper to update the existing entity to avoid manual setters
-        mapper.updateEntityFromDto(bookDTO, existingBook);
-        existingBook.setAvailableCopies(bookDTO.getTotalCopies() - booksCheckedOut);
+        bookMapper.updateEntityFromDto(bookDTO, existingBook);
+        existingBook.setAvailableCopies(bookDTO.getTotalCopies() - checkedOutCopies);
 
         Book updatedBook = bookRepository.save(existingBook);
-        return mapper.toDTO(updatedBook);
+        return bookMapper.toResponseDTO(updatedBook);
     }
 
     @Override
     @Transactional
     public void deleteBook(UUID id) {
-        if (!bookRepository.existsById(id)) {
-            throw new BookNotFoundException("Cannot delete. Book not found with ID: " + id);
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException("Cannot delete. Book not found with ID: " + id));
+
+        if (book.getTotalCopies() != book.getAvailableCopies()) {
+            throw new IllegalStateException("Cannot delete a book that has copies currently on loan or reserved.");
         }
-        bookRepository.deleteById(id);
-    }
-
-
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<BookDTO> findAllAvailableBooks() {
-        return bookRepository.findAllAvailableBooks().stream().map(mapper::toDTO).collect(Collectors.toList());
-    }
-
-
-    @Override
-    @Transactional
-    public void lendBook(UUID bookId) {
-        int updatedRows = bookRepository.decrementAvailableCopiesById(bookId);
-        if (updatedRows == 0) {
-            if (!bookRepository.existsById(bookId)) {
-                throw new BookNotFoundException("Book not found with ID: " + bookId);
-            }
-            throw new IllegalStateException("No available copies of this book to lend.");
-        }
-    }
-
-    @Override
-    @Transactional
-    public void returnBook(UUID bookId) {
-        int updatedRows = bookRepository.incrementAvailableCopiesById(bookId);
-        if (updatedRows == 0) {
-            throw new BookNotFoundException("Cannot return a book that does not exist with ID: " + bookId);
-        }
+        bookRepository.delete(book);
     }
 
     @Override
@@ -156,19 +96,6 @@ public class BookServiceImpl implements BookService {
                 .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + bookId));
         book.addRating(rating);
         bookRepository.save(book);
-    }
-
-    @Override
-    @Transactional
-    public void updateBookRating(UUID bookId, Integer rating) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + bookId));
-
-        System.out.println(book.toString());
-        book.addRating(rating);
-        System.out.println(book);
-        bookRepository.save(book);
-
     }
 
     @Override
@@ -189,68 +116,131 @@ public class BookServiceImpl implements BookService {
         bookRepository.save(book);
     }
 
-    @Override
-    @Transactional
-    public void recalculateBookRatingOnUpdate(UUID bookId, int oldRating, int newRating) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + bookId));
+@Override
+@Transactional
+public void recalculateBookRatingOnDelete(UUID bookId, int ratingToRemove) {
+    Book book = bookRepository.findById(bookId)
+            .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + bookId));
 
+    long newRatingSum = book.getRatingSum() - ratingToRemove;
+    long newRatingCount = book.getRatingCount() - 1;
 
-        long newRatingSum = book.getRatingSum() - oldRating + newRating;
-        book.setRatingSum(newRatingSum);
+    book.setRatingSum(newRatingSum);
+    book.setRatingCount(newRatingCount);
 
-        if (book.getRatingCount() > 0) {
-            BigDecimal average = BigDecimal.valueOf(newRatingSum)
-                    .divide(BigDecimal.valueOf(book.getRatingCount()), 2, RoundingMode.HALF_UP);
-            book.setRatingAverage(average);
-        }
-
-        bookRepository.save(book);
+    if (newRatingCount > 0) {
+        BigDecimal average = BigDecimal.valueOf(newRatingSum)
+                .divide(BigDecimal.valueOf(newRatingCount), 2, RoundingMode.HALF_UP);
+        book.setRatingAverage(average);
+    } else {
+        book.setRatingAverage(BigDecimal.ZERO);
     }
-
+}
     @Override
-    @Transactional
-    public void recalculateBookRatingOnDelete(UUID bookId, int ratingToRemove) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + bookId));
+    public Page<BookResponseDTO> findPaginatedAndFiltered(String keyword, Genre genre, Pageable pageable) {
+        Specification<Book> spec = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
-        long newRatingSum = book.getRatingSum() - ratingToRemove;
-        long newRatingCount = book.getRatingCount() - 1;
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String lowerCaseKeyword = "%" + keyword.toLowerCase().trim() + "%";
+                Predicate titleLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), lowerCaseKeyword);
+                Predicate authorLike = criteriaBuilder.like(criteriaBuilder.lower(root.get("author")), lowerCaseKeyword);
+                predicates.add(criteriaBuilder.or(titleLike, authorLike));
+            }
 
-        book.setRatingSum(newRatingSum);
-        book.setRatingCount(newRatingCount);
+            if (genre != null) {
+                predicates.add(criteriaBuilder.equal(root.get("genre"), genre));
+            }
 
-        if (newRatingCount > 0) {
-            BigDecimal average = BigDecimal.valueOf(newRatingSum)
-                    .divide(BigDecimal.valueOf(newRatingCount), 2, RoundingMode.HALF_UP);
-            book.setRatingAverage(average);
-        } else {
-            book.setRatingAverage(BigDecimal.ZERO);
-        }
-
-        bookRepository.save(book);
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+        return bookRepository.findAll(spec, pageable).map(bookMapper::toResponseDTO);
     }
 
     public List<TopRatedBookDTO> getTopRatedBooks(int limit) {
+
         List<Object[]> results = bookRepository.findTopRatedBooks(limit);
+
         return results.stream().map(result -> {
+
             TopRatedBookDTO dto = new TopRatedBookDTO();
+
             dto.setId((UUID) result[0]);
+
             dto.setTitle((String) result[1]);
+
             dto.setRatingAverage(((Number) result[2]).doubleValue());
+
             return dto;
+
         }).collect(Collectors.toList());
     }
 
     public List<TopFavoriteBookDTO> getTopFavoriteBooks(int limit) {
+
         List<Object[]> results = bookRepository.findTopFavoriteBooks(limit);
+
         return results.stream().map(result -> {
+
             TopFavoriteBookDTO dto = new TopFavoriteBookDTO();
+
             dto.setId((UUID) result[0]);
+
             dto.setTitle((String) result[1]);
+
             dto.setFavoriteCount(((Number) result[2]).intValue());
+
             return dto;
+
         }).collect(Collectors.toList());
+
     }
 
-}
+
+    @Override
+    @Transactional
+    public BookResponseDTO createBook(BookCreateDTO bookDTO, MultipartFile imageFile) throws IOException {
+        if (bookRepository.findByIsbn(bookDTO.getIsbn()).isPresent()) {
+            throw new DataIntegrityViolationException("A book with this ISBN already exists.");
+        }
+        String[] urlAndId = imageUploadService.uploadFile(imageFile);
+
+        Book book = bookMapper.toEntity(bookDTO);
+        book.setImageUrl(urlAndId[0]);
+        book.setImageId(urlAndId[1]);
+        // On creation, all copies are available.
+        book.setAvailableCopies(book.getTotalCopies());
+        Book savedBook = bookRepository.save(book);
+        return bookMapper.toResponseDTO(savedBook);
+
+
+    }
+
+    @Override
+    @Transactional
+    public BookResponseDTO updateBook(UUID id, BookUpdateDTO bookDTO, MultipartFile file) throws IOException {
+        if (bookRepository.existsByIsbnAndIdNot(bookDTO.getIsbn(), id)) {
+            throw new DataIntegrityViolationException("Another book with this ISBN already exists.");
+        }
+
+        Book existingBook = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + id));
+
+        int checkedOutCopies = existingBook.getTotalCopies() - existingBook.getAvailableCopies();
+        if (bookDTO.getTotalCopies() < checkedOutCopies) {
+            throw new IllegalStateException("Total copies cannot be less than the number of currently checked-out or reserved books (" + checkedOutCopies + ").");
+        }
+
+        String[] urlAndId = imageUploadService.uploadBookFileWithId(file, existingBook.getImageId());
+
+        bookMapper.updateEntityFromDto(bookDTO, existingBook);
+        existingBook.setAvailableCopies(bookDTO.getTotalCopies() - checkedOutCopies);
+
+        existingBook.setImageUrl(urlAndId[0]);
+        existingBook.setImageId(urlAndId[1]);
+
+        Book updatedBook = bookRepository.save(existingBook);
+        return bookMapper.toResponseDTO(updatedBook);
+    }
+
+    }
