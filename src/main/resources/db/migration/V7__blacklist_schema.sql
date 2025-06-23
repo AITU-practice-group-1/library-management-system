@@ -1,4 +1,4 @@
-CREATE TABLE blacklist (
+CREATE TABLE IF NOT EXISTS blacklist (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id),
     reason TEXT NOT NULL,
