@@ -3,6 +3,7 @@ package com.example.librarymanagementsystem.Services;
 import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.DTOs.Users.UserStatisticsBookDTO;
 import com.example.librarymanagementsystem.Entities.User;
+import com.example.librarymanagementsystem.Repositories.BlacklistRepository;
 import com.example.librarymanagementsystem.Repositories.ReservationsRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Repositories.UserStatisticsBookRepository;
@@ -32,10 +33,10 @@ public class UserServices {
     //private final EmailService emailService ;
     private final NotificationSender notificationSender;
     private final UserStatisticsBookRepository userStatisticsBookRepository;
+    private final BlacklistRepository blacklistRepository;
 
 
     private static final Logger logger = LoggerFactory.getLogger(UserServices.class);
-
 
     public void register(UserDTO dto) throws Exception {
         User user = new User();
@@ -274,5 +275,11 @@ public class UserServices {
         }
 
     }
+    public boolean isUserBanned(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return !blacklistRepository.findByUserAndResolvedFalse(user).isEmpty();
+    }
+
 
 }

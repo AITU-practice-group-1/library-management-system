@@ -24,12 +24,14 @@
         <a th:href="@{/reservations(userId=${user.getId()})}" class="button-link">Мои бронирования</a>
         <a th:href="@{/favoriteBooks}" class="button-link">Избранное</a>
         <a th:href="@{/users/statistics/{id}(id=${user.getId()})}" class="button-link">Моя статистика</a>
-
+      
+    <div th:if="${user.getRole() == 'ROLE_ADMIN' or user.getRole() == 'ROLE_LIBRARIAN'}">
+        <a th:href="@{/blacklist}" class="button-link">Чёрный список</a>
+    </div>
         <a th:href="@{/users/edit}" class="button-link green">Изменить профиль</a>
         <form th:action="@{/logout}" method="post" style="display: inline;">
             <button type="submit" class="button-link red">Выйти</button>
         </form>
-
         <div th:if="${user.getRole() == 'ROLE_ADMIN'}" class="role-panel-link">
             <a th:href="@{/admin/home}" class="button-link">Панель администратора</a>
         </div>
