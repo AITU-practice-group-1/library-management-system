@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>2FA Аутентификация</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/user/factor.css}">
+</head>
+<body>
+<div class="twofa-wrapper">
+    <h1>Введите код из Google Authenticator</h1>
+
+    <form th:action="@{/auth}" method="post">
+        <input type="number" name="code" placeholder="123456" required>
+        <button type="submit">Подтвердить</button>
+    </form>
+
+    <div th:if="${param.error}" class="error">
+        Неверный код. Попробуйте снова.
+    </div>
+</div>
+</body>
+</html>

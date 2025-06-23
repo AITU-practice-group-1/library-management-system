@@ -47,6 +47,7 @@ public class AdminController {
         model.addAttribute("users", allUsersDefault);
         return "user/admin-home";
     }
+
     @GetMapping("/home/librarian")
     public String showLibrarianPage(Model model){
         List<User> allUsersLibrarian;

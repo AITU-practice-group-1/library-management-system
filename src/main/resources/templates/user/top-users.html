@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Top Users Of Library</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-top: 20px;
+        font-family: var(--font-family);
+    }
+
+    /* Заголовки */
+    thead {
+        background-color: var(--table-header);
+    }
+
+    thead th {
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-color);
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Строки */
+    tbody tr {
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.2s ease;
+    }
+
+    tbody tr:hover {
+        background-color: #f9f4ef;
+    }
+
+    /* Ячейки */
+    tbody td {
+        padding: 12px 16px;
+        color: var(--text-color);
+        vertical-align: middle;
+    }
+
+    /* Номер строки (#) */
+    tbody td:first-child {
+        text-align: center;
+        font-weight: bold;
+        color: var(--accent-color);
+    }
+
+</style>
+<body>
+<div th:replace="fragments/navbar::navbar"></div>
+<h1>🔥 Топ Пользователи Библиотеки 🔥</h1>
+<table>
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Email</th>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Прочтенно книг</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user, iterStat : ${users}">
+        <td th:text="${iterStat.count}"></td>
+        <td th:text="${user.email}"></td>
+        <td th:text="${user.firstName}"></td>
+        <td th:text="${user.lastName}"></td>
+        <td th:text="${user.totalRead}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

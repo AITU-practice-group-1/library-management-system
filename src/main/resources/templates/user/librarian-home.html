@@ -2,108 +2,201 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-    <title>Личный кабинет библиотекаря</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/user/user-home.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librarian Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
     <style>
-/*<!--        body {-->*/
-/*<!--            font-family: 'Segoe UI', sans-serif;-->*/
-/*<!--            margin: 0;-->*/
-/*<!--            padding: 0;-->*/
-/*<!--            background-color: #f0f2f5;-->*/
-/*<!--            color: #333;-->*/
-/*<!--        }-->*/
-
-/*<!--        header {-->*/
-/*<!--            background-color: #003366;-->*/
-/*<!--            color: white;-->*/
-/*<!--            padding: 20px;-->*/
-/*<!--            text-align: center;-->*/
-/*<!--        }-->*/
-
-/*<!--        h1 {-->*/
-/*<!--            margin: 0;-->*/
-/*<!--        }-->*/
-
-/*<!--        .container {-->*/
-/*<!--            padding: 30px;-->*/
-/*<!--        }-->*/
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        /* A little extra styling for the dashboard */
+        body {
+            background-color: #f8f9fa;
         }
-
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 56px 0 0; /* Height of navbar */
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
         }
-
-        th {
-            background-color: #003366;
-            color: white;
+        .sidebar-sticky {
+            position: relative;
+            top: 0;
+            height: calc(100vh - 56px);
+            padding-top: .5rem;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .no-reservations {
-            font-size: 18px;
-            padding: 20px;
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            border-radius: 5px;
-            margin-top: 20px;
+        .main-content {
+            margin-left: 220px; /* Same as sidebar width */
+            padding-top: 24px;
         }
     </style>
 </head>
 <body>
 
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<div th:replace="fragments/navbar::navbar"></div>
+<div class="container-fluid">
+    <div class="row">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" th:href="@{/users/librarian}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/books/manage}">
+                            <i class="bi bi-book"></i> Manage Books
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/loans}">
+                            <i class="bi bi-arrow-down-up"></i> Manage Loans
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/reservations/all}">
+                            <i class="bi bi-bookmark-star"></i> Manage Reservations
+                        </a>
+                    </li>
+                </ul>
 
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Admin Actions</span>
+                </h6>
+                <ul class="nav flex-column mb-2">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/admin/home}">
+                            <i class="bi bi-people"></i> User Management
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
-<header>
-    <h1>Панель библиотекаря</h1>
-</header>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2"><i class="bi bi-person-workspace"></i> Librarian Dashboard</h1>
+            </div>
 
-<div class="container">
-    <h2>Резервации пользователей</h2>
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title">Active Reservations</h5>
+                                    <h2 class="fw-bold" th:text="${#lists.size(reservations)}">0</h2>
+                                </div>
+                                <i class="bi bi-bookmark-star-fill" style="font-size: 3rem; opacity: 0.5;"></i>
+                            </div>
+                            <a th:href="@{/reservations/all}" class="text-white stretched-link">View all</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-success shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title">Total Active Loans</h5>
+                                    <h2 class="fw-bold" th:text="${activeLoansCount ?: 'N/A'}">0</h2>
+                                </div>
+                                <i class="bi bi-journal-arrow-up" style="font-size: 3rem; opacity: 0.5;"></i>
+                            </div>
+                            <a th:href="@{/loans}" class="text-white stretched-link">Manage loans</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-danger shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title">Overdue Books</h5>
+                                    <h2 class="fw-bold" th:text="${overdueCount ?: 'N/A'}">0</h2>
+                                </div>
+                                <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem; opacity: 0.5;"></i>
+                            </div>
+                            <a th:href="@{/loans(status='OVERDUE')}" class="text-white stretched-link">View overdue</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <div th:if="${#lists.isEmpty(reservations)}" class="no-reservations">
-        Нет активных резерваций.
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form th:action="@{/loans}" method="get" class="d-flex">
+                        <input class="form-control me-2" type="search" name="keyword" placeholder="Search loans by user email or book title..." aria-label="Search">
+                        <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(reservations)}" class="text-center p-5 mb-4 bg-white rounded-3 shadow-sm">
+                <i class="bi bi-bookmark-check" style="font-size: 4rem; color: #6c757d;"></i>
+                <h3 class="mt-3">No Active Reservations</h3>
+                <p class="text-muted">There are currently no pending user reservations to fulfill.</p>
+            </div>
+
+            <div th:if="${not #lists.isEmpty(reservations)}" class="card shadow-sm">
+                <div class="card-header">
+                    <h2 class="h5 mb-0"><i class="bi bi-clock-history"></i> Pending Reservations</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Book Title</th>
+                                <th>User Email</th>
+                                <th>Reserved At</th>
+                                <th>Expires At</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="res : ${reservations}">
+                                <td th:text="${res.bookTitle}">Book Title</td>
+                                <td th:text="${res.userEmail}">user@example.com</td>
+                                <td th:text="${res.reservedAt != null ? #temporals.format(res.reservedAt, 'yyyy-MM-dd HH:mm') : 'N/A'}">Date</td>
+                                <td th:text="${res.expiresAt != null ? #temporals.format(res.expiresAt, 'yyyy-MM-dd HH:mm') : 'N/A'}">Date</td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill"
+                                          th:text="${res.status}"
+                                          th:classappend="${res.status == 'PENDING'} ? 'bg-warning text-dark' : 'bg-secondary'">
+                                        PENDING
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <form th:action="@{/reservations/{id}/fulfill(id=${res.id})}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success">
+                                            <i class="bi bi-check-circle-fill"></i> Fulfill
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/reservations/{id}/cancel(id=${res.id})}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-x-circle"></i> Cancel
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
     </div>
-
-    <table th:if="${not #lists.isEmpty(reservations)}">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Книга</th>
-            <th>Пользователь</th>
-            <th>Дата бронирования</th>
-            <th>Статус</th>
-            <th>Loan</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="res : ${reservations}">
-            <td th:text="${res.id}"></td>
-            <td th:text="${res.bookTitle}">Название книги</td>
-            <td th:text="${res.email}">Имя пользователя</td>
-            <td th:text="${res.reservedAt}">Дата начала</td>
-            <td th:text="${res.status}">Статус</td>
-            <td><a th:href="@{/loans/create-from-reservation/{id}(id = ${res.id})}"><button>Loan</button></a></td>
-        </tr>
-        </tbody>
-    </table>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

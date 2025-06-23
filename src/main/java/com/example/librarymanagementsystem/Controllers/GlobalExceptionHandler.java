@@ -1,9 +1,6 @@
 package com.example.librarymanagementsystem.Controllers;
 
-import com.example.librarymanagementsystem.exceptions.FeedbackAlreadyExistsException;
-import com.example.librarymanagementsystem.exceptions.FeedbackNotFoundException;
-import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
-import com.example.librarymanagementsystem.exceptions.ReservationNotFoundException;
+import com.example.librarymanagementsystem.exceptions.*;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -56,6 +53,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ReservationNotFoundException.class)
     public String handleReservationNotFoundException(ReservationNotFoundException ex, Model model) {
+        model.addAttribute("errorMessage", ex.getMessage());
+        return "error";
+    }
+
+    @ExceptionHandler(NotEnoughBooksException.class)
+    public String handleNotEnoughBooks(NotEnoughBooksException ex, Model model) {
         model.addAttribute("errorMessage", ex.getMessage());
         return "error";
     }

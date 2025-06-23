@@ -76,6 +76,15 @@ public class UserServices {
         userDTO.setFirstName(userDetails.getFirstName());
         userDTO.setLastName(userDetails.getLastName());
         userDTO.setId(userDetails.getId());
+
+        if(userDetails.getImageUrl() != null)
+        {
+            userDTO.setImageUrl(userDetails.getImageUrl());
+        }
+        if(userDetails.getImageId() != null)
+        {
+            userDTO.setImageId(userDetails.getImageId());
+        }
         return userDTO;
     }
 
@@ -94,13 +103,30 @@ public class UserServices {
     public User getUserById(UUID id) throws Exception {
         User user;
         try {
-            user = userRepository.findById(id).orElseThrow(() -> new Exception("User not found"));
+            user  = userRepository.findById(id).orElseThrow(() -> new Exception("User not found"));
             logger.info("Successfully got user by id: {}", id);
         }catch (Exception e){
             logger.error("Error getting user by id: {} \n {}", id, e.getMessage());
             throw new Exception("CAn not get User by Id" + e.getMessage());
         }
         return user;
+    }
+    public UserDTO getUserDTOById(UUID id) throws Exception {
+        UserDTO dto = new UserDTO() ;
+        try {
+            User user = userRepository.findById(id).orElseThrow(() -> new Exception("User not found"));
+            dto.setFirstName(user.getFirstName());
+            dto.setLastName(user.getLastName());
+            dto.setEmail(user.getEmail());
+            dto.setRole(user.getRole());
+            dto.setId(user.getId());
+            dto.setImageUrl(user.getImageUrl());
+            logger.info("Successfully got userDto by id: {}", id);
+        }catch (Exception e){
+            logger.error("Error getting userDto by id: {} \n {}", id, e.getMessage());
+            throw new Exception("CAn not get User by Id" + e.getMessage());
+        }
+        return dto;
     }
     public Optional<User> getUserByEmail(String email) throws Exception {
         Optional<User> user;
@@ -145,6 +171,12 @@ public class UserServices {
             }
             if(dto.getLastName() != null){
                 user.setLastName(dto.getLastName());
+            }
+            if(dto.getImageUrl() != null){
+                user.setImageUrl(dto.getImageUrl());
+            }
+            if(dto.getImageId() != null){
+                user.setImageId(dto.getImageId());
             }
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);
@@ -228,6 +260,19 @@ public class UserServices {
             logger.error("Error getting all read books of the user: {} \n", e.getMessage());
             throw new RuntimeException("CAn not get read books of the user \n"  + e.getMessage());
         }
+    }
+
+    public List<UserDTO> lisTopUsers(Pageable pageable)
+    {
+        try{
+            List<UserDTO> users = userRepository.findTopUsers(pageable);
+            logger.info("Successfully got top users");
+            return users;
+        }catch (Exception e){
+            logger.error("Error getting top users: {} \n", e.getMessage());
+            throw new RuntimeException("CAn not get top users \n"  + e.getMessage());
+        }
+
     }
 
 }

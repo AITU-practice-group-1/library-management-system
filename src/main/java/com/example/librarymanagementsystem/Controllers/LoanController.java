@@ -33,30 +33,35 @@ import java.util.UUID;
 public class LoanController {
 
     private final LoanServices loanServices;
-    private final UserRepository userRepository;
-    private final ReservationsRepository reservationsRepository;
-    private final BookRepository bookRepository;
+    private final UserServices userServices;
     private final NotificationSender notificationSender;
+  
+
+//    @GetMapping
+//    public String listAllLoans(Model model) {
+//        // This endpoint should be for librarians/admins to see all loans
+//        List<LoanResponseDTO> loans = loanServices.findAll();
+//        model.addAttribute("loans", loans);
+//        model.addAttribute("canEdit", true); // Assuming this view is for authorized staff
+//        return "loan/list";
+//    }
+
 
     @GetMapping
-    public String listLoans(Model model, Principal principal) {
-        var user = userRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
+    public String showAllLoans(@RequestParam(value = "keyword", required = false) String keyword,
+                               @PageableDefault(size = 10, sort = "issueDate", direction = Sort.Direction.DESC) Pageable pageable,
+                               Model model) {
+        // Call the new service method to get paginated and filtered results
+        Page<LoanResponseDTO> loanPage = loanServices.findAllWithSearch(keyword, pageable);
 
-        List<LoanDTO> loans;
-        boolean canEdit = user.getRole().equals("ADMIN") || user.getRole().equals("LIBRARIAN");
+        model.addAttribute("loans", loanPage.getContent()); // The list of loans for the current page
+        model.addAttribute("loanPage", loanPage); // The full page object for pagination controls
+        model.addAttribute("keyword", keyword); // Pass the keyword back to the view to keep it in the search bar
 
-        if (canEdit) {
-            loans = loanServices.findAll();
-        } else {
-            loans = loanServices.getLoansByUserId(user.getId());
-        }
-
-        model.addAttribute("loans", loans);
-        model.addAttribute("canEdit", canEdit);
-        return "loan/list";
+        return "all-loans"; // The name of your new Thymeleaf template
     }
-
+  
     @PostMapping("{id}/notify")
     public String notifyUser(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
         LoanDTO loan = loanServices.findById(id);
@@ -65,96 +70,64 @@ public class LoanController {
         return "redirect:/loans";
     }
 
-    @GetMapping("/search")
+    @GetMapping("/my-loans")
+    public String listMyLoans(Model model) throws Exception {
+        var userDto = userServices.getAuthenticatedUser();
+        List<LoanResponseDTO> loans = loanServices.getLoansByUserId(userDto.getId());
+        model.addAttribute("loans", loans);
+        model.addAttribute("canEdit", false); // Users cannot edit their own loans
+        return "loan/list";
+    }
+
+    @GetMapping("/{id}/return")
     @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
-    public String searchApprovedForm() {
-        return "loan/search"; // форма ввода email
+    public String returnLoanForm(@PathVariable UUID id, Model model) {
+        LoanResponseDTO loan = loanServices.findById(id);
+        LoanUpdateDTO updateDTO = new LoanUpdateDTO();
+        updateDTO.setStatus(Loan.LoanStatus.RETURNED); // Pre-populate the status for return
+
+        model.addAttribute("loan", loan);
+        model.addAttribute("updateDTO", updateDTO);
+        return "loan/return"; // A specific view for returning a book
     }
 
-    @PostMapping("/search")
+    @PostMapping("/{id}/return")
     @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
-    public String searchApprovedReservations(@RequestParam String email, Model model) {
-        List<Reservations> reservations = reservationsRepository
-                .findByUserEmailAndStatus(email, Reservations.ReservationStatus.FULFILLED);
-
-        model.addAttribute("reservations", reservations);
-        model.addAttribute("email", email);
-        return "loan/reservation-list";
+    public String processReturn(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
+        try {
+            // The service logic already handles incrementing the book's available copies
+            LoanUpdateDTO updateDTO = new LoanUpdateDTO();
+            updateDTO.setStatus(Loan.LoanStatus.RETURNED);
+            loanServices.updateLoan(id, updateDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Book returned successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error processing return: " + e.getMessage());
+        }
+        return "redirect:/loans"; // Redirect back to the main loan list
     }
 
-    @GetMapping("/create")
-    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
-    public String createLoanForm(Model model) {
-        model.addAttribute("loan", new LoanDTO());
-        model.addAttribute("books", bookRepository.findAll());
-        model.addAttribute("users", userRepository.findAll());
-        return "loan/create";
-    }
-
-    @GetMapping("/create-from-reservation/{reservationId}")
-    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
-    public String createLoanFromReservation(@PathVariable UUID reservationId, Model model) {
-        Reservations res = reservationsRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
-
-        LoanDTO loanDTO = new LoanDTO();
-        loanDTO.setUserId(res.getUser().getId());
-        loanDTO.setBookId(res.getBook().getId());
-        loanDTO.setIssueDate(LocalDateTime.now());
-
-        model.addAttribute("loan", loanDTO);
-        model.addAttribute("userEmail", res.getUser().getEmail());
-        model.addAttribute("bookTitle", res.getBook().getTitle());
-        model.addAttribute("predefined", true); // флаг, чтобы в шаблоне понять откуда вызов
-        return "loan/create";
-    }
-
-    @PostMapping("/create")
-    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
-    public String createLoan(@Valid @ModelAttribute("loan") LoanDTO loanDTO, Principal principal) {
-        var librarian = userRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new RuntimeException("Librarian not found"));
-
-        loanDTO.setIssuedBy(librarian.getId());
-        loanServices.createLoan(loanDTO);
-
-        return "redirect:/loans";
-    }
-
-
-
-
-    @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public String findLoanById(@PathVariable UUID id, Model model) {
-        model.addAttribute("loan", loanServices.findById(id));
-        return "loan/detail";
-    }
 
     @GetMapping("/{id}/edit")
     @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
     public String editLoanForm(@PathVariable UUID id, Model model) {
-        var loanDTO = loanServices.findById(id); // LoanDTO
+        var loanDTO = loanServices.findById(id);
         LoanUpdateDTO updateDTO = new LoanUpdateDTO();
         updateDTO.setDueDate(loanDTO.getDueDate());
-        updateDTO.setStatus(Loan.LoanStatus.valueOf(loanDTO.getStatus()));
 
-        model.addAttribute("loan", loanDTO); // для отображения инфо
-        model.addAttribute("updateDTO", updateDTO); // для формы редактирования
+        model.addAttribute("loan", loanDTO);
+        model.addAttribute("updateDTO", updateDTO);
         return "loan/edit";
     }
 
-
     @PostMapping("/{id}/edit")
     @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
-    public String updateLoan(@PathVariable UUID id, @ModelAttribute("updateDTO") LoanUpdateDTO updateDTO) {
-        loanServices.updateLoan(id, updateDTO);
+    public String updateLoan(@PathVariable UUID id, @Valid @ModelAttribute("updateDTO") LoanUpdateDTO updateDTO, RedirectAttributes redirectAttributes) {
+        try {
+            loanServices.updateLoan(id, updateDTO);
+            redirectAttributes.addFlashAttribute("successMessage", "Loan updated successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Failed to update loan: " + e.getMessage());
+        }
         return "redirect:/loans";
     }
-
-
-
-
-
-
 }

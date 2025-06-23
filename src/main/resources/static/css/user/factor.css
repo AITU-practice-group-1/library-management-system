@@ -1,0 +1,71 @@
+.twofa-wrapper {
+    max-width: 500px;
+    margin: 80px auto;
+    background-color: white;
+    padding: 32px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.twofa-wrapper h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: var(--accent-color);
+}
+
+.twofa-wrapper p {
+    margin-bottom: 16px;
+}
+
+.twofa-wrapper .qr {
+    width: 200px;
+    height: 200px;
+    margin: 20px auto;
+    display: block;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 8px;
+    background: #fffaf0;
+}
+
+.twofa-wrapper form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.twofa-wrapper input[type="number"],
+.twofa-wrapper input[type="text"] {
+    padding: 10px;
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius);
+    font-size: 16px;
+}
+
+.twofa-wrapper .btn,
+.twofa-wrapper button {
+    background-color: var(--button-bg);
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.twofa-wrapper .btn:hover,
+.twofa-wrapper button:hover {
+    background-color: var(--button-hover);
+}
+
+.twofa-wrapper .error {
+    color: red;
+    margin-top: 10px;
+}
+
+.twofa-wrapper .success {
+    color: green;
+    font-weight: bold;
+}
