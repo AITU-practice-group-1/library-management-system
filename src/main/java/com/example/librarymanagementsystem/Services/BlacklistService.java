@@ -21,7 +21,7 @@ public class BlacklistService {
     private final LoanRepository loanRepository;
 
     // Ежедневная проверка просроченных книг
-    @Scheduled(cron = "0 0 2 * * *") // каждый день в 2:00
+    @Scheduled(fixedRate = 30000) // каждый день в 2:00
     public void analyzeAndUpdateBlacklist() {
         List<Loan> overdueLoans = loanRepository.findAllByDueDateBeforeAndStatus(
                 LocalDateTime.now(), Loan.LoanStatus.BORROWED
@@ -53,6 +53,34 @@ public class BlacklistService {
     public List<BlacklistEntry> getActiveBlacklistedUsers() {
         return blacklistRepository.findAllByResolvedFalse();
     }
+    public boolean isUserBanned(User user) {
+        // количество всех записей (включая resolved)
+        List<BlacklistEntry> allEntries = blacklistRepository.findAllByUser(user);
+
+        // активные записи (ещё не закрыты)
+        List<BlacklistEntry> activeEntries = blacklistRepository.findByUserAndResolvedFalse(user);
+
+        // Правило блокировки:
+        return activeEntries.size() > 0 || allEntries.size() >= 3;
+    }
+    public void banUserManually(User user, String reason) {
+        BlacklistEntry entry = BlacklistEntry.builder()
+                .user(user)
+                .reason(reason)
+                .daysOverdue(0)
+                .resolved(false)
+                .build();
+        blacklistRepository.save(entry);
+    }
+
+    public void unbanUser(User user) {
+        List<BlacklistEntry> entries = blacklistRepository.findByUserAndResolvedFalse(user);
+        for (BlacklistEntry entry : entries) {
+            entry.setResolved(true);
+        }
+        blacklistRepository.saveAll(entries);
+    }
+
 }
 
 

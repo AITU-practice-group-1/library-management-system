@@ -5,6 +5,7 @@ import com.example.librarymanagementsystem.DTOs.LoanUpdateDTO;
 import com.example.librarymanagementsystem.Entities.Book;
 import com.example.librarymanagementsystem.Entities.Loan;
 import com.example.librarymanagementsystem.Entities.User;
+import com.example.librarymanagementsystem.Repositories.BlacklistRepository;
 import com.example.librarymanagementsystem.Repositories.LoanRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Repositories.BookRepository;
@@ -26,10 +27,15 @@ public class LoanServices {
     private final LoanRepository loanRepository;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
+    private final BlacklistService blacklistService;
     private final LoanMapper loanMapper;
     public LoanDTO createLoan(LoanDTO dto){
         var user = userRepository.findById(dto.getUserId())
                 .orElseThrow(()-> new RuntimeException("User not found"));
+        if (blacklistService.isUserBanned(user)) {
+            throw new RuntimeException("User is banned.");
+        }
+
         var book = bookRepository.findById(dto.getBookId())
                 .orElseThrow(() -> new BookNotFoundException("Book with ID " + dto.getBookId() + " not found"));
         var issuedBy = userRepository.findById(dto.getIssuedBy())

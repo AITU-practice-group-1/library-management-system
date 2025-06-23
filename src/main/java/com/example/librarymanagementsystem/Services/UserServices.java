@@ -3,9 +3,11 @@ package com.example.librarymanagementsystem.Services;
 import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.DTOs.Users.UserStatisticsBookDTO;
 import com.example.librarymanagementsystem.Entities.User;
+import com.example.librarymanagementsystem.Repositories.BlacklistRepository;
 import com.example.librarymanagementsystem.Repositories.ReservationsRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Repositories.UserStatisticsBookRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,23 +24,17 @@ import java.util.UUID;
 
 
 @Service
+@RequiredArgsConstructor
 public class UserServices {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final  EmailTokenService emailTokenService;
     private final EmailService emailService ;
     private final UserStatisticsBookRepository userStatisticsBookRepository;
+    private final BlacklistRepository blacklistRepository;
 
 
     private static final Logger logger = LoggerFactory.getLogger(UserServices.class);
-    public UserServices(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailTokenService emailTokenService, EmailService emailService, UserStatisticsBookRepository userStatisticsBookRepository, ReservationsRepository reservationsRepository)
-    {
-        this.emailService = emailService;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.emailTokenService = emailTokenService;
-        this.userStatisticsBookRepository = userStatisticsBookRepository;
-    }
 
     public void register(UserDTO dto) throws Exception {
         User user = new User();
@@ -260,5 +256,11 @@ public class UserServices {
         }
 
     }
+    public boolean isUserBanned(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return !blacklistRepository.findByUserAndResolvedFalse(user).isEmpty();
+    }
+
 
 }

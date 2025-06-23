@@ -8,6 +8,7 @@ import com.example.librarymanagementsystem.Repositories.BookRepository;
 import com.example.librarymanagementsystem.exceptions.BookNotFoundException;
 import com.example.librarymanagementsystem.exceptions.ReservationNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,17 +21,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ReservationsServices {
 
     private static final Logger logger = LoggerFactory.getLogger(ReservationsServices.class);
 
     private final ReservationsRepository reservationsRepository;
     private final BookRepository bookRepository;
-
-    public ReservationsServices(ReservationsRepository reservationsRepository, BookRepository bookRepository) {
-        this.reservationsRepository = reservationsRepository;
-        this.bookRepository = bookRepository;
-    }
+    private final UserServices userServices;
 
     public void create(ReservationsRequestDTO dto, User user) {
         logger.info("Creating reservation for user: {} and bookId: {}", user.getEmail(), dto.getBookId());
@@ -39,7 +37,9 @@ public class ReservationsServices {
                     logger.error("Book with id {} not found", dto.getBookId());
                     return new BookNotFoundException("Book not found with ID: " + dto.getBookId());
                 });
-
+        if (userServices.isUserBanned(user.getId())) {
+            throw new IllegalStateException("User is banned and cannot borrow books.");
+        }
         Reservations reservation = new Reservations();
         reservation.setBook(book);
         reservation.setUser(user);
