@@ -35,12 +35,6 @@ public class ReservationsServices {
     private final UserServices userServices;
     private final LoanServices loanService; // Inject LoanService to create a loan
 
-    public ReservationsServices(ReservationsRepository reservationsRepository, BookRepository bookRepository, LoanServices loanService) {
-        this.reservationsRepository = reservationsRepository;
-        this.bookRepository = bookRepository;
-        this.loanService = loanService;
-    }
-
     @Transactional
     public Reservations create(ReservationsRequestDTO dto, User user) throws BookNotAvailableException {
         logger.info("Creating reservation for user: {} and bookId: {}", user.getEmail(), dto.getBookId());
