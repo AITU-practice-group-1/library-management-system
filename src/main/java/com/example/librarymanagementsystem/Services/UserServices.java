@@ -6,6 +6,8 @@ import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.ReservationsRepository;
 import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Repositories.UserStatisticsBookRepository;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,23 +24,18 @@ import java.util.UUID;
 
 
 @Service
+@RequiredArgsConstructor
 public class UserServices {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final  EmailTokenService emailTokenService;
-    private final EmailService emailService ;
+    //private final EmailService emailService ;
+    private final NotificationSender notificationSender;
     private final UserStatisticsBookRepository userStatisticsBookRepository;
 
 
     private static final Logger logger = LoggerFactory.getLogger(UserServices.class);
-    public UserServices(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailTokenService emailTokenService, EmailService emailService, UserStatisticsBookRepository userStatisticsBookRepository, ReservationsRepository reservationsRepository)
-    {
-        this.emailService = emailService;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.emailTokenService = emailTokenService;
-        this.userStatisticsBookRepository = userStatisticsBookRepository;
-    }
+
 
     public void register(UserDTO dto) throws Exception {
         User user = new User();
@@ -61,7 +58,8 @@ public class UserServices {
         try {
             emailTokenService.saveToken(token, user);
             String link = "http://localhost:8080/users/confirm?token=" + token;
-            emailService.sendEmail(user.getEmail(), "Confirm your email", "Click: " + link);
+            //emailService.sendEmail(user.getEmail(), "Confirm your email", "Click: " + link);
+            notificationSender.sendNotification(user.getEmail(), "Confirm your email", "Click: " + link);
             logger.info("User with email {} registered with no confirm yet", user.getEmail());
         }catch (Exception e){
             logger.error("Error saving email token: {} \n {}", user.getEmail(), e.getMessage());

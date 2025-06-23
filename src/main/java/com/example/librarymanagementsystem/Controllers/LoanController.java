@@ -1,22 +1,29 @@
 package com.example.librarymanagementsystem.Controllers;
 
-import com.example.librarymanagementsystem.DTOs.LoanResponseDTO;
+import com.example.librarymanagementsystem.DTOs.LoanDTO;
 import com.example.librarymanagementsystem.DTOs.LoanUpdateDTO;
 import com.example.librarymanagementsystem.Entities.Loan;
+import com.example.librarymanagementsystem.Entities.Reservations;
+import com.example.librarymanagementsystem.Repositories.BookRepository;
+import com.example.librarymanagementsystem.Repositories.LoanRepository;
+import com.example.librarymanagementsystem.Repositories.ReservationsRepository;
+import com.example.librarymanagementsystem.Repositories.UserRepository;
 import com.example.librarymanagementsystem.Services.LoanServices;
-import com.example.librarymanagementsystem.Services.UserServices;
+import com.example.librarymanagementsystem.Services.NotificationSender;
+import com.example.librarymanagementsystem.Services.ReservationsServices;
+import com.example.librarymanagementsystem.Services.impl.KafkaNotificationSender;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +34,8 @@ public class LoanController {
 
     private final LoanServices loanServices;
     private final UserServices userServices;
+    private final NotificationSender notificationSender;
+  
 
 //    @GetMapping
 //    public String listAllLoans(Model model) {
@@ -51,6 +60,14 @@ public class LoanController {
         model.addAttribute("keyword", keyword); // Pass the keyword back to the view to keep it in the search bar
 
         return "all-loans"; // The name of your new Thymeleaf template
+    }
+  
+    @PostMapping("{id}/notify")
+    public String notifyUser(@PathVariable UUID id, Model model, RedirectAttributes redirectAttributes) {
+        LoanDTO loan = loanServices.findById(id);
+        notificationSender.notifyDueDate(loan.getUserEmail(),loan.getBookTitle(), loan.getBookAuthor(), loan.getDueDate().atStartOfDay());
+        redirectAttributes.addFlashAttribute("notifiedId", loan.getId());
+        return "redirect:/loans";
     }
 
     @GetMapping("/my-loans")

@@ -24,9 +24,8 @@ public class LoanDTO {
 
     private UUID reservationId;
 
-
     private String userEmail;
     private String bookTitle;
+    private String bookAuthor;
     private String issuedByEmail;
 }
-
