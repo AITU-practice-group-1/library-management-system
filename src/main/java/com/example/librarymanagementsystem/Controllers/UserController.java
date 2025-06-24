@@ -124,17 +124,29 @@ public class UserController
     }
 
     @GetMapping("/profile/{id}")
-    private String profile(@PathVariable UUID id, Model model)
+    private String profile(@PathVariable UUID id, Model model, @PageableDefault(size = 10) Pageable pageable)
     {
-        logger.info("User with email {} entered the profile page. at endpoint: /users/profile/{id}", SecurityContextHolder.getContext().getAuthentication().getName());
+        logger.info("User with email {} entered the profile page. at endpoint: /users/profile/{id}",
+                SecurityContextHolder.getContext().getAuthentication().getName());
+
         try {
-            model.addAttribute("user", userServices.getUserDTOById(id));
-            model.addAttribute("showStatistics", false);
+            UserDTO userDTO = userServices.getUserDTOById(id);
+            boolean isBanned = userServices.isUserBanned(id);
+
+            model.addAttribute("user", userDTO);
+            model.addAttribute("isBanned", isBanned);
+            model.addAttribute("showStatistics", true);
+
+            model.addAttribute("reservedBooks", userServices.getAllReservedBooksOfTheUser(id, pageable));
+            model.addAttribute("loanedBooks", userServices.getAllLoanedBooksOfTheUser(id, pageable));
+            model.addAttribute("readBooks", userServices.getAllReadBooksOfTheUser(id, pageable));
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
         }
-        return "user/profile";
+
+        return "user/profile"; // или "user/user-profile", если так называется шаблон
     }
+
 
     @GetMapping("/confirm")
     private String confirm(@RequestParam("token") String token, Model model)

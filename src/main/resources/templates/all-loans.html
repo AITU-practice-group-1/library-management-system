@@ -22,7 +22,7 @@
                 <h1 class="display-5 fw-bold"><i class="bi bi-collection-fill"></i> Manage All Loans</h1>
                 <p class="fs-5 text-muted">View, search, and process returns for all loans in the system.</p>
             </div>
-            <a th:href="@{/loans/create-direct}" class="btn btn-primary btn-lg" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
+            <a th:href="@{/loans/create}" class="btn btn-primary btn-lg" sec:authorize="hasAnyRole('ADMIN', 'LIBRARIAN')">
                 <i class="bi bi-plus-circle-fill"></i> Create Direct Loan
             </a>
         </div>
