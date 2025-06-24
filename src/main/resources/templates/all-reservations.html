@@ -2,8 +2,9 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Your Reservations</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/reservations/reservations.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+<!--     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/reservations/reservations.css"> -->
 </head>
 <body>
 <div th:replace="fragments/navbar::navbar"></div>

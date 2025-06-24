@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="navbar">
-    <nav>
+    <nav >
         <div class="nav-container"
              th:if="${#authentication.authenticated and #authentication.name != 'anonymousUser'}"
              th:data-user-id="${#authentication.principal.id}">

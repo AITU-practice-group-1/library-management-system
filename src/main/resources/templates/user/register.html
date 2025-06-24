@@ -4,8 +4,11 @@
     <title>Add User</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/user/login.css">
 </head>
 <body>
+<div th:replace="fragments/navbar::navbar"></div>
+
 <div class="form-container">
     <h1>Add User</h1>
     <form th:action="@{/users/register}" th:object="${user}" method="post">

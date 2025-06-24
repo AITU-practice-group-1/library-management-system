@@ -69,6 +69,7 @@
         <th>Имя</th>
         <th>Фамилия</th>
         <th>Прочтенно книг</th>
+        <th> Профиль </th>
     </tr>
     </thead>
     <tbody>
@@ -78,6 +79,9 @@
         <td th:text="${user.firstName}"></td>
         <td th:text="${user.lastName}"></td>
         <td th:text="${user.totalRead}"></td>
+        <td>
+            <a th:href="@{/users/profile/{id}(id=${user.getId()})}" class="user-link">View Profile</a>
+        </td>
     </tr>
     </tbody>
 </table>
