@@ -1,5 +1,7 @@
 package com.example.librarymanagementsystem.Configuration;
 
+import com.example.librarymanagementsystem.Entities.TwoFactorAuthData;
+import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.TwoFactorAuthRepository;
 import com.example.librarymanagementsystem.Services.CustomUserDetailsService;
 import com.example.librarymanagementsystem.Services.SessionStore;
@@ -82,7 +84,9 @@ public class SecurityConfiguration {
                                 "/css/**",  // <-- FIX
                                 "/js/**",   // <-- FIX
                                 "/forgot-password",
-                                "reset-password"
+                                "reset-password",
+                                "/auth",
+                                "/2fa/setup"
                         ).permitAll()
                         .requestMatchers("/ban/**", "/unban/**").hasAnyRole("ADMIN", "LIBRARIAN")
                         .requestMatchers("/admin/**").hasRole("ADMIN") // Good practice to use /admin/**
@@ -95,6 +99,32 @@ public class SecurityConfiguration {
                                 .successHandler((request, response, authentication) -> {
                                     HttpSession session = request.getSession();
                                     UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                                    com.example.librarymanagementsystem.Entities.User user =
+                                            customUserDetailsService.loadDomainUserByUsername(userDetails.getUsername());
+
+                                    if (user.getRole().equalsIgnoreCase("ADMIN")) {
+                                        TwoFactorAuthData data = twoFactorAuthRepository.findByUser(user).orElse(null);
+
+                                        SecurityContextHolder.clearContext();
+                                        session.removeAttribute("SPRING_SECURITY_CONTEXT");
+                                        session.setAttribute("tempUser", user.getEmail());
+
+                                        if (data == null) {
+                                            logger.info("Admin {} has no 2FA setup. Redirecting to setup page.", user.getEmail());
+                                            response.sendRedirect("/2fa/setup");
+                                            return;
+                                        }
+
+                                        if (!data.isEnabled()) {
+                                            logger.info("Admin {} has 2FA entry but it's disabled. Redirecting to setup.", user.getEmail());
+                                            response.sendRedirect("/2fa/setup");
+                                            return;
+                                        }
+
+                                        logger.info("Admin {} has active 2FA. Redirecting to code entry.", user.getEmail());
+                                        response.sendRedirect("/auth");
+                                        return;
+                                    }
                                     String deviceInfo = request.getRemoteAddr() + " | " + request.getHeader("User-Agent");
                                     logger.info("User {} logged in successfully from {}", userDetails.getUsername(), deviceInfo);
                                     sessionStore.registerNewSession(userDetails.getUsername(), session.getId(), deviceInfo);

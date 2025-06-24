@@ -1,18 +1,40 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
-<div th:fragment="admin-sidebar">
-  <aside class="sidebar" style="padding: 1rem; background-color: #f5f5f5; border-left: 1px solid #ddd;">
-    <h2>Меню</h2>
-    <ul style="list-style: none; padding-left: 0;">
-      <li><a href="/home/default">👥 Все пользователи</a></li>
-      <li><a href="/home/librarian">📚 Библиотекари</a></li>
-      <li><a href="/books">📖 Список книг</a></li>
-      <li><a href="/users">🧑‍💼 Пользователи</a></li>
-      <li><a href="/review-reports">🚨 Жалобы</a></li>
-      <li><a href="/logout" class="logout-link">🔓 Выйти</a></li>
+<!-- fragments/sidebar.html -->
+<div th:fragment="sidebar">
+  <div class="d-flex flex-column align-items-start p-3 min-vh-100 shadow-sm"
+       style="background-color: var(--nav-bg); border-right: 1px solid #ddd;">
+
+    <a href="/" class="d-flex align-items-center mb-3 text-decoration-none">
+      <span class="fs-4 fw-bold" style="color: var(--accent-color);">Library Panel</span>
+    </a>
+
+    <ul class="nav nav-pills flex-column mb-auto w-100">
+      <li class="nav-item">
+        <a href="/users/librarian" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-speedometer2 me-2"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/books/manage" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-book me-2"></i> Manage Books
+        </a>
+      </li>
+      <li>
+        <a href="/loans" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-arrow-down-up me-2"></i> Loans
+        </a>
+      </li>
+      <li>
+        <a href="/reservations/all" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-bookmark-star me-2"></i> Reservations
+        </a>
+      </li>
+      <li>
+        <a href="/admin/home" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-people me-2"></i> Users
+        </a>
+      </li>
     </ul>
-  </aside>
+
+    <hr class="w-100">
+  </div>
 </div>
-</body>
-</html>

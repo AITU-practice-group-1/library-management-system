@@ -1,137 +1,71 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+/* --- Секция списка резервов --- */
+
+.reservations-section {
+    background-color: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    margin-top: 32px;
 }
 
-nav {
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-}
-
-.nav-left {
-    display: flex;
-    align-items: center;
-}
-
-.logo a {
-    text-decoration: none;
-    font-size: 24px;
-    color: var(--text-color);
-}
-
-.nav-links {
-    list-style: none;
-    display: flex;
-    margin-left: 20px;
-}
-
-.nav-links li {
-    margin-right: 15px;
-}
-
-.nav-link {
-    text-decoration: none;
-    color: var(--text-color);
-}
-
-.nav-right form {
-    display: inline;
-}
-
-h1 {
-    text-align: center;
-    margin: 20px 0;
+.reservations-section h1 {
+    margin-bottom: 20px;
+    font-size: 28px;
     color: var(--accent-color);
 }
 
-form {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+/* --- Форма поиска --- */
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
 }
 
-form label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: var(--text-color);
-}
-
-input[type="text"],
-input[type="hidden"] {
-    width: calc(100% - 22px);
-    padding: 10px;
-    margin-bottom: 20px;
+.search-form input[type="text"] {
+    padding: 8px 14px;
     border: 1px solid var(--input-border);
-    border-radius: 6px;
+    border-radius: var(--radius);
+    flex: 1;
+    max-width: 320px;
     font-size: 14px;
-    background-color: #fff;
 }
 
-button {
-    padding: 10px 20px;
-    background-color: var(--button-bg);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: var(--button-hover);
-}
-
-hr {
-    margin: 30px 0;
-    border: none;
-    border-top: 1px solid #ccc;
-}
-
-ul {
+/* --- Список резервов --- */
+.reservations-list {
     list-style: none;
     padding: 0;
-    max-width: 600px;
-    margin: 0 auto;
+    margin: 0;
 }
 
-li {
-    margin-bottom: 16px;
-    background: #f9f9f9;
-    padding: 12px;
-    border-radius: 8px;
+.reservations-list li {
+    background-color: var(--table-header);
+    border: 1px solid #ddd;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 6px;
 }
 
-li span {
-    flex: 1;
-}
-
-.book-title {
-    font-weight: bold;
+/* --- Подписи --- */
+.reservations-list li span {
+    display: inline-block;
+    font-size: 14px;
     color: var(--text-color);
 }
 
-.status {
-    font-style: italic;
-    color: #7f8c8d;
+.reservations-list li strong {
+    font-weight: 600;
+    color: var(--accent-color);
 }
 
-.timestamp {
-    font-size: 12px;
-    color: #999;
+/* --- Пустой результат --- */
+.no-results {
+    font-size: 16px;
+    color: #888;
+    text-align: center;
+    padding: 40px 0;
 }

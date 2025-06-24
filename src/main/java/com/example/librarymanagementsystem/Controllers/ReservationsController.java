@@ -62,13 +62,6 @@ public class ReservationsController {
         return "reservations";
     }
 
-    @GetMapping("/all")
-    public String listAll(Model model) {
-        List<ReservationsResponseDTO> reservations = reservationsServices.listAll();
-        model.addAttribute("reservations", reservations);
-        return "all-reservations";
-    }
-
     @PostMapping("/{id}/cancel")
     public String cancel(@PathVariable UUID id, RedirectAttributes redirectAttributes) {
         try {
@@ -94,5 +87,21 @@ public class ReservationsController {
         }
         return "redirect:/reservations/all";
     }
+    @GetMapping("/all")
+    public String listAll(@RequestParam(required = false) String keyword, Model model) {
+        List<ReservationsResponseDTO> reservations;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            reservations = reservationsServices.searchByEmailOrBookTitle(keyword.trim());
+            model.addAttribute("keyword", keyword);
+        } else {
+            reservations = reservationsServices.listAll();
+        }
+
+        model.addAttribute("reservations", reservations);
+        return "all-reservations";
+    }
+
+
 
 }
