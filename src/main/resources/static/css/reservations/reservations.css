@@ -1,29 +1,77 @@
-.container {
-    background: white;
-    padding: 40px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    width: 600px;
-    text-align: center;
-    margin: 40px auto;
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
 }
 
-.container h1 {
-    margin-bottom: 24px;
-    color: var(--accent-color);
+nav {
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.container form label {
-    display: block;
-    text-align: left;
-    font-weight: bold;
-    margin-bottom: 8px;
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo a {
+    text-decoration: none;
+    font-size: 24px;
     color: var(--text-color);
 }
 
-.container input[type="text"],
-.container input[type="hidden"] {
-    width: 100%;
+.nav-links {
+    list-style: none;
+    display: flex;
+    margin-left: 20px;
+}
+
+.nav-links li {
+    margin-right: 15px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-color);
+}
+
+.nav-right form {
+    display: inline;
+}
+
+h1 {
+    text-align: center;
+    margin: 20px 0;
+    color: var(--accent-color);
+}
+
+form {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+input[type="text"],
+input[type="hidden"] {
+    width: calc(100% - 22px);
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid var(--input-border);
@@ -32,40 +80,45 @@
     background-color: #fff;
 }
 
-.container button {
+button {
     padding: 10px 20px;
     background-color: var(--button-bg);
     color: white;
     border: none;
-    border-radius: var(--radius);
+    border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-.container button:hover {
+button:hover {
     background-color: var(--button-hover);
 }
 
-.container hr {
+hr {
     margin: 30px 0;
     border: none;
     border-top: 1px solid #ccc;
 }
 
-.container ul {
+ul {
     list-style: none;
     padding: 0;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-.container li {
+li {
     margin-bottom: 16px;
     background: #f9f9f9;
     padding: 12px;
     border-radius: 8px;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    justify-content: space-between;
+}
+
+li span {
+    flex: 1;
 }
 
 .book-title {

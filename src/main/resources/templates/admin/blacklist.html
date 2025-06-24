@@ -3,6 +3,7 @@
 <head>
   <title>Чёрный список</title>
   <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/user/blacklist.css">
 </head>
 <body>
 <div th:replace="fragments/navbar :: navbar"></div>
@@ -10,6 +11,12 @@
 <div class="container">
   <h2>📛 Чёрный список пользователей</h2>
 
+  <form method="get" th:action="@{/blacklist}">
+    <input type="text" name="search" placeholder="Поиск по имени или email" th:value="${search}">
+    <button type="submit">Поиск</button>
+  </form>
+
+  <h3>Забаненные пользователи</h3>
   <table>
     <thead>
     <tr>
@@ -18,15 +25,46 @@
       <th>Дней просрочки</th>
       <th>Причина</th>
       <th>Дата добавления</th>
+      <th>Действие</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="entry : ${entries}">
+    <tr th:each="entry : ${bannedEntries}">
       <td th:text="${entry.user.firstName + ' ' + entry.user.lastName}"></td>
       <td th:text="${entry.user.email}"></td>
-      <td th:text="${entry.daysOverdue}"></td>
-      <td th:text="${entry.reason}"></td>
-      <td th:text="${#temporals.format(entry.addedAt, 'dd.MM.yyyy')}"></td>
+      <td th:text="${entry.daysOverdue}">0</td>
+      <td th:text="${entry.reason}">-</td>
+      <td th:text="${#temporals.format(entry.addedAt, 'dd.MM.yyyy')}">-</td>
+      <td>
+        <form th:action="@{'/unban/' + ${entry.user.id}}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <button type="submit">Разбанить</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top: 40px;">📄 История нарушений</h3>
+  <table>
+    <thead>
+    <tr>
+      <th>Имя</th>
+      <th>Email</th>
+      <th>Дней просрочки</th>
+      <th>Причина</th>
+      <th>Дата добавления</th>
+      <th>Решено</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="entry : ${historyEntries}">
+      <td th:text="${entry.user.firstName + ' ' + entry.user.lastName}"></td>
+      <td th:text="${entry.user.email}"></td>
+      <td th:text="${entry.daysOverdue}">0</td>
+      <td th:text="${entry.reason}">-</td>
+      <td th:text="${#temporals.format(entry.addedAt, 'dd.MM.yyyy')}">-</td>
+      <td th:text="${entry.resolved ? '✔' : '✖'}"></td>
     </tr>
     </tbody>
   </table>

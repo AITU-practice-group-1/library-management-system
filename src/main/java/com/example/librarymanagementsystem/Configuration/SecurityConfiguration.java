@@ -84,6 +84,7 @@ public class SecurityConfiguration {
                                 "/forgot-password",
                                 "reset-password"
                         ).permitAll()
+                        .requestMatchers("/ban/**", "/unban/**").hasAnyRole("ADMIN", "LIBRARIAN")
                         .requestMatchers("/admin/**").hasRole("ADMIN") // Good practice to use /admin/**
                         .anyRequest().authenticated()
                 )

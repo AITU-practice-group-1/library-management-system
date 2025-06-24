@@ -278,7 +278,7 @@ public class UserServices {
     public boolean isUserBanned(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return !blacklistRepository.findByUserAndResolvedFalse(user).isEmpty();
+        return user.isBanned();
     }
 
 

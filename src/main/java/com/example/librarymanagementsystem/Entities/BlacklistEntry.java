@@ -25,8 +25,11 @@ public class BlacklistEntry {
 
     private long daysOverdue;
 
-    private boolean resolved = false;
+    @Column(name = "is_ban")
+    private boolean isBan;
 
+    @Column(name = "resolved")
+    private boolean resolved = false;
     private LocalDateTime addedAt;
 
     @PrePersist

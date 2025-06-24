@@ -31,6 +31,8 @@ public class User implements UserDetails {
     private String role;
     @Column(nullable = false, name = "is_active")
     private boolean isActive;
+    @Column(name = "is_banned")
+    private boolean isBanned;
     @Column(name = "created_at",  updatable = false)
     private LocalDateTime createdAt;
 
