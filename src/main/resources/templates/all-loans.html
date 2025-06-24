@@ -55,6 +55,7 @@
                         <th>Due Date</th>
                         <th class="text-center">Status</th>
                         <th class="text-center">Action</th>
+                        <th> Get Contract </th>
                         <!--                        <th class="text-center">Notify</th>-->
                     </tr>
                     </thead>
@@ -91,6 +92,11 @@
                             <p th:if="${notifiedId == loan.getId()}" class="success">
                                 Notification sent to user</p>
 
+                        </td>
+                        <td>
+                            <a th:href="@{/loans/contract/download(loanId=${loan.id})}" class="btn btn-primary">
+                                <i class="bi bi-file-earmark-pdf"></i> Download Contract
+                            </a>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(loans)}">

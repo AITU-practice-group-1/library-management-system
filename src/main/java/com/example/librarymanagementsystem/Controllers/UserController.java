@@ -21,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -64,7 +65,7 @@ public class UserController
 
     @Validated
     @PostMapping("/register")
-    private String login(@Valid @ModelAttribute("user") UserDTO dto, BindingResult bindingResult, Model model){
+    private String login(@Valid @ModelAttribute("user") UserDTO dto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes){
         logger.info("User posted information to  the register page. at endpoint: /users/register");
         if(bindingResult.hasErrors()){
             logger.info("User entered invalid information to  the register page. at endpoint: /users/register");
@@ -81,6 +82,7 @@ public class UserController
             model.addAttribute("errorMessage", e.getMessage());
             return "user/register";
         }
+        redirectAttributes.addFlashAttribute("successRegistration", "You registered successfully, please check your email to activate your account!");
         return "redirect:/users/login";
     }
 

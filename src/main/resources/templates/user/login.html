@@ -10,6 +10,9 @@
 <div class="page-center">
     <div class="login-container">
         <h1>Войти</h1>
+        <div th:if="${successRegistration}" style="color: green;">
+            <p th:text="${successRegistration}"></p>
+        </div>
         <form th:action="@{/users/login}" method="post">
             <label>Логин:
                 <input type="text" name="username" required/>
@@ -28,6 +31,7 @@
         <a th:href="@{/users/register}"><button>Регистрация</button></a>
         <p th:if="${param.error}" class="message">Неверный логин или пароль.</p>
         <p th:if="${param.logout}" class="message logout-msg">Вы вышли из системы.</p>
+
     </div>
 </div>
 </body>

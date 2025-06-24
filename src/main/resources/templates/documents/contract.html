@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Library Loan Contract</title>
+    <style type="text/css">
+        body {
+            font-family: "Times New Roman", serif;
+            margin: 60px;
+            font-size: 14pt;
+            line-height: 1.6;
+            color: #000;
+        }
+        .header {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .header-logo {
+            display: table-cell;
+            width: 100px;
+            vertical-align: middle;
+        }
+        .header-title {
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .line {
+            border-top: 2px solid black;
+            margin: 20px 0;
+        }
+        h1 {
+            text-transform: uppercase;
+            font-size: 22pt;
+            margin: 0;
+        }
+        .section {
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        td {
+            padding: 8px;
+            border: 1px solid #000;
+        }
+        .signature {
+            margin-top: 60px;
+        }
+        .signature-block {
+            margin-top: 50px;
+            display: table;
+            width: 100%;
+        }
+        .signature-cell {
+            display: table-cell;
+            text-align: center;
+            vertical-align: top;
+            width: 50%;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 80%;
+            margin: 0 auto;
+            padding-top: 5px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-logo">
+        <img src="../static/images/logo.png" alt="Library Logo" width="80" height="80" />
+    </div>
+    <div class="header-title">
+        <h1>Library Loan Contract</h1>
+    </div>
+</div>
+
+<div class="line"></div>
+
+<div class="section">
+    This Loan Contract ("Contract") is made and entered into on <strong th:text="${now}">June 23, 2025</strong>,
+    by and between the Library and the Borrower.
+</div>
+
+<div class="section">
+    <strong>Borrower Information</strong>
+    <table>
+        <tr>
+            <td>First Name</td>
+            <td th:text="${user.firstName}">John</td>
+        </tr>
+        <tr>
+            <td>Last Name</td>
+            <td th:text="${user.lastName}">Doe</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td th:text="${user.email}">john.doe@example.com</td>
+        </tr>
+        <tr>
+            <td>User ID</td>
+            <td th:text="${user.id}">123456</td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <strong>Book Information</strong>
+    <table>
+        <tr>
+            <td>Title</td>
+            <td th:text="${book.title}">The Lord of the Rings</td>
+        </tr>
+        <tr>
+            <td>Author</td>
+            <td th:text="${book.author}">J.R.R. Tolkien</td>
+        </tr>
+        <tr>
+            <td>ISBN</td>
+            <td th:text="${book.isbn}">978-3-16-148410-0</td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <strong>Loan Details</strong>
+    <table>
+        <tr>
+            <td>Loan ID</td>
+            <td th:text="${loan.id}">loan-7890</td>
+        </tr>
+        <tr>
+            <td>Borrowed At</td>
+            <td th:text="${loan.issueDate}">June 23, 2025</td>
+        </tr>
+        <tr>
+            <td>Due Date</td>
+            <td th:text="${loan.dueDate}">July 7, 2025</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td th:text="${loan.status}">ACCEPTED</td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <strong>Terms and Conditions:</strong><br />
+    The Borrower agrees to return the borrowed book in good condition by the due date listed above.
+    Failure to do so may result in penalties, including but not limited to suspension of borrowing privileges or fines.
+    This contract is binding and serves as confirmation of the loan agreement between the Library and the Borrower.
+</div>
+
+<div class="signature">
+    <div class="signature-block">
+        <p><strong>Verify this contract:</strong></p>
+        <img th:src="${qrCode}" alt="QR Code" width="150" height="150" />
+    </div>
+</div>
+
+</body>
+</html>
