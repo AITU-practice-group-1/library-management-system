@@ -23,13 +23,13 @@
                     <h1 class="h3 mb-0"><i class="bi bi-person-check"></i> Create Direct Loan (Walk-in)</h1>
                 </div>
                 <div class="card-body p-4 p-md-5">
-                    <form th:action="@{/loans/create-direct}" th:object="${loanRequest}" method="post" novalidate>
+                    <form th:action="@{/loans/create}" th:object="${loanRequest}" method="post" novalidate>
                         <div class="row g-4">
                             <div class="col-12">
                                 <label for="userId" class="form-label">User</label>
                                 <select id="userId" class="form-select" th:field="*{userId}" th:classappend="${#fields.hasErrors('userId')} ? 'is-invalid' : ''">
-                                    <option value="" disabled>-- Select User --</option>
-                                    <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.fullName} + ' (' + ${user.email} + ')'"></option>
+                                    <option value="" disabled selected>-- Select User --</option>
+                                    <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.firstName} + ' (' + ${user.email} + ')'"></option>
                                 </select>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
                             </div>
@@ -37,7 +37,7 @@
                             <div class="col-12">
                                 <label for="bookId" class="form-label">Book</label>
                                 <select id="bookId" class="form-select" th:field="*{bookId}" th:classappend="${#fields.hasErrors('bookId')} ? 'is-invalid' : ''">
-                                    <option value="" disabled>-- Select an Available Book --</option>
+                                    <option value="" disabled selected>-- Select Book --</option>
                                     <option th:each="book : ${availableBooks}" th:value="${book.id}" th:text="${book.title} + ' by ' + ${book.author}"></option>
                                 </select>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('bookId')}" th:errors="*{bookId}"></div>
@@ -45,13 +45,13 @@
 
                             <div class="col-12">
                                 <label for="dueDate" class="form-label">Due Date</label>
-                                <input type="datetime-local" class="form-control" id="dueDate" th:field="*{dueDate}" th:classappend="${#fields.hasErrors('dueDate')} ? 'is-invalid' : ''"/>
+                                <input type="datetime-local" class="form-control" id="dueDate"
+                                       th:field="*{dueDate}" th:classappend="${#fields.hasErrors('dueDate')} ? 'is-invalid' : ''"/>
                                 <div class="invalid-feedback" th:if="${#fields.hasErrors('dueDate')}" th:errors="*{dueDate}"></div>
                             </div>
                         </div>
 
                         <hr class="my-4">
-
                         <div class="d-flex justify-content-end gap-2">
                             <a th:href="@{/loans}" class="btn btn-secondary"><i class="bi bi-x-circle"></i> Cancel</a>
                             <button type="submit" class="btn btn-primary"><i class="bi bi-journal-plus"></i> Create Loan</button>

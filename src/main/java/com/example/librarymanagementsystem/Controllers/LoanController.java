@@ -1,8 +1,15 @@
 package com.example.librarymanagementsystem.Controllers;
 
+import com.example.librarymanagementsystem.DTOs.loan.LoanDTO;
+import com.example.librarymanagementsystem.DTOs.loan.LoanRequestDTO;
 import com.example.librarymanagementsystem.DTOs.loan.LoanResponseDTO;
 import com.example.librarymanagementsystem.DTOs.loan.LoanUpdateDTO;
 import com.example.librarymanagementsystem.Entities.Loan;
+import com.example.librarymanagementsystem.Entities.Reservations;
+import com.example.librarymanagementsystem.Repositories.BookRepository;
+import com.example.librarymanagementsystem.Repositories.ReservationsRepository;
+import com.example.librarymanagementsystem.Repositories.UserRepository;
+import com.example.librarymanagementsystem.Services.BookService;
 import com.example.librarymanagementsystem.Services.LoanServices;
 import com.example.librarymanagementsystem.Services.NotificationSender;
 import com.example.librarymanagementsystem.Services.UserServices;
@@ -15,9 +22,12 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,7 +38,11 @@ public class LoanController {
 
     private final LoanServices loanServices;
     private final UserServices userServices;
+    private final BookRepository bookRepository;
     private final NotificationSender notificationSender;
+    private final ReservationsRepository reservationsRepository;
+    private final UserRepository userRepository;
+
   
 
 //    @GetMapping
@@ -99,6 +113,53 @@ public class LoanController {
         }
         return "redirect:/loans"; // Redirect back to the main loan list
     }
+    @GetMapping("/create")
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
+    public String createLoanForm(Model model) {
+        model.addAttribute("loanRequest", new LoanRequestDTO());
+        model.addAttribute("availableBooks", bookRepository.findAll());
+        model.addAttribute("users", userRepository.findAll());
+        return "loan/create";
+    }
+
+
+    @GetMapping("/create-from-reservation/{reservationId}")
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
+    public String createLoanFromReservation(@PathVariable UUID reservationId, Model model) {
+        Reservations res = reservationsRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+
+        LoanDTO loanDTO = new LoanDTO();
+        loanDTO.setUserId(res.getUser().getId());
+        loanDTO.setBookId(res.getBook().getId());
+        loanDTO.setIssueDate(LocalDateTime.now());
+
+        model.addAttribute("loan", loanDTO);
+        model.addAttribute("userEmail", res.getUser().getEmail());
+        model.addAttribute("bookTitle", res.getBook().getTitle());
+        model.addAttribute("predefined", true); // флаг, чтобы в шаблоне понять откуда вызов
+        return "loan/create";
+    }
+
+    @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('LIBRARIAN', 'ADMIN')")
+    public String createLoan(@Valid @ModelAttribute("loanRequest") LoanRequestDTO loanRequest,
+                             BindingResult result,
+                             Principal principal,
+                             Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("users", userRepository.findAll());
+            model.addAttribute("availableBooks", bookRepository.findAll());
+            return "loan/create";
+        }
+
+        var librarian = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Librarian not found"));
+
+        loanServices.createLoan(loanRequest, librarian);
+        return "redirect:/loans";
+    }
+
 
 
     @GetMapping("/{id}/edit")

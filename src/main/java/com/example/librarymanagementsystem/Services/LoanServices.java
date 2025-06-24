@@ -5,11 +5,9 @@ import com.example.librarymanagementsystem.DTOs.loan.LoanResponseDTO;
 import com.example.librarymanagementsystem.DTOs.loan.LoanUpdateDTO;
 import com.example.librarymanagementsystem.Entities.Book;
 import com.example.librarymanagementsystem.Entities.Loan;
+import com.example.librarymanagementsystem.Entities.Reservations;
 import com.example.librarymanagementsystem.Entities.User;
-import com.example.librarymanagementsystem.Repositories.BlacklistRepository;
-import com.example.librarymanagementsystem.Repositories.BookRepository;
-import com.example.librarymanagementsystem.Repositories.LoanRepository;
-import com.example.librarymanagementsystem.Repositories.UserRepository;
+import com.example.librarymanagementsystem.Repositories.*;
 import com.example.librarymanagementsystem.exceptions.LoanNotFoundException;
 import com.example.librarymanagementsystem.mapper.LoanMapper;
 import jakarta.persistence.criteria.Predicate;
@@ -39,6 +37,7 @@ public class LoanServices {
     private final BookRepository bookRepository;
     private final BlacklistService blacklistService;
     private final LoanMapper loanMapper;
+    private final ReservationsRepository reservationsRepository;
     
     @Transactional
     public LoanResponseDTO createLoan(LoanRequestDTO dto, User librarian) {
@@ -47,10 +46,10 @@ public class LoanServices {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Book book = bookRepository.findById(dto.getBookId())
                 .orElseThrow(() -> new RuntimeException("Book not found"));
-        if (blacklistService.isUserBanned(user)) {
+        if (blacklistService.isUserBanned(user.getId())) {
             throw new RuntimeException("User is banned.");
         }
-        // Note: We assume book availability was handled by the Reservations service.
+        // Note: We assume book availability was han dled by the Reservations service.
         // For a direct loan (no reservation), a check should be performed here.
 
         Loan loan = new Loan();
@@ -64,7 +63,34 @@ public class LoanServices {
         logger.info("Loan created successfully with ID: {}", savedLoan.getId());
         return loanMapper.toResponseDto(savedLoan);
     }
-      
+
+    @Transactional
+    public LoanResponseDTO createLoanFromReservation(UUID reservationId, User librarian) {
+        logger.info("Creating loan from reservation ID: {}", reservationId);
+
+        Reservations res = reservationsRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+
+        User user = res.getUser();
+        Book book = res.getBook();
+
+        if (blacklistService.isUserBanned(user.getId())) {
+            throw new RuntimeException("User is banned.");
+        }
+
+        Loan loan = new Loan();
+        loan.setUser(user);
+        loan.setBook(book);
+        loan.setIssuedBy(librarian);
+        loan.setDueDate(LocalDateTime.now().plusWeeks(2)); // или откуда-то ещё берётся срок
+        loan.setStatus(Loan.LoanStatus.BORROWED);
+
+        Loan savedLoan = loanRepository.save(loan);
+        logger.info("Loan created from reservation successfully: {}", savedLoan.getId());
+
+        return loanMapper.toResponseDto(savedLoan);
+    }
+
     @Transactional
     public LoanResponseDTO updateLoan(UUID loanId, LoanUpdateDTO dto) {
         logger.info("Updating loan with ID: {}", loanId);
