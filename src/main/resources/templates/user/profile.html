@@ -95,21 +95,14 @@
             </tbody>
         </table>
     </div>
-    <div th:if="${isBanned}">
-        <p style="color: red;"><strong>Пользователь в черном списке</strong></p>
-        <form th:action="@{'/unban/' + ${user.id}}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <button type="submit">Разбанить</button>
-        </form>
-    </div>
-    <div th:unless="${isBanned}">
-        <form th:action="@{'/ban/' + ${user.id}}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <label>Причина:</label>
-            <input type="text" name="reason" required />
-            <button type="submit">Забанить</button>
-        </form>
-    </div>
+    <div th:if="${isBanned} and ${#authentication.getPrincipal().role != 'DEFAULT'}">
+        <p style="color: red;"><strong>Пользователь в черном списке</strong></p>    <form th:action="@{'/unban/' + ${user.id}}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />        <button type="submit">Разбанить</button>
+    </form></div>
+    <div th:if="${!isBanned} and ${#authentication.getPrincipal().role != 'DEFAULT'}">    <form th:action="@{'/ban/' + ${user.id}}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />        <label>Причина:</label>
+        <input type="text" name="reason" required />        <button type="submit">Забанить</button>
+    </form></div>
 
 </div>
 </body>

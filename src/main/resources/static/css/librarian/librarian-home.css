@@ -1,0 +1,12 @@
+.btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+}
+
+.navbar {
+    background-color: var(--nav-bg);
+    color: var(--nav-text);
+}

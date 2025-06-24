@@ -1,0 +1,20 @@
+.nav-link {
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: var(--radius);
+    transition: background-color 0.2s ease;
+}
+
+.nav-link:hover {
+    background-color: var(--accent-color);
+    color: white !important;
+}
+
+.nav-link.active {
+    background-color: var(--accent-hover);
+    color: white !important;
+}
+.sidebar {
+    width: 250px;
+    flex-shrink: 0;
+}

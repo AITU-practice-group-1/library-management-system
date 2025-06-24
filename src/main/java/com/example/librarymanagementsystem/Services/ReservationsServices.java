@@ -212,5 +212,15 @@ public class ReservationsServices {
         return dto;
     }
 
+    public List<ReservationsResponseDTO> searchByEmailOrBookTitle(String keyword) {
+        logger.info("Searching reservations by keyword: {}", keyword);
+
+        return reservationsRepository
+                .findByUserEmailContainingIgnoreCaseOrBookTitleContainingIgnoreCase(keyword, keyword)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
 
 }
