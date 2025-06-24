@@ -35,10 +35,10 @@ public class AdminController {
     }
 
     @GetMapping("/home/default")
-    public String showDefaultPage(Model model){
-        List<User> allUsersDefault;
+    public String showDefaultPage(Model model, @PageableDefault(size = 10) Pageable pageable){
+        Page<User> allUsersDefault;
         try{
-            allUsersDefault = userServices.getAllUsersByRole("DEFAULT");
+            allUsersDefault = userServices.getAllUsersByRole("DEFAULT", pageable);
         }
         catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());
@@ -49,10 +49,10 @@ public class AdminController {
     }
 
     @GetMapping("/home/librarian")
-    public String showLibrarianPage(Model model){
-        List<User> allUsersLibrarian;
+    public String showLibrarianPage(Model model, @PageableDefault(size = 10) Pageable pageable){
+        Page<User> allUsersLibrarian;
         try{
-            allUsersLibrarian = userServices.getAllUsersByRole("LIBRARIAN");
+            allUsersLibrarian = userServices.getAllUsersByRole("LIBRARIAN", pageable);
         }
         catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());

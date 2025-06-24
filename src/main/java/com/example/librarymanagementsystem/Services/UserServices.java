@@ -204,10 +204,10 @@ public class UserServices {
         return allUsers;
     }
 
-    public List<User> getAllUsersByRole(String role) throws Exception {
-        List<User> allUsersByRole;
+    public Page<User> getAllUsersByRole(String role, Pageable pageable) throws Exception {
+        Page<User> allUsersByRole;
         try{
-            allUsersByRole = userRepository.findByRole(role);
+            allUsersByRole = userRepository.findByRole(role, pageable);
         }
         catch (Exception e)
         {

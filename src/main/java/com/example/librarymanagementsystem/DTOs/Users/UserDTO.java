@@ -28,6 +28,13 @@ public class UserDTO {
 
     }
 
+    public UserDTO(UUID id, String email, String firstName, String lastName) {
+        this.id = id;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     public UserDTO(UUID id, String email, String firstName, String lastName, Long totalRead) {
         this.id = id;
         this.email = email;
@@ -35,12 +42,7 @@ public class UserDTO {
         this.lastName = lastName;
         this.totalRead = totalRead;
     }
-    public UserDTO(UUID id, String email, String firstName, String lastName) {
-        this.id = id;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
+
 
     public UserDTO(UUID id, String email, String firstName, String lastName, String role, String password, String imageUrl, String imageId) {
         this.id = id;
