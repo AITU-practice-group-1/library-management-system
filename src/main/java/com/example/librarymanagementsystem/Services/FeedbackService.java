@@ -38,14 +38,16 @@ public class FeedbackService {
     private final BookService bookService;
     private final UserServices userService;
     private final BookRepository bookRepository;
+    private final BlacklistService blacklistService;
 
     @Autowired
-    public FeedbackService(FeedbackRepository feedbackRepo, FeedbackMapper feedbackMapper, BookService bookService, UserServices userService, BookRepository bookRepository) {
+    public FeedbackService(FeedbackRepository feedbackRepo, FeedbackMapper feedbackMapper, BookService bookService, UserServices userService, BookRepository bookRepository, BlacklistService blacklistService) {
         this.feedbackRepo = feedbackRepo;
         this.feedbackMapper = feedbackMapper;
         this.bookService = bookService;
         this.userService = userService;
         this.bookRepository = bookRepository;
+        this.blacklistService = blacklistService;
     }
 
     public FeedbackResponseDTO getById(UUID id) {
@@ -83,6 +85,10 @@ public class FeedbackService {
     @Transactional
     public FeedbackResponseDTO createFeedback(FeedbackRequestDTO feedbackRequestDTO, User user) {
         logger.info("Creating feedback for book ID: {} by user ID: {}", feedbackRequestDTO.getBookId(), user.getId());
+
+        if (blacklistService.isUserBanned(user.getId())) {
+            throw new RuntimeException("User is banned.");
+        }
 
         if (feedbackRepo.existsByBookIdAndUserId(feedbackRequestDTO.getBookId(), user.getId())) {
             logger.error("Feedback already exists for book ID: {} by user ID: {}", feedbackRequestDTO.getBookId(), user.getId());
