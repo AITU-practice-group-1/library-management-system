@@ -34,6 +34,7 @@ import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatche
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 
 @Configuration
@@ -55,11 +56,7 @@ public class SecurityConfiguration {
     @Autowired
     private TwoFactorAuthRepository twoFactorAuthRepository;
 
-    @Autowired
-    private Admin2FAFilter admin2FAFilter;
-
     @Bean
-
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
@@ -105,25 +102,21 @@ public class SecurityConfiguration {
                                     if (user.getRole().equalsIgnoreCase("ADMIN")) {
                                         TwoFactorAuthData data = twoFactorAuthRepository.findByUser(user).orElse(null);
 
-                                        SecurityContextHolder.clearContext();
-                                        session.removeAttribute("SPRING_SECURITY_CONTEXT");
-                                        session.setAttribute("tempUser", user.getEmail());
+                                        // --- START OF MODIFIED LOGIC ---
+                                        // Only redirect to 2FA verification if it has been set up AND is enabled.
+                                        if (data != null && data.isEnabled()) {
+                                            logger.info("Admin {} has active 2FA. Redirecting to code entry.", user.getEmail());
 
-                                        if (data == null) {
-                                            logger.info("Admin {} has no 2FA setup. Redirecting to setup page.", user.getEmail());
-                                            response.sendRedirect("/2fa/setup");
-                                            return;
+                                            // Clear preliminary security context and store user temporarily for 2FA validation
+                                            SecurityContextHolder.clearContext();
+                                            session.removeAttribute("SPRING_SECURITY_CONTEXT");
+                                            session.setAttribute("tempUser", user.getEmail());
+
+                                            response.sendRedirect("/auth");
+                                            return; // IMPORTANT: Stop further execution
                                         }
-
-                                        if (!data.isEnabled()) {
-                                            logger.info("Admin {} has 2FA entry but it's disabled. Redirecting to setup.", user.getEmail());
-                                            response.sendRedirect("/2fa/setup");
-                                            return;
-                                        }
-
-                                        logger.info("Admin {} has active 2FA. Redirecting to code entry.", user.getEmail());
-                                        response.sendRedirect("/auth");
-                                        return;
+                                        // If admin has no 2FA or it's disabled, proceed to normal login below.
+                                        // --- END OF MODIFIED LOGIC ---
                                     }
                                     String deviceInfo = request.getRemoteAddr() + " | " + request.getHeader("User-Agent");
                                     logger.info("User {} logged in successfully from {}", userDetails.getUsername(), deviceInfo);
@@ -134,16 +127,18 @@ public class SecurityConfiguration {
                                     if(savedRequest != null)
                                     {
                                         String targetUrl = savedRequest.getRedirectUrl();
-                                        if(targetUrl.contains("?error"))
-                                        {
-                                            targetUrl = "/users/login?error";
+                                        // Clean up error flags from the URL if any
+                                        if (targetUrl.contains("?error")) {
+                                            targetUrl = "/";
                                         }
                                         response.sendRedirect(targetUrl);
-                                        return;
                                     }
                                     else{
-                                        response.sendRedirect("/");
-                                        return;
+                                        if(Objects.equals(user.getRole(), "ADMIN")) {
+                                            response.sendRedirect("/setup");
+                                        }else {
+                                            response.sendRedirect("/");
+                                        }
                                     }
 //                          response.sendRedirect("/books");x
                                 })

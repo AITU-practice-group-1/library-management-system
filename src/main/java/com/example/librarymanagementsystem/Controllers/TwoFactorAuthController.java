@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -29,6 +31,8 @@ import java.security.Principal;
 @Controller
 @RequiredArgsConstructor
 public class TwoFactorAuthController {
+    private static final Logger logger = LoggerFactory.getLogger(TwoFactorAuthController.class);
+
     private final TwoFactorAuthRepository twoFactorAuthRepository;
     private final UserRepository userRepository;
     private final GAService gaService;
@@ -42,34 +46,45 @@ public class TwoFactorAuthController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+        // Find the existing 2FA data.
         TwoFactorAuthData twoFA = twoFactorAuthRepository.findByUser(user)
                 .orElse(null);
 
-        GoogleAuthenticatorKey key = null;
+        GoogleAuthenticatorKey key;
 
-        if (twoFA == null || !twoFA.isEnabled()) {
-            // Сгенерировать и сохранить только один раз
+        // --- START OF FIXED LOGIC ---
+        if (twoFA == null) {
+            // Case 1: No 2FA record exists for this user. Create a new one.
+            logger.info("No 2FA record found for user {}. Creating a new one.", email);
             key = gaService.generateCredentials();
             String secret = key.getKey();
 
             twoFA = TwoFactorAuthData.builder()
                     .user(user)
                     .secret(secret)
-                    .enabled(false)
+                    .enabled(false) // It's not enabled until verified by the user
                     .build();
 
-            twoFactorAuthRepository.save(twoFA);
+            twoFactorAuthRepository.save(twoFA); // This is safe now
+
         } else {
-            // если уже есть secret, создаём "временный" ключ
+            // Case 2: A 2FA record already exists (whether it's enabled or not).
+            // We simply use its existing secret to re-generate the QR code.
+            // We do NOT create or save anything here.
+            logger.info("Existing 2FA record found for user {}. Re-generating QR code.", email);
             key = new GoogleAuthenticatorKey.Builder(twoFA.getSecret()).build();
         }
+        // --- END OF FIXED LOGIC ---
 
-        // ✅ теперь передаём key, как требует библиотека
+
         String qrUrl = gaService.getQRUrl(user.getEmail(), key);
         model.addAttribute("qrUrl", qrUrl);
+        // You can optionally add the status to the model to display a message in the view
+        model.addAttribute("is2faEnabled", twoFA != null && twoFA.isEnabled());
 
         return "user/setup";
     }
+
     @GetMapping("/home")
     public String showAdminHome() {
         return "index"; // из src/main/resources/templates/admin-home.html

@@ -27,21 +27,21 @@ services:
       timeout: 5s
       retries: 5
 
-  postgres:
-    image: postgres:latest
-    ports:
-      - "5433:5432"
-    environment:
-      POSTGRES_DB: library
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "postgres" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-
-volumes:
-  postgres-data:
+#  postgres:
+#    image: postgres:latest
+#    ports:
+#      - "5433:5432"
+#    environment:
+#      POSTGRES_DB: library
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#    healthcheck:
+#      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#    volumes:
+#      - postgres-data:/var/lib/postgresql/data
+#
+#volumes:
+#  postgres-data:
