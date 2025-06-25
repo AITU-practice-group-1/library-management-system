@@ -12,7 +12,7 @@
         max-width: 400px;
         margin: 80px auto;
         padding: 30px;
-        background-color: white;
+        /*background-color:;*/
         border-radius: 12px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     }
@@ -72,14 +72,13 @@
         margin-top: 10px;
         text-align: center;
     }
-
 </style>
 <body>
 <div th:replace="fragments/navbar::navbar"></div>
 
 <div class="form-container">
     <h1>Add User</h1>
-    <form th:action="@{/users/register}" th:object="${user}" method="post">
+    <form th:action="@{/admin/add/user}" th:object="${user}" method="post">
         <label>First Name:
             <input type="text" th:field="*{firstName}" required/>
         </label>
@@ -91,6 +90,13 @@
         </label>
         <label>Password:
             <input type="password" th:field="*{password}" required/>
+        </label>
+        <label for="role">Role:
+            <select id="role" th:field="*{role}" required>
+                <option value="DEFAULT">Default</option>
+                <option value="ADMIN">Admin</option>
+                <option value="LIBRARIAN">Librarian</option>
+            </select>
         </label>
         <button type="submit">Add User</button>
     </form>

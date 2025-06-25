@@ -1,6 +1,7 @@
 package com.example.librarymanagementsystem.Controllers;
 
 import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
+import com.example.librarymanagementsystem.DTOs.Users.UserRegisterDTO;
 import com.example.librarymanagementsystem.DTOs.Users.UserStatisticsBookDTO;
 import com.example.librarymanagementsystem.DTOs.reservations.ReservationsResponseDTO;
 import com.example.librarymanagementsystem.Services.EmailTokenService;
@@ -65,7 +66,7 @@ public class UserController
 
     @Validated
     @PostMapping("/register")
-    private String login(@Valid @ModelAttribute("user") UserDTO dto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes){
+    private String register(@Valid @ModelAttribute("user") UserRegisterDTO dto, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes){
         logger.info("User posted information to  the register page. at endpoint: /users/register");
         if(bindingResult.hasErrors()){
             logger.info("User entered invalid information to  the register page. at endpoint: /users/register");
@@ -76,6 +77,7 @@ public class UserController
                 return "user/register";
         }
         try{
+
             userServices.register(dto);
         }
         catch (Exception e){
@@ -106,7 +108,7 @@ public class UserController
     }
 
     @PostMapping("/edit")
-    private String edit(@RequestParam("image") MultipartFile file ,@ModelAttribute("user") UserDTO dto, Model model){
+    private String edit(@RequestParam(value = "image", required = false) MultipartFile file ,@ModelAttribute("user") UserDTO dto, Model model){
         logger.info("User with email {} posted information to  the edit page. at endpoint: /users/edit", SecurityContextHolder.getContext().getAuthentication().getName());
         try{
             if(!file.isEmpty()){
@@ -114,7 +116,7 @@ public class UserController
                 model.addAttribute("imageUrl", imageUrl);
             }
 
-            userServices.updateUser(dto);
+            userServices.updateUser(dto, false);
         }
         catch (Exception e){
             model.addAttribute("errorMessage", e.getMessage());

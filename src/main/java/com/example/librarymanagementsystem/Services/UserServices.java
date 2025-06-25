@@ -1,6 +1,7 @@
 package com.example.librarymanagementsystem.Services;
 
 import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
+import com.example.librarymanagementsystem.DTOs.Users.UserRegisterDTO;
 import com.example.librarymanagementsystem.DTOs.Users.UserStatisticsBookDTO;
 import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.BlacklistRepository;
@@ -38,11 +39,29 @@ public class UserServices {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServices.class);
 
-    public void register(UserDTO dto) throws Exception {
+    public void addUser(UserDTO dto) throws Exception {
         User user = new User();
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(dto.getRole());
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setActive(true);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+        try{
+            userRepository.save(user);
+        }
+        catch (Exception e){
+            logger.error("Error adding user: {} \n {}", user.getEmail(), e.getMessage());
+            throw new Exception("Can not Add User \n" + e.getMessage());
+        }
+    }
+public void register(UserRegisterDTO dto) throws Exception {
+        User user = new User();
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setRole("DEFAULT");
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setActive(false);
@@ -151,7 +170,7 @@ public class UserServices {
             throw new Exception("CAn not delete User by Id" + e.getMessage());
         }
     }
-    public void updateUser(UserDTO dto) throws Exception {
+    public void updateUser(UserDTO dto, boolean isAdmin) throws Exception {
         try{
             UUID id = getAuthenticatedUser().getId()    ;
             User user = getUserById(id);
@@ -163,7 +182,7 @@ public class UserServices {
             {
                 user.setPassword(passwordEncoder.encode(dto.getPassword()));
             }
-            if(dto.getRole() != null)
+            if(dto.getRole() != null && isAdmin == true)
             {
                 user.setRole(dto.getRole());
             }
