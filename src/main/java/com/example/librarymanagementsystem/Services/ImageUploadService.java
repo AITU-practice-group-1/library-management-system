@@ -25,7 +25,7 @@ public class ImageUploadService {
         UserDTO dto = new UserDTO();
         dto.setImageId(photoId);
         dto.setImageUrl(url);
-        userServices.updateUser(dto);
+        userServices.updateUser(dto, false);
         if(oldPhotoId != null)
         {
             cloudinary.uploader().destroy(oldPhotoId, ObjectUtils.emptyMap());

@@ -21,6 +21,7 @@
 <body>
 <div class="container-fluid">
 <div class="admin-container">
+
     <div class="row">
     <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-light">
         <div th:replace="fragments/sidebar :: sidebar"></div>
@@ -46,6 +47,7 @@
                     <th>Email</th>
                     <th>Role</th>
                     <th>Profile</th>
+                    <th>Edit</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -55,6 +57,9 @@
                     <td th:text="${user.role}">Role</td>
                     <td>
                         <a th:href="@{/users/profile/{id}(id=${user.getId()})}" class="user-link">View Profile</a>
+                    </td>
+                    <td>
+                        <a th:href="@{/admin/edit/user(id=${user.getId()})}" class="user-link">Edit Profile</a>
                     </td>
                 </tr>
                 </tbody>
