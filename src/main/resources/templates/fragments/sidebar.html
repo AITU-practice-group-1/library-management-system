@@ -1,15 +1,18 @@
 <!-- fragments/sidebar.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<body>
 <div th:fragment="sidebar">
   <div class="d-flex flex-column align-items-start p-3 min-vh-100 shadow-sm"
        style="background-color: var(--nav-bg); border-right: 1px solid #ddd;">
 
     <a href="/" class="d-flex align-items-center mb-3 text-decoration-none">
-      <span class="fs-4 fw-bold" style="color: var(--accent-color);">Library Panel</span>
+      <span class="fs-4 fw-bold" style="color: var(--accent-color);">Panel</span>
     </a>
 
     <ul class="nav nav-pills flex-column mb-auto w-100">
       <li class="nav-item">
-        <a href="/users/librarian" class="nav-link text-start" style="color: var(--text-color);">
+        <a sec:authorize="hasRole('LIBRARIAN')" href="/users/librarian" class="nav-link text-start" style="color: var(--text-color);">
           <i class="bi bi-speedometer2 me-2"></i> Dashboard
         </a>
       </li>
@@ -19,18 +22,33 @@
         </a>
       </li>
       <li>
-        <a href="/loans" class="nav-link text-start" style="color: var(--text-color);">
+        <a sec:authorize="hasRole('LIBRARIAN')" href="/loans" class="nav-link text-start" style="color: var(--text-color);">
           <i class="bi bi-arrow-down-up me-2"></i> Loans
         </a>
       </li>
       <li>
-        <a href="/reservations/all" class="nav-link text-start" style="color: var(--text-color);">
+        <a sec:authorize="hasRole('LIBRARIAN')" href="/reservations/all" class="nav-link text-start" style="color: var(--text-color);">
           <i class="bi bi-bookmark-star me-2"></i> Reservations
         </a>
       </li>
       <li>
-        <a href="/admin/home" class="nav-link text-start" style="color: var(--text-color);">
+        <a sec:authorize="hasRole('ADMIN')" href="/admin/home" class="nav-link text-start" style="color: var(--text-color);">
           <i class="bi bi-people me-2"></i> Users
+        </a>
+      </li>
+      <li>
+        <a sec:authorize="hasRole('ADMIN')" href="/review-reports" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-arrow-down-up me-2"></i> Review-Report
+        </a>
+      </li>
+      <li>
+        <a sec:authorize="hasRole('LIBRARIAN')" href="/users/all" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-arrow-down-up me-2"></i> Default Users
+        </a>
+      </li>
+      <li>
+        <a href="/home" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-book me-2"></i> Home
         </a>
       </li>
     </ul>
@@ -38,3 +56,5 @@
     <hr class="w-100">
   </div>
 </div>
+</body>
+</html>

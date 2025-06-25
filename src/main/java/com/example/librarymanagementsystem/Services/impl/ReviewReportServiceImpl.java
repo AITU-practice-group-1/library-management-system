@@ -5,6 +5,7 @@ import com.example.librarymanagementsystem.Entities.ReviewReport;
 import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Repositories.FeedbackRepository;
 import com.example.librarymanagementsystem.Repositories.ReviewReportRepository;
+import com.example.librarymanagementsystem.Services.BlacklistService;
 import com.example.librarymanagementsystem.Services.BookService;
 import com.example.librarymanagementsystem.Services.FeedbackService;
 import com.example.librarymanagementsystem.Services.ReviewReportService;
@@ -26,6 +27,7 @@ public class ReviewReportServiceImpl implements ReviewReportService {
     private final ReviewReportRepository reviewReportRepository;
     private final FeedbackRepository feedbackRepository;
     private final BookService bookService;
+    private final BlacklistService blacklistService;
 
     @Override
     @Transactional(readOnly = true)
@@ -63,8 +65,8 @@ public class ReviewReportServiceImpl implements ReviewReportService {
                 .orElseThrow(() -> new EntityNotFoundException("ReviewReport not found with id: " + reportId));
 
         Feedback feedbackToDelete = approvedReport.getFeedback();
-
-
+        String reason = "Violation of ethical rules";
+        blacklistService.handleViolation(approvedReport.getUser(), reason);
         if (feedbackToDelete == null) {
             reviewReportRepository.delete(approvedReport);
             return;

@@ -3,6 +3,7 @@ package com.example.librarymanagementsystem.Controllers;
 import com.example.librarymanagementsystem.DTOs.Users.UserDTO;
 import com.example.librarymanagementsystem.DTOs.Users.UserStatisticsBookDTO;
 import com.example.librarymanagementsystem.DTOs.reservations.ReservationsResponseDTO;
+import com.example.librarymanagementsystem.Entities.User;
 import com.example.librarymanagementsystem.Services.EmailTokenService;
 import com.example.librarymanagementsystem.Services.ImageUploadService;
 import com.example.librarymanagementsystem.Services.ReservationsServices;
@@ -214,5 +215,21 @@ public class UserController
 //        }
 //        return "user/user-edit";
 //    }
+
+
+    @GetMapping("/all")
+    private String allUsers(Model model, @PageableDefault(size = 10) Pageable pageable){
+        Page<User> allUsersDefault;
+        try{
+            allUsersDefault = userServices.getAllUsersByRole("DEFAULT", pageable);
+        }
+        catch (Exception e){
+            model.addAttribute("errorMessage", e.getMessage());
+            return "user/admin-home";
+        }
+        model.addAttribute("users", allUsersDefault);
+        return "user/all-users.html";
+    }
+
 
 }

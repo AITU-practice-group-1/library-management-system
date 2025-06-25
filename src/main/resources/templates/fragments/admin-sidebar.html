@@ -1,0 +1,45 @@
+<!-- fragments/sidebar.html -->
+<div th:fragment="sidebar">
+  <div class="d-flex flex-column align-items-start p-3 min-vh-100 shadow-sm"
+       style="background-color: var(--nav-bg); border-right: 1px solid #ddd;">
+
+    <a href="/" class="d-flex align-items-center mb-3 text-decoration-none">
+      <span class="fs-4 fw-bold" style="color: var(--accent-color);">Panel</span>
+    </a>
+
+    <ul class="nav nav-pills flex-column mb-auto w-100">
+      <li class="nav-item">
+        <a href="/users/librarian" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-speedometer2 me-2"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/books/manage" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-book me-2"></i> Manage Books
+        </a>
+      </li>
+      <li>
+        <a href="/loans" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-arrow-down-up me-2"></i> Loans
+        </a>
+      </li>
+      <li>
+        <a href="/reservations/all" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-bookmark-star me-2"></i> Reservations
+        </a>
+      </li>
+      <li>
+        <a href="/review-reports" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-arrow-down-up me-2"></i> Review-Report
+        </a>
+      </li>
+      <li>
+        <a href="/admin/home" class="nav-link text-start" style="color: var(--text-color);">
+          <i class="bi bi-people me-2"></i> Users
+        </a>
+      </li>
+    </ul>
+
+    <hr class="w-100">
+  </div>
+</div>

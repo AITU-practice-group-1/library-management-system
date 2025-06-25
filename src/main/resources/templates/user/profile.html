@@ -104,6 +104,15 @@
         <input type="text" name="reason" required />        <button type="submit">Забанить</button>
     </form></div>
 
+    <div th:if="${#authentication.getPrincipal().role != 'DEFAULT'}">
+        <form th:action="@{'/violation/' + ${user.id}}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <label>Причина нарушения:</label>
+            <input type="text" name="reason" required />
+            <button type="submit">Добавить нарушение</button>
+        </form>
+    </div>
+
 </div>
 </body>
 </html>
