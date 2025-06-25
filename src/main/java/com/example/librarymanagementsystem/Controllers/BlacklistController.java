@@ -30,28 +30,33 @@ public class BlacklistController {
                 .filter(e -> e.getUser().isBanned())
                 .collect(Collectors.toList());
 
-        List<BlacklistEntry> historyEntries = allEntries.stream()
-                .filter(e -> !e.getUser().isBanned() || e.isResolved())
+        List<BlacklistEntry> activeViolations = allEntries.stream()
+                .filter(e -> !e.isBan() && !e.isResolved())
+                .collect(Collectors.toList());
+
+        List<BlacklistEntry> resolvedViolations = allEntries.stream()
+                .filter(e -> e.isResolved())
                 .collect(Collectors.toList());
 
         if (search != null && !search.isBlank()) {
-            bannedEntries = bannedEntries.stream()
-                    .filter(e -> e.getUser().getEmail().toLowerCase().contains(search.toLowerCase()) ||
-                            e.getUser().getFirstName().toLowerCase().contains(search.toLowerCase()) ||
-                            e.getUser().getLastName().toLowerCase().contains(search.toLowerCase()))
-                    .collect(Collectors.toList());
-
-            historyEntries = historyEntries.stream()
-                    .filter(e -> e.getUser().getEmail().toLowerCase().contains(search.toLowerCase()) ||
-                            e.getUser().getFirstName().toLowerCase().contains(search.toLowerCase()) ||
-                            e.getUser().getLastName().toLowerCase().contains(search.toLowerCase()))
-                    .collect(Collectors.toList());
+            bannedEntries = filterBySearch(bannedEntries, search);
+            activeViolations = filterBySearch(activeViolations, search);
+            resolvedViolations = filterBySearch(resolvedViolations, search);
         }
 
         model.addAttribute("bannedEntries", bannedEntries);
-        model.addAttribute("historyEntries", historyEntries);
+        model.addAttribute("activeViolations", activeViolations);
+        model.addAttribute("resolvedViolations", resolvedViolations);
         model.addAttribute("search", search);
         return "admin/blacklist";
+    }
+
+    private List<BlacklistEntry> filterBySearch(List<BlacklistEntry> entries, String search) {
+        return entries.stream()
+                .filter(e -> e.getUser().getEmail().toLowerCase().contains(search.toLowerCase()) ||
+                        e.getUser().getFirstName().toLowerCase().contains(search.toLowerCase()) ||
+                        e.getUser().getLastName().toLowerCase().contains(search.toLowerCase()))
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/ban/{id}")
@@ -75,6 +80,23 @@ public class BlacklistController {
         }
         return "redirect:/blacklist";
     }
+    @PostMapping("/forgive/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
+    public String forgiveViolations(@PathVariable UUID userId) throws Exception {
+        User user = userServices.getUserById(userId);
+        blacklistService.forgiveUserViolations(user);
+        return "redirect:/blacklist";
+    }
+
+    @PostMapping("/violation/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN','LIBRARIAN')")
+    public String addViolation(@PathVariable UUID userId, @RequestParam String reason) throws Exception {
+        User user = userServices.getUserById(userId);
+        blacklistService.handleViolation(user, reason);
+        return "redirect:/blacklist";
+    }
+
+
 }
 
 

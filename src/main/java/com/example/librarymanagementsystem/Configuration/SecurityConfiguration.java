@@ -85,7 +85,7 @@ public class SecurityConfiguration {
                                 "/auth",
                                 "/2fa/setup"
                         ).permitAll()
-                        .requestMatchers("/ban/**", "/unban/**").hasAnyRole("ADMIN", "LIBRARIAN")
+                        .requestMatchers("/ban/**", "/unban/**").hasAnyRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN") // Good practice to use /admin/**
                         .anyRequest().authenticated()
                 )
