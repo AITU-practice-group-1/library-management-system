@@ -65,23 +65,27 @@ spring:
     url: jdbc:postgresql://YOUR_HOST:YOUR_PORT/YOUR_DB_NAME
     username: YOUR_DB_USERNAME
     password: YOUR_DB_PASSWORD
-⚠️ NOTE: YOUR_APP_PASSWORD is NOT your email password — it must be an App Password
-   generated via your email provider (e.g. Google).
+```
 
-custom Section (also inside application.yml)
+⚠️ NOTE: YOUR_APP_PASSWORD is NOT your email password — it must be an App Password
+generated via your email provider (e.g. Google).
+
+    custom Section (also inside application.yml)
     custom:
       user_email: "YOUR_EMAIL"
       
-cloudinary Section (still in application.yml)
-    cloudinary:
-      cloud_name: "your_cloud_name"
-      api_key: "your_api_key"
-      api_secret: "your_api_secret"
+cloudinary Section (still in application.yml)'
+
+          cloudinary:          
+            cloud_name: "your_cloud_name"            
+            api_key: "your_api_key"            
+            api_secret: "your_api_secret"
+  
 
 🐳 Docker Support
 
 The application is containerized. To start:
-    docker-compose up --build
+   ``` docker-compose up --build```
 
 
 💬 Contact
