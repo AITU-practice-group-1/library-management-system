@@ -2,6 +2,11 @@
 
 **Full-Stack Web Application built with Spring Boot (MVC Architecture)**
 
+
+- [🧠 Description](#-description)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🚀 How to Run](#-how-to-run)
+
 ---
 
 ## 🧠 Description
