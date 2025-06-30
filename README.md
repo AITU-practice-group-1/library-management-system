@@ -90,7 +90,10 @@ cloudinary Section (still in application.yml)'
 🐳 Docker Support
 
 The application is containerized. To start:
-   ``` docker-compose up --build```
+
+   ```
+   docker-compose up --build
+  ```
 
 
 💬 Contact
