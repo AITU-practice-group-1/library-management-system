@@ -1,94 +1,89 @@
-DESCRIPTION:
+# 📚 Library Management System
 
-This is MVC pattern Based full stack web-application, with main backenbd . Here we have implamented Spring Boot framework with its almost all features. It is the Library Management System, where you can register, search all available and not 
-available books in the library, researve them and take for a loan. Furtermore, as a default user you can watch profiles of the other users, see their statistics, create your own list of favourite books. Except Default user, in our system 
-librarians are available. They can accept or reject reservations, give a loan, take a loan, sign contracts and give penalties for bad users. Last user type in the system is Admin. They can add, edit, delete books(like librarians also), add,
-update and ban users. 
-Furthermore, in this app, you can add reviews for the book and report others review with a reason. You can get generated contract with library when you take a loan.
+**Full-Stack Web Application built with Spring Boot (MVC Architecture)**
 
+---
 
-TECHNICAL STACK:
+## 🧠 Description
 
+This application is a **Library Management System** where users can:
 
-Main framework: Spring Boot, Spring Core and Spring Web               (Model View Controller app);
+- 🔍 Search all available and unavailable books
+- 📚 Reserve and take books for a loan
+- 👤 View profiles of other users and their stats
+- ❤️ Create favorite book lists
+- 📝 Add and report book reviews
+- 📄 Automatically generate contracts when taking loans
 
-Variable Validators: Jakarta and Hibernate Validator
+### User Roles:
+- **Default User**: Can explore, reserve books, manage favorites, and leave reviews
+- **Librarian**: Can approve/reject reservations, manage loans, sign contracts, assign penalties
+- **Admin**: Full control — manage books, users, and enforce bans
 
-Security: Spring Security                                             (Securing endpoints from not allowed access, crsf, cors, and session control(not allowed to enter into one account with different devices in one time))
+---
 
-Database Connection:   Spring Data JPA                                (High level abstract queries for postgresql databse)\
+## 🛠️ Tech Stack
 
-Database: PostgreSQL
+| Category               | Technology                                                                 |
+|------------------------|-----------------------------------------------------------------------------|
+| Main Framework         | `Spring Boot`, `Spring Core`, `Spring Web` (MVC)                           |
+| Validation             | `Jakarta Validator`, `Hibernate Validator`                                 |
+| Security               | `Spring Security` (CSRF, CORS, session control, endpoint protection)       |
+| Persistence            | `Spring Data JPA`                                                           |
+| Database               | `PostgreSQL`                                                                |
+| Caching                | `Redis`                                                                     |
+| Messaging              | `Kafka`                                                                     |
+| Containerization       | `Docker`                                                                    |
+| File Storage           | `Cloudinary`                                                                |
+| Authentication         | `Google Authenticator` (2FA)                                                |
+| Document Generation    | `OpenHTML`                                                                  |
+| Frontend Template      | `Thymeleaf`                                                                 |
+| Logging                | `SLF4J`                                                                      |
 
-Server-Side Caching:  Redis
+---
 
-Message Broker:    Kafka
+## 🚀 How to Run
 
-Containirization:  Docker
+Before starting, **configure your credentials**:
 
-Cloud Image Stoore:  Cloudinary
+### 1. `application.yml` – Mail & Data Source Config:
+```yaml
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: YOUR_EMAIL
+    password: YOUR_APP_PASSWORD
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
-2 Factor Authorization: Google Auth
+  datasource:
+    url: jdbc:postgresql://YOUR_HOST:YOUR_PORT/YOUR_DB_NAME
+    username: YOUR_DB_USERNAME
+    password: YOUR_DB_PASSWORD
+⚠️ NOTE: YOUR_APP_PASSWORD is NOT your email password — it must be an App Password
+   generated via your email provider (e.g. Google).
 
-Document generator:  openhtml
-
-Front-end: Thyemleaf
-
-Logging: slf4j
-
-
-
-
-
-
-HOW TO RUN:
-
-To run this application you need to specify your private credentials 
-like data source(postgres), mail credentials
-
-CHANGE YOUR_EMAIL adn YOUR_APP_PASSWORD
-
-WARNING YOUR_APP_PASSWORD is application password not just email password 
-
-    spring:
-        mail:
-            host: smtp.gmail.com
-            
-            port: 587
-            
-            username: YOUR_EMAIL 
-            
-            password: YOUR_APP_PASSWORD
-            
-            properties:
-            
-              mail:
-              
-                smtp:
-                
-                  auth: true
-                  
-                  starttls:
-                  
-                    enable: true
-        datasource:
-            url: jdbc:postgresql://YOUR_HOST:YOUR_PORT/YOUR_DB_NAME
-            
-            username: YOUR_DB_USERNAME
-            
-            password: YOUR_DB_PASSWORD
-
-
-Also Add Your Email in Custom also in this file
-
+custom Section (also inside application.yml)
     custom:
-      user_email: "your_email"
-
-Also add cloudinary api credentials in this file
-    
+      user_email: "YOUR_EMAIL"
+      
+cloudinary Section (still in application.yml)
     cloudinary:
-        cloud_name: "your_cloud_name"
-        api_key: "your_api_key"
-        api_secret: "your_api_secret"
-Add data source credentials in this file
-    
+      cloud_name: "your_cloud_name"
+      api_key: "your_api_key"
+      api_secret: "your_api_secret"
+
+🐳 Docker Support
+
+The application is containerized. To start:
+    docker-compose up --build
+
+
+💬 Contact
+
+For questions or bug reports, feel free to reach out via email: khamidulla.alikhan@gmail.com
