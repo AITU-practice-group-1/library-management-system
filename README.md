@@ -11,19 +11,49 @@
 
 ## 🧠 Description
 
+  ![Image](https://github.com/user-attachments/assets/451c90a3-ea97-4038-879d-dc03bf843528)
+
 This application is a **Library Management System** where users can:
 
 - 🔍 Search all available and unavailable books
+
+
+  ![Image](https://github.com/user-attachments/assets/1f2b0be0-159b-492a-8ffb-f14accafd4b4)
 - 📚 Reserve and take books for a loan
-- 👤 View profiles of other users and their stats
-- ❤️ Create favorite book lists
 - 📝 Add and report book reviews
+
+
+  ![Image](https://github.com/user-attachments/assets/e45f1173-b269-4ff0-a522-24c032c8929e)
+- 👤 View profiles of other users and their stats
+
+
+  ![Image](https://github.com/user-attachments/assets/bb3be832-bf89-4f4b-a156-4bdc8ea7ac3e)
+- ❤️ Create favorite book lists
+
+
+  ![Image](https://github.com/user-attachments/assets/f431fcee-9a50-48bb-a8eb-96ed569d4618)
+
 - 📄 Automatically generate contracts when taking loans
 
+
+![Image](https://github.com/user-attachments/assets/5911c203-9ace-49ff-b406-34ab12ddbdef)
+![Image](https://github.com/user-attachments/assets/d738704d-506c-4f1d-98d8-7e3331697dba)
 ### User Roles:
 - **Default User**: Can explore, reserve books, manage favorites, and leave reviews
+
+![Image](https://github.com/user-attachments/assets/c5ac3336-6050-4a55-98f4-c4fc232c71a5)
+
 - **Librarian**: Can approve/reject reservations, manage loans, sign contracts, assign penalties
-- **Admin**: Full control — manage books, users, and enforce bans
+
+![Image](https://github.com/user-attachments/assets/deb63dfb-2a92-4535-aadd-c5389e9f31ec)
+
+![Image](https://github.com/user-attachments/assets/ca9c0281-ec0f-4dc5-97e3-bfd2f4efb87d)
+
+- **Admin**: Full control — manage reports, books, users, and enforce bans
+
+![Image](https://github.com/user-attachments/assets/f17ca25b-b407-46b2-8c8a-3c81d0317375)
+
+![Image](https://github.com/user-attachments/assets/2232eddd-986b-462c-a046-99b5234a7b1a)
 
 ---
 
@@ -98,4 +128,10 @@ The application is containerized. To start:
 
 💬 Contact
 
-For questions or bug reports, feel free to reach out via email: khamidulla.alikhan@gmail.com
+For questions or bug reports, feel free to reach out via email:
+
+- [Alikhan](mailto:khamidulla.alikhan@gmail.com)
+- [Beksultan](mailto:beksultanaitkazy123@gmail.com)
+- [Ali](mailto:ALI's email)
+- [Madiyar](mailto:MADIYAR's email)
+- [Rustemdastan](mailto:RUSTEMDASTAN's email)
